@@ -87,7 +87,7 @@ python3 $S/build.py out/scenes.json --out out [--engine auto|edge|openjtalk|reco
 | `edge` | `speech.platform.bing.com` への通信 | 実測（WordBoundary） | 自然なニューラル音声（既定 ja-JP-NanamiNeural） |
 | `openjtalk` | なし（オフライン） | 推定（モーラ数＋無音検出、±0.1秒程度） | 合成音声らしさが残る。ネット制限下の代替 |
 | `recorded` | `out/rec/scene_01.wav`… をシーンごとに用意 | 推定 | 人の声で収録する場合 |
-| `none` | なし | 読む速さ（既定7字/秒、`voice.cps`）で配分 | **音声なし・効果音のみ**。字幕だけで読ませる。音量目標 -18 LUFS |
+| `none` | なし | 読む速さ（`voice.cps` 既定7字/秒、文末の余韻 `voice.tail` 既定0.6秒。シーン個別に `"tail"`）で配分 | **音声なし・効果音のみ**。字幕だけで読ませる。音量目標 -18 LUFS |
 | `auto` | — | — | edge が使えれば edge、ダメなら openjtalk |
 
 効果音（コイン・ポップ・数字カウント・上昇音・チャイム等）は `scripts/sfx.py` でオフライン生成し、どのエンジンでも自動で入る（シーンの種類で自動選択、`"sfx": ["coin","chime"]` で上書き、`[]` で無音、`--no-sfx` で全体オフ）。

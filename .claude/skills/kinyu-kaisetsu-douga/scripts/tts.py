@@ -257,7 +257,7 @@ def main():
             if times is None:
                 times = estimate_times(speech, chunks)
         sp_dur = len(speech) / SR
-        tail = 0.6 if engine == "none" else TAIL   # time to finish reading
+        tail = float(sc.get("tail", cfg.get("tail", 0.6))) if engine == "none" else TAIL   # time to finish reading
         dur = max(MIN_SCENE, float(sc.get("min_duration", 0)), LEAD + sp_dur + tail)
         if dur > MAX_SCENE + 1e-6:
             print(f"[tts] 警告: シーン{si + 1} が {dur:.2f}s（4秒超）。分割してください。")

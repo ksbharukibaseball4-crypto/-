@@ -13,16 +13,19 @@ W, H, FPS = 1080, 1920, 30
 # TikTok/Shorts UI covers the right 15% and the bottom 25%.
 SAFE_RIGHT = int(W * 0.85)      # 918: nothing important at x >= this
 SAFE_BOTTOM = int(H * 0.75)     # 1440: nothing important at y >= this
-SAFE_LEFT = 54
+SAFE_LEFT = W - SAFE_RIGHT      # 162: symmetric margins so the layout looks centered
 SAFE_TOP = 150                  # top tabs ("Following / For You")
-SAFE_CX = (SAFE_LEFT + SAFE_RIGHT) // 2   # horizontal center of the safe area
+SAFE_CX = W // 2                # 540: content is centered on the real screen center
 
 # Subtitles: top center (inside the safe area)
 SUB_TOP = 210
 SUB_BOTTOM = 470
 # Main visual area
-VIS_TOP = 520
-VIS_BOTTOM = 1400
+VIS_TOP = 500
+VIS_BOTTOM = 1090
+# Character stage (people illustrations + speech bubble with notes)
+STAGE_TOP = 1100
+FLOOR_Y = 1440
 
 # ---- Palette -------------------------------------------------------------
 NAVY_TOP = (8, 18, 48)
