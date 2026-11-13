@@ -130,6 +130,13 @@ def fit_lines(txt, size, maxw, maxlines):
     return wrap(txt, size, maxw), size
 
 
+def fit_one(txt, size, maxw, min_size=38):
+    """Largest size <= size that fits on one line (down to min_size)."""
+    while size > min_size and text_size(txt, size)[0] > maxw:
+        size -= 2
+    return size
+
+
 def card(d, box, fill=NAVY_CARD, outline=None, width=4, r=36, a=235):
     d.rounded_rectangle(box, r, fill=rgba(fill, a), outline=outline, width=width)
 
@@ -183,12 +190,14 @@ def v_hook(d, v, lt, D, t):
                color_of(v.get("color"), GOLD), stroke=8)
     if v.get("sub"):
         a = 255 * ease_out((lt - 0.35) / 0.3)
-        text_c(d, (SAFE_CX, cy + 330), v["sub"], 64, rgba(WHITE, a), stroke=5)
+        text_c(d, (SAFE_CX, cy + 330), v["sub"], fit_one(v["sub"], 64, SAFE_RIGHT - SAFE_LEFT - 80), rgba(WHITE, a), stroke=5)
 
 
 def v_headline(d, v, lt, D, t):
     title = v.get("title", "")
-    ls, s = fit_lines(title, 92, SAFE_RIGHT - SAFE_LEFT - 60, 2)
+    tw = SAFE_RIGHT - SAFE_LEFT - 60
+    f1 = fit_one(title, 92, tw, 64)
+    ls, s = ([title], f1) if text_size(title, f1)[0] <= tw else fit_lines(title, 80, tw, 2)
     y = VIS_TOP + 90
     for i, ln in enumerate(ls):
         text_c(d, (SAFE_CX, y + i * s * 1.2), ln, s, GOLD, stroke=6)
@@ -200,7 +209,8 @@ def v_headline(d, v, lt, D, t):
         x0 = SAFE_LEFT + 40 + (1 - k) * 80
         card(d, (x0, y, SAFE_RIGHT - 40, y + 130), a=220 * k)
         d.ellipse((x0 + 30, y + 45, x0 + 70, y + 85), fill=rgba(GOLD, 255 * k))
-        text_c(d, (x0 + 100, y + 65), it, 58, rgba(WHITE, 255 * k), stroke=3, anchor="lm")
+        fs = fit_one(it, 58, SAFE_RIGHT - 40 - (x0 + 100) - 24)
+        text_c(d, (x0 + 100, y + 65), it, fs, rgba(WHITE, 255 * k), stroke=3, anchor="lm")
         y += 160
 
 
@@ -223,7 +233,9 @@ def v_steps(d, v, lt, D, t):
              outline=rgba(GOLD if on else MUTED, 255 * k), width=8 if on else 3, a=230 * k)
         d.ellipse((cx - hw + 30, y + 50, cx - hw + 130, y + 150), fill=rgba(GOLD if on else MUTED, 255 * k))
         text_c(d, (cx - hw + 80, y + 100), str(i + 1), 64, rgba(NAVY_TOP, 255 * k), stroke=0)
-        ls, s = fit_lines(st, 62, 2 * hw - 200, 2)
+        maxw = 2 * hw - 200
+        f1 = fit_one(st, 62, maxw, 46)
+        ls, s = ([st], f1) if text_size(st, f1)[0] <= maxw else fit_lines(st, 56, maxw, 2)
         for j, ln in enumerate(ls):
             text_c(d, (cx - hw + 165, y + 100 + (j - (len(ls) - 1) / 2) * s * 1.15), ln, s,
                    rgba(WHITE if on else MUTED, 255 * k), stroke=3, anchor="lm")
@@ -259,7 +271,7 @@ def v_coins(d, v, lt, D, t):
             arrow = "▲" if stacks[i] > stacks[i - 1] else "▼"
             text_c(d, (cx, base - cnt * ch - 70 + 6 * math.sin(t * 6)), arrow, 50, col, stroke=2)
     if v.get("label"):
-        text_c(d, (SAFE_CX, VIS_TOP + 60), v["label"], 70, color_of(grow, GOLD) if v.get("label_color") else GOLD, stroke=6)
+        text_c(d, (SAFE_CX, VIS_TOP + 60), v["label"], fit_one(v["label"], 70, SAFE_RIGHT - SAFE_LEFT - 80), color_of(grow, GOLD) if v.get("label_color") else GOLD, stroke=6)
 
 
 def v_bills(d, v, lt, D, t):
@@ -283,7 +295,7 @@ def v_bills(d, v, lt, D, t):
     elif v.get("amount"):
         text_c(d, (SAFE_CX, VIS_TOP + 90), v["amount"], 110, GOLD, stroke=7)
     if v.get("label"):
-        text_c(d, (SAFE_CX, VIS_TOP + 220), v["label"], 56, WHITE, stroke=4)
+        text_c(d, (SAFE_CX, VIS_TOP + 220), v["label"], fit_one(v["label"], 56, SAFE_RIGHT - SAFE_LEFT - 80), WHITE, stroke=4)
 
 
 def v_number(d, v, lt, D, t):
@@ -293,7 +305,7 @@ def v_number(d, v, lt, D, t):
     col = color_of(v.get("color")) if v.get("color") else (UP if b > a else DOWN if b < a else GOLD)
     cy = (VIS_TOP + VIS_BOTTOM) // 2 - 40
     if v.get("label"):
-        text_c(d, (SAFE_CX, cy - 200), v["label"], 66, WHITE, stroke=5)
+        text_c(d, (SAFE_CX, cy - 200), v["label"], fit_one(v["label"], 66, SAFE_RIGHT - SAFE_LEFT - 80), WHITE, stroke=5)
     txt = v.get("prefix", "") + fmt_num(val, v.get("decimals", 0))
     s = 170 if len(txt) <= 6 else 130
     s = int(s * (1 + 0.04 * math.sin(t * 5) * (p >= 1)))
@@ -313,7 +325,7 @@ def v_graph(d, v, lt, D, t):
     y0, y1 = VIS_TOP + 170, VIS_BOTTOM - 110
     card(d, (SAFE_LEFT + 20, VIS_TOP + 20, SAFE_RIGHT - 20, VIS_BOTTOM - 20), a=200)
     if v.get("label"):
-        text_c(d, (SAFE_CX, VIS_TOP + 85), v["label"], 58, GOLD, stroke=4)
+        text_c(d, (SAFE_CX, VIS_TOP + 85), v["label"], fit_one(v["label"], 58, SAFE_RIGHT - SAFE_LEFT - 80), GOLD, stroke=4)
     allv = [x for s in series for x in s["values"]]
     lo = v.get("y_min", min(allv) * 0.95 if allv else 0)
     hi = v.get("y_max", max(allv) * 1.03 if allv else 1)
@@ -373,7 +385,7 @@ def v_bars(d, v, lt, D, t):
     mx = max((it["value"] for it in items), default=1) or 1
     bw = (x1 - x0) / n * 0.6
     if v.get("label"):
-        text_c(d, (SAFE_CX, VIS_TOP + 80), v["label"], 62, GOLD, stroke=5)
+        text_c(d, (SAFE_CX, VIS_TOP + 80), v["label"], fit_one(v["label"], 62, SAFE_RIGHT - SAFE_LEFT - 80), GOLD, stroke=5)
     for i, it in enumerate(items):
         k = ease_out((lt - 0.1 - i * 0.3) / 0.6)
         cx = x0 + (x1 - x0) * (i + 0.5) / n
@@ -389,7 +401,12 @@ def v_bars(d, v, lt, D, t):
 def v_summary(d, v, lt, D, t):
     txt = v.get("text", "")
     k = ease_back(lt / 0.4)
-    ls, s = fit_lines(txt, 84, SAFE_RIGHT - SAFE_LEFT - 160, 4)
+    mw = SAFE_RIGHT - SAFE_LEFT - 160
+    if "\n" in txt:   # manual line breaks: shrink so every line fits
+        ls = txt.split("\n")
+        s = min(fit_one(l, 84, mw, 44) for l in ls)
+    else:
+        ls, s = fit_lines(txt, 84, mw, 4)
     hh = len(ls) * s * 1.3 + 120
     cy = (VIS_TOP + VIS_BOTTOM) / 2
     hw = (SAFE_RIGHT - SAFE_LEFT - 60) / 2 * (0.85 + 0.15 * k)

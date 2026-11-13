@@ -51,7 +51,7 @@ y=1920 └──────────────────────┴�
 | `number` | 大きな数字のカウント | `from`, `to`, `unit`, `prefix`, `decimals`, `label` |
 | `graph` | 推移（線が伸びる） | `series[{name, values, color(auto/up/down/muted/gold), fill}]`, `x_labels`, `unit`, `label`, `y_min`, `y_max` |
 | `bars` | 比較 | `items[{label, value, color}]`（≤4）, `unit`, `label` |
-| `summary` | 一文まとめ | `text` |
+| `summary` | 一文まとめ | `text`（`\n` で改行位置を指定できる。語の途中で折り返さないよう指定推奨） |
 | `disclaimer` | 最後の注意書き | `text`（既定「情報提供目的です。投資判断はご自身で」） |
 
 同じ種類が3シーン以上続かないようにする（視覚が単調になる）。
