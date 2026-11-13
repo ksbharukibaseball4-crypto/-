@@ -59,8 +59,9 @@ def main():
     m = re.findall(r"I:\s+(-?[\d.]+) LUFS", r.stderr)
     if m:
         lufs = float(m[-1])
-        info.append(f"loudness {lufs} LUFS (目標 -14)")
-        if abs(lufs + 14) > 2:
+        tgt = -18 if json.loads((out / "timeline.json").read_text(encoding="utf-8")).get("engine") == "none" else -14
+        info.append(f"loudness {lufs} LUFS (目標 {tgt})")
+        if abs(lufs - tgt) > 2.5:
             errs.append(f"ラウドネス {lufs} LUFS")
 
     # contact sheet

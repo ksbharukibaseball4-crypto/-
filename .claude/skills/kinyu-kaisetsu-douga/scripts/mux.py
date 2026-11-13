@@ -10,7 +10,7 @@ import re
 import subprocess
 from pathlib import Path
 
-TARGET = "I=-14:TP=-1.5:LRA=11"
+TARGET = "I=-14:TP=-1.5:LRA=11"  # narration; SE-only videos use -18 (see main)
 
 
 def measure(inputs, pre):
@@ -29,7 +29,11 @@ def main():
     ap.add_argument("--bgm", default=None)
     a = ap.parse_args()
     out = Path(a.out)
-    dur = json.loads((out / "timeline.json").read_text(encoding="utf-8"))["duration"]
+    tl = json.loads((out / "timeline.json").read_text(encoding="utf-8"))
+    dur = tl["duration"]
+    global TARGET
+    if tl.get("engine") == "none":
+        TARGET = "I=-18:TP=-1.5:LRA=11"   # SE only: quieter, leaves room for platform music
     audio_in = ["-i", str(out / "audio.wav")]
     if a.bgm:
         audio_in += ["-stream_loop", "-1", "-i", a.bgm]

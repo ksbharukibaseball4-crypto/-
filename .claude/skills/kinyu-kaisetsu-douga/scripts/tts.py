@@ -8,7 +8,12 @@ Backends (--engine):
             estimated from mora counts + detected pauses (accuracy ~±0.1s).
   recorded  Use human-recorded WAVs: out/rec/scene_XX.wav (one per scene).
             Timestamps estimated like openjtalk.
+  none      No narration. Subtitles are timed by reading speed (cps, default
+            7 chars/s) and the track holds sound effects only (sfx.py).
   auto      edge if reachable, otherwise openjtalk (default).
+
+Sound effects are added for every engine unless --no-sfx. Per scene you can
+override with "sfx": ["coin", "chime", ...] (names in sfx.NAMED) or [] for none.
 
 Outputs: <out>/audio.wav and <out>/timeline.json
 """
@@ -17,6 +22,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -25,6 +31,7 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from sfx import NAMED, scene_sfx  # noqa: E402
 from common import MAX_SCENE, MIN_SCENE, PUNCT, load_spec, out_dir, parse_chunks  # noqa: E402
 
 SR = 48000
@@ -208,7 +215,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("spec", help="scenes.json")
     ap.add_argument("--out", default="out")
-    ap.add_argument("--engine", default="auto", choices=["auto", "edge", "openjtalk", "recorded"])
+    ap.add_argument("--engine", default="auto", choices=["auto", "edge", "openjtalk", "recorded", "none"])
+    ap.add_argument("--no-sfx", action="store_true")
+    ap.add_argument("--cps", type=float, default=None, help="none: reading speed chars/sec")
     a = ap.parse_args()
 
     spec = load_spec(a.spec)
@@ -224,23 +233,47 @@ def main():
         chunks = parse_chunks(sc["text"])
         reading = "".join(c["reading"] for c in chunks)
         bounds = None
-        if engine == "edge":
+        if engine == "none":
+            cps = a.cps or float(cfg.get("cps", 7.0))
+            lens = [max(1, len(re.sub(r"[、。？！?!\s]", "", c["display"]))) for c in chunks]
+            read = sum(lens) / cps
+            speech = np.zeros(int(read * SR), np.float32)
+            times, acc = [], 0.0
+            for n in lens:
+                times.append((acc, acc + n / cps))
+                acc += n / cps
+        if engine == "none":
+            y = None
+        elif engine == "edge":
             y, bounds = synth_edge(reading, cfg)
         elif engine == "recorded":
             y = decode_to_array(str(out / "rec" / f"scene_{si + 1:02d}.wav"))
         else:
             y = synth_openjtalk(reading, cfg)
-        a0, a1 = speech_bounds(y)
-        speech = y[a0:a1]
-        times = edge_chunk_times(chunks, bounds, a0 / SR) if bounds else None
-        if times is None:
-            times = estimate_times(speech, chunks)
+        if engine != "none":
+            a0, a1 = speech_bounds(y)
+            speech = y[a0:a1]
+            times = edge_chunk_times(chunks, bounds, a0 / SR) if bounds else None
+            if times is None:
+                times = estimate_times(speech, chunks)
         sp_dur = len(speech) / SR
-        dur = max(MIN_SCENE, float(sc.get("min_duration", 0)), LEAD + sp_dur + TAIL)
+        tail = 0.6 if engine == "none" else TAIL   # time to finish reading
+        dur = max(MIN_SCENE, float(sc.get("min_duration", 0)), LEAD + sp_dur + tail)
         if dur > MAX_SCENE + 1e-6:
             print(f"[tts] 警告: シーン{si + 1} が {dur:.2f}s（4秒超）。分割してください。")
         buf = np.zeros(int(round(dur * SR)), np.float32)
         buf[int(LEAD * SR): int(LEAD * SR) + len(speech)] = speech
+        if not a.no_sfx:
+            fx = 0.45 if engine != "none" else 1.0
+            vis = sc.get("visual", {})
+            if "sfx" in sc:
+                cues = [(0.05 + 0.25 * k, NAMED[n]()) for k, n in enumerate(sc["sfx"])]
+            else:
+                cues = scene_sfx(vis, dur, si)
+            for off, smp in cues:
+                i0 = int(off * SR)
+                seg = smp[: max(0, len(buf) - i0)]
+                buf[i0:i0 + len(seg)] += seg * fx
         pieces.append(buf)
         ctl = []
         for c, (s, e) in zip(chunks, times):
@@ -255,8 +288,9 @@ def main():
         t0 += len(buf) / SR
 
     audio = np.concatenate(pieces)
-    peak = float(np.abs(audio).max() or 1)
-    audio = audio * (0.89 / peak)
+    peak = float(np.abs(audio).max() or 0)
+    if peak > 0:
+        audio = audio * (0.89 / peak)
     write_wav(out / "audio.wav", audio)
     tl = {"engine": engine, "duration": round(len(audio) / SR, 3), "fps": 30, "scenes": scenes_tl}
     (out / "timeline.json").write_text(json.dumps(tl, ensure_ascii=False, indent=1), encoding="utf-8")

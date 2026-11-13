@@ -2,7 +2,7 @@
 """One-shot pipeline: lint -> (approval gate) -> TTS -> timing check -> render -> mux -> final check.
 
 Usage:
-  build.py out/scenes.json --out out [--engine auto|edge|openjtalk|recorded] [--bgm file] [--test]
+  build.py out/scenes.json --out out [--engine auto|edge|openjtalk|recorded|none] [--no-sfx] [--bgm file] [--test]
 
 The gate: <out>/APPROVED must exist (create it only after the user approved out/script.md).
 --test skips the gate and the 60-90s / structure rules (for 5s smoke tests).
@@ -28,6 +28,7 @@ def main():
     ap.add_argument("--out", default="out")
     ap.add_argument("--engine", default="auto")
     ap.add_argument("--bgm", default=None)
+    ap.add_argument("--no-sfx", action="store_true")
     ap.add_argument("--test", action="store_true")
     a = ap.parse_args()
     out = Path(a.out)
@@ -36,7 +37,7 @@ def main():
     run(HERE / "check_script.py", a.spec, "--out", out, *t)
     if not a.test and not (out / "APPROVED").exists():
         sys.exit(f"台本が未承認です。ユーザーの承認後に {out/'APPROVED'} を作成してください。")
-    run(HERE / "tts.py", a.spec, "--out", out, "--engine", a.engine)
+    run(HERE / "tts.py", a.spec, "--out", out, "--engine", a.engine, *(["--no-sfx"] if a.no_sfx else []))
     run(HERE / "check_script.py", a.spec, "--out", out, "--timeline", *t)
     run(HERE / "render.py", a.spec, "--out", out)
     run(HERE / "mux.py", "--out", out, *(["--bgm", a.bgm] if a.bgm else []))
