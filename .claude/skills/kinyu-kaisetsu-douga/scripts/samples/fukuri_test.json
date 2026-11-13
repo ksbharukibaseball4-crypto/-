@@ -1,0 +1,21 @@
+{
+  "title": "複利ってなに？（5秒テスト）",
+  "asof": "2026年11月時点",
+  "pr": false,
+  "voice": {"voice": "ja-JP-NanamiNeural", "rate": "+10%", "speed": 1.15},
+  "scenes": [
+    {
+      "role": "hook",
+      "text": "複利って/なに？",
+      "visual": {"type": "hook", "big": "複利？", "sub": "利息に利息がつく？"}
+    },
+    {
+      "role": "mechanism",
+      "text": "利息にも/利息が/つく/仕組みです。",
+      "min_duration": 3.0,
+      "asof": true,
+      "note": "※イメージ図　情報提供目的です。投資判断はご自身で",
+      "visual": {"type": "coins", "stacks": [2, 3, 4, 6], "labels": ["1年", "2年", "3年", "4年"], "label": "利息が利息を生む"}
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+Pillow>=10
+numpy>=1.24
+pyopenjtalk-plus>=0.4
+edge-tts>=6.1
