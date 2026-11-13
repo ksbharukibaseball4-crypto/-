@@ -27,7 +27,8 @@
 | 台本 | 1文20字以内、です・ます調、専門用語は直後に言い換え、具体例は必ず検算 |
 
 ## 3. 制作した動画：令和8年の年収の壁（所得税・住民税・社会保険）
-- 入力ファイル（リポジトリに保存済み）: `projects/nenshu-kabe-2026/`
+- 保存先（リポジトリにコミット済み）: `projects/nenshu-kabe-2026/`
+  - `video.mp4` … 完成動画 v2（88.8秒）。`sheet.jpg` … 2秒ごとのコマ一覧
   - `scenes.json` … **最新・正**（30シーン、88.8秒、音声なし、`pr: false`）
   - `script.md` … ユーザーが「OK」と承認した台本 v1。字幕の文言は今の `scenes.json` と同じ。**「画面」列は v1 のままで古い**（その後ユーザーの指示で見た目を作り直したため）
   - `sources.md` … 出典と確認日（2026-11-13）
@@ -44,11 +45,13 @@ mkdir -p out/nenshu-kabe-2026
 cp projects/nenshu-kabe-2026/* out/nenshu-kabe-2026/
 touch out/nenshu-kabe-2026/APPROVED           # 承認済みの台本なので可。台本を変えたら再承認を取ってから
 S=.claude/skills/kinyu-kaisetsu-douga/scripts
-python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 --engine none
+python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 --engine none \
+  --save projects/nenshu-kabe-2026
 # 出力: out/nenshu-kabe-2026/video.mp4 と check/sheet.jpg（約1分40秒）
+# --save で入力と完成動画が projects/nenshu-kabe-2026/ にコピーされる → git add / commit / push
 # 1枚だけ確認: python3 $S/render.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 --still 12.5 30
 ```
-変更後は `projects/nenshu-kabe-2026/` にもコピーし直してコミットすること（`out/` は .gitignore 対象で消える）。
+**ファイルの保存ルール**: `out/` は .gitignore 対象でセッション終了とともに消える。完成したら必ず `--save projects/<動画名>` で保存し、コミット・プッシュする。ユーザーには SendUserFile で動画を渡す（ダウンロードして端末に保存できる）。
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。
@@ -78,4 +81,5 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 2. ユーザー「音声は効果音以外なしでいい」→ `none` エンジン（字幕タイミング＋効果音）を追加。
 3. 「令和8年の年収の壁（所得税・社会保険・住民税）」の出典確認 → 台本 v1 → ユーザー「OK」→ 動画 v1（81.9秒）。
 4. ユーザーの指摘「左上にズレている／効果音がずっと同じ／もう少しゆっくり／イラストも背景も使い回し／人のイラストや動きが欲しい」→ 左右対称の配置、人物イラスト、セクションごとの背景、新しいビジュアル9種、効果音ライブラリを追加 → 動画 v2（88.8秒）。
-5. この引き継ぎメモを作成。次は §3 の未決事項（A/B）の返事待ち。
+5. この引き継ぎメモを作成。
+6. ユーザー「ファイルは保存できるようにして欲しい」→ `build.py --save` を追加し、完成動画も `projects/` に保存してコミットするルールにした。次は §3 の未決事項（A/B）の返事待ち。

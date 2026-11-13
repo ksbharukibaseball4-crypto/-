@@ -14,7 +14,7 @@ description: 金融・お金のテーマ（複利、NISA、iDeCo、金利、税�
 | `enshutsu.md` | 色・レイアウト・セーフエリア・シーン種類と動き | 手順3・5・8 |
 | `kisei.md` | 規制・表現ルール、NG表現、免責・PR・時点表記 | 手順2・3・8 |
 
-動画ごとの入力（`scenes.json`・`script.md`・`sources.md`）は作業後に `projects/<動画名>/` へコピーしてコミットする（`out/` はセッション終了で消える）。ユーザーの好みと進行中の案件はリポジトリ直下の `HANDOFF.md` を参照し、作業の区切りで更新する。
+**保存**: 完成したら `build.py ... --save projects/<動画名>` で入力（`scenes.json`・`script.md`・`sources.md`）と完成品（`video.mp4`・`sheet.jpg`）を `projects/<動画名>/` に残し、コミット・プッシュする（`out/` はセッション終了で消える）。動画は SendUserFile でもユーザーに渡す。ユーザーの好みと進行中の案件はリポジトリ直下の `HANDOFF.md` を参照し、作業の区切りで更新する。
 
 スクリプトは `scripts/`（以下 `S=.claude/skills/kinyu-kaisetsu-douga/scripts`）。出力はすべて `out/`（別の場所にするなら全コマンドで `--out` を揃える）。
 
@@ -63,7 +63,7 @@ ffmpeg -version                        # 必須（未導入なら apt-get instal
 
 ### 4〜8. 音声合成 → 描画 → 字幕 → 結合 → チェック（一括）
 ```bash
-python3 $S/build.py out/scenes.json --out out [--engine auto|edge|openjtalk|recorded] [--bgm bgm.mp3]
+python3 $S/build.py out/scenes.json --out out --save projects/<動画名> [--engine auto|edge|openjtalk|recorded|none] [--bgm bgm.mp3]
 ```
 `build.py` は次を順に実行する（個別実行も可）:
 

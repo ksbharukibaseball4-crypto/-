@@ -2,7 +2,7 @@
 """One-shot pipeline: lint -> (approval gate) -> TTS -> timing check -> render -> mux -> final check.
 
 Usage:
-  build.py out/scenes.json --out out [--engine auto|edge|openjtalk|recorded|none] [--no-sfx] [--bgm file] [--test]
+  build.py out/scenes.json --out out [--save projects/<動画名>] [--engine auto|edge|openjtalk|recorded|none] [--no-sfx] [--bgm file] [--test]
 
 The gate: <out>/APPROVED must exist (create it only after the user approved out/script.md).
 --test skips the gate and the 60-90s / structure rules (for 5s smoke tests).
@@ -30,6 +30,8 @@ def main():
     ap.add_argument("--bgm", default=None)
     ap.add_argument("--no-sfx", action="store_true")
     ap.add_argument("--test", action="store_true")
+    ap.add_argument("--save", default=None,
+                    help="完成後に入力と成果物をこのフォルダ（例 projects/<動画名>）へコピーして残す")
     a = ap.parse_args()
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -43,6 +45,20 @@ def main():
     run(HERE / "mux.py", "--out", out, *(["--bgm", a.bgm] if a.bgm else []))
     run(HERE / "final_check.py", a.spec, "--out", out, *t)
     print(f"完成: {out / 'video.mp4'}")
+    if a.save:
+        save(out, Path(a.spec), Path(a.save))
+
+
+def save(out: Path, spec: Path, dest: Path):
+    """Copy inputs + deliverables to a folder that is committed to git (out/ is ignored)."""
+    import shutil
+    dest.mkdir(parents=True, exist_ok=True)
+    files = [(spec, "scenes.json"), (out / "script.md", "script.md"), (out / "sources.md", "sources.md"),
+             (out / "video.mp4", "video.mp4"), (out / "check" / "sheet.jpg", "sheet.jpg")]
+    for src, name in files:
+        if src.exists() and src.resolve() != (dest / name).resolve():
+            shutil.copy2(src, dest / name)
+    print(f"保存: {dest}/ (scenes.json, script.md, sources.md, video.mp4, sheet.jpg) → git add してコミットすること")
 
 
 if __name__ == "__main__":
