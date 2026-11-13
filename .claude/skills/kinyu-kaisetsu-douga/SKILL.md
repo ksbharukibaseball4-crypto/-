@@ -14,6 +14,8 @@ description: 金融・お金のテーマ（複利、NISA、iDeCo、金利、税�
 | `enshutsu.md` | 色・レイアウト・セーフエリア・シーン種類と動き | 手順3・5・8 |
 | `kisei.md` | 規制・表現ルール、NG表現、免責・PR・時点表記 | 手順2・3・8 |
 
+動画ごとの入力（`scenes.json`・`script.md`・`sources.md`）は作業後に `projects/<動画名>/` へコピーしてコミットする（`out/` はセッション終了で消える）。ユーザーの好みと進行中の案件はリポジトリ直下の `HANDOFF.md` を参照し、作業の区切りで更新する。
+
 スクリプトは `scripts/`（以下 `S=.claude/skills/kinyu-kaisetsu-douga/scripts`）。出力はすべて `out/`（別の場所にするなら全コマンドで `--out` を揃える）。
 
 ## 初回セットアップ

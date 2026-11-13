@@ -1,0 +1,515 @@
+{
+ "title": "令和8年の年収の壁",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "voice": {
+  "cps": 6.5,
+  "tail": 0.7
+ },
+ "scenes": [
+  {
+   "role": "hook",
+   "text": "年収の壁、/178万円に/なったって？",
+   "asof": true,
+   "visual": {
+    "type": "hook",
+    "big": "178万円？",
+    "sub": "2026年の年収の壁"
+   },
+   "tail": 0.5
+  },
+  {
+   "role": "premise",
+   "text": "2026年の/年収の壁を/整理します。",
+   "asof": true,
+   "visual": {
+    "type": "headline",
+    "title": "2026年の年収の壁",
+    "items": [
+     {
+      "text": "所得税",
+      "icon": "receipt"
+     },
+     {
+      "text": "住民税",
+      "icon": "house"
+     },
+     {
+      "text": "社会保険",
+      "icon": "shield"
+     }
+    ]
+   }
+  },
+  {
+   "role": "premise",
+   "text": "壁とは、/税金などが/かかり始める/年収です。",
+   "visual": {
+    "type": "wall",
+    "label": "年収の壁とは？",
+    "value": "年収の壁",
+    "sub": "税金や保険料がかかり始める年収"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "まずは/所得税です。",
+   "visual": {
+    "type": "section",
+    "num": "①",
+    "title": "所得税",
+    "sub": "国に納める税金",
+    "icon": "receipt"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "かからない/上限は/178万円です。",
+   "asof": true,
+   "note": "※令和8年分・給与収入のみ・ほかに所得がない場合",
+   "visual": {
+    "type": "number",
+    "label": "所得税がかからない年収",
+    "from": 160,
+    "to": 178,
+    "unit": "万円"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "去年の/160万円から/18万円/上がりました。",
+   "asof": true,
+   "calc": {
+    "expr": "178-160",
+    "expect": 18
+   },
+   "visual": {
+    "type": "bars",
+    "label": "所得税の壁の推移",
+    "unit": "万円",
+    "items": [
+     {
+      "label": "2024年",
+      "value": 103,
+      "color": "muted"
+     },
+     {
+      "label": "2025年",
+      "value": 160,
+      "color": "muted"
+     },
+     {
+      "label": "2026年",
+      "value": 178,
+      "color": "up"
+     }
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "中身は/2つの/控除です。",
+   "visual": {
+    "type": "headline",
+    "title": "178万円の中身",
+    "items": [
+     {
+      "text": "給与所得控除",
+      "icon": "building"
+     },
+     {
+      "text": "基礎控除",
+      "icon": "person"
+     }
+    ]
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "text": "控除とは、/税金の計算で/引ける額です。",
+   "visual": {
+    "type": "summary",
+    "tag": "ことば",
+    "text": "控除＝\n税金の計算で\n収入から差し引ける額"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "給与所得控除が/74万円です。",
+   "asof": true,
+   "visual": {
+    "type": "steps",
+    "steps": [
+     "給与所得控除 74万円",
+     "基礎控除 104万円",
+     "合計 178万円"
+    ],
+    "current": 0
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "基礎控除が/104万円です。",
+   "asof": true,
+   "note": "※基礎控除104万円は合計所得489万円以下の場合",
+   "visual": {
+    "type": "steps",
+    "steps": [
+     "給与所得控除 74万円",
+     "基礎控除 104万円",
+     "合計 178万円"
+    ],
+    "current": 1
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "合わせて/178万円です。",
+   "asof": true,
+   "calc": {
+    "expr": "740000+1040000",
+    "expect": 1780000
+   },
+   "visual": {
+    "type": "steps",
+    "steps": [
+     "給与所得控除 74万円",
+     "基礎控除 104万円",
+     "合計 178万円"
+    ],
+    "current": 2
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "一部は/期間限定の/上乗せです。",
+   "asof": true,
+   "note": "※令和8年分・令和9年分の特例",
+   "visual": {
+    "type": "timeline",
+    "label": "2年間だけの上乗せ",
+    "years": [
+     "2025",
+     "2026",
+     "2027",
+     "2028"
+    ],
+    "range": [
+     1,
+     2
+    ],
+    "range_label": "特例",
+    "items": [
+     "基礎控除 ＋42万円",
+     "給与所得控除 ＋5万円"
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "12月の/年末調整で/反映されます。",
+   "asof": true,
+   "note": "※改正は令和8年12月1日施行。1年分をまとめて精算",
+   "visual": {
+    "type": "calendar",
+    "label": "年末調整",
+    "highlight": [
+     12
+    ],
+    "sub": "12月にまとめて反映"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "会社が/1年分の/税金を/精算します。",
+   "asof": true,
+   "visual": {
+    "type": "flow",
+    "label": "会社が精算",
+    "nodes": [
+     {
+      "icon": "building",
+      "label": "会社"
+     },
+     {
+      "icon": "calculator",
+      "label": "1年分を\n計算"
+     },
+     {
+      "icon": "person",
+      "label": "差額を\n精算"
+     }
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "次は/住民税です。",
+   "visual": {
+    "type": "section",
+    "num": "②",
+    "title": "住民税",
+    "sub": "住んでいる自治体の税金",
+    "icon": "house"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "2026年の/収入は/翌年度に/課税されます。",
+   "asof": true,
+   "visual": {
+    "type": "flow",
+    "label": "課税のタイミング",
+    "nodes": [
+     {
+      "icon": "calendar",
+      "label": "2026年に\n働く"
+     },
+     {
+      "icon": "house",
+      "label": "2027年度に\n課税"
+     },
+     {
+      "icon": "coin",
+      "label": "6月ごろから\n支払い"
+     }
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "非課税の/目安は/119万円です。",
+   "asof": true,
+   "note": "※単身・扶養なしの目安。自治体により異なる場合あり",
+   "visual": {
+    "type": "number",
+    "label": "住民税がかからない年収の目安",
+    "from": 110,
+    "to": 119,
+    "unit": "万円"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "所得税の/178万円とは/別です。",
+   "asof": true,
+   "visual": {
+    "type": "bars",
+    "label": "税金がかからない年収",
+    "unit": "万円",
+    "items": [
+     {
+      "label": "住民税",
+      "value": 119,
+      "color": "gold"
+     },
+     {
+      "label": "所得税",
+      "value": 178,
+      "color": "up"
+     }
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "最後は/社会保険です。",
+   "visual": {
+    "type": "section",
+    "num": "③",
+    "title": "社会保険",
+    "sub": "厚生年金・健康保険",
+    "icon": "shield"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "106万円の壁は/10月に/なくなりました。",
+   "asof": true,
+   "note": "※2026年10月1日、月8.8万円の賃金要件を撤廃",
+   "visual": {
+    "type": "stamp",
+    "title": "106万円の壁",
+    "sub": "月8.8万円の賃金の条件",
+    "stamp": "撤廃",
+    "date": "2026年10月から"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "週20時間/以上なら/加入の/対象です。",
+   "asof": true,
+   "note": "※勤務先の従業員数などの条件あり",
+   "visual": {
+    "type": "checklist",
+    "title": "加入の主な条件",
+    "items": [
+     "週20時間以上",
+     "2か月を超えて働く見込み",
+     "学生ではない",
+     "勤務先の規模など"
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "130万円の壁は/残っています。",
+   "asof": true,
+   "note": "※家族の扶養に入る条件。19〜22歳は150万円、60歳以上などは180万円",
+   "visual": {
+    "type": "wall",
+    "label": "家族の扶養に入れる年収",
+    "value": "130万円未満",
+    "sub": "この壁は残っています"
+   }
+  },
+  {
+   "role": "mechanism",
+   "text": "4月から/契約上の/給料で/判定します。",
+   "asof": true,
+   "note": "※2026年4月から。労働条件通知書などで判定",
+   "visual": {
+    "type": "headline",
+    "title": "判定のしかたが変更",
+    "items": [
+     {
+      "text": "契約上の給料で判定",
+      "icon": "doc"
+     },
+     {
+      "text": "契約にない残業代は原則含めない",
+      "icon": "clock"
+     }
+    ]
+   }
+  },
+  {
+   "role": "example",
+   "text": "年収178万円の/例です。",
+   "asof": true,
+   "note": "※単身・給与収入のみ",
+   "visual": {
+    "type": "bills",
+    "count": 4,
+    "value_from": 0,
+    "value_to": 178,
+    "unit": "万円",
+    "label": "年収（給与のみ）"
+   }
+  },
+  {
+   "role": "example",
+   "text": "所得税は/0円です。",
+   "asof": true,
+   "calc": {
+    "expr": "1780000-740000-1040000",
+    "expect": 0
+   },
+   "visual": {
+    "type": "equation",
+    "title": "所得税の計算",
+    "terms": [
+     "178万",
+     "−",
+     "74万",
+     "−",
+     "104万",
+     "=",
+     "0円"
+    ],
+    "result": "所得税はかかりません"
+   }
+  },
+  {
+   "role": "example",
+   "text": "住民税は/かかります。",
+   "asof": true,
+   "calc": {
+    "expr": "1780000-740000",
+    "expect": 1040000
+   },
+   "note": "※給与所得104万円が非課税ライン45万円を超えるため",
+   "visual": {
+    "type": "equation",
+    "title": "住民税の判定",
+    "terms": [
+     "178万",
+     "−",
+     "74万",
+     "=",
+     "104万",
+     "＞",
+     "45万"
+    ],
+    "result": "非課税ラインを超える→住民税あり",
+    "result_color": "gold"
+   }
+  },
+  {
+   "role": "example",
+   "text": "週20時間以上なら/社会保険にも/入ります。",
+   "asof": true,
+   "note": "※勤務先の条件を満たす場合",
+   "visual": {
+    "type": "payslip",
+    "title": "給与明細のイメージ",
+    "rows": [
+     {
+      "label": "給与",
+      "value": "＋"
+     },
+     {
+      "label": "健康保険料",
+      "value": "− 天引き",
+      "color": "down"
+     },
+     {
+      "label": "厚生年金保険料",
+      "value": "− 天引き",
+      "color": "down"
+     }
+    ],
+    "footer": "※将来の年金が増えるなどのメリットもあります"
+   }
+  },
+  {
+   "role": "summary",
+   "text": "壁は/税と保険で/別々です。",
+   "asof": true,
+   "visual": {
+    "type": "summary",
+    "text": "所得税 178万円\n住民税 119万円\n社会保険 週20時間・130万円"
+   }
+  },
+  {
+   "role": "summary",
+   "text": "詳しくは/勤務先や/役所に/ご確認ください。",
+   "visual": {
+    "type": "headline",
+    "title": "迷ったら確認",
+    "items": [
+     {
+      "text": "勤務先の担当者",
+      "icon": "building"
+     },
+     {
+      "text": "市区町村の窓口",
+      "icon": "house"
+     },
+     {
+      "text": "税務署・年金事務所",
+      "icon": "doc"
+     }
+    ]
+   }
+  },
+  {
+   "role": "disclaimer",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer"
+   }
+  }
+ ]
+}
