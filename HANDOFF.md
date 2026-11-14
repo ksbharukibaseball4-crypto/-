@@ -56,13 +56,14 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 ## 3b. 制作中：相続税の計算の仕組みと注意点（3D）
 - 依頼（2026-11-14）: 参考TikTok（3D映像＋吹き出しラベルの解説）のように「3D映像を駆使して」相続税の計算と注意点を解説。
 - 保存先: `projects/souzoku-2026/`（`scenes.json`・`script.md`・`sources.md`・プレビュー画像）
-- 状態: **台本 v1 をユーザーに提示し、承認待ち**。あわせて見た目を「明るいスタジオ（参考動画風・既定）」か「濃紺」か選んでもらっている。
+- 状態: ユーザーが「動画作って」→ 台本 v1 承認として **完成**（`video.mp4` 87.3秒、明るいスタジオ、PRなし、字幕＋効果音）。背景の濃紺版は未選択（希望があれば `"theme": "navy"` で再ビルド）。
+- 3D本番レンダリングは約29分（2620フレーム、3並列）。
 - 3Dの仕組み: `.claude/skills/kinyu-kaisetsu-douga/render3d/`（Three.js をヘッドレス Chromium で描画）
   - 準備: `cd .claude/skills/kinyu-kaisetsu-douga/render3d && npm install`
   - 静止画: `node render3d.js out/souzoku-2026/scenes.json --out out/souzoku-2026 --still 2 10 [--theme navy]`
   - 本番: tts.py（`--engine none`）→ `node render3d.js ... --workers 3` → mux.py → final_check.py
   - `scenes.json` の `"renderer": "3d"`、`"theme": "studio"|"navy"`。3Dのビジュアル種類は engine.js の `B.*`
-- 承認後に直す予定: 贈与（gift_timeline）のカメラ位置、注意の三角標識の向き、formula_blocks で「3000万円」ラベルがタイトルに隠れる点、人物を少し大きく
+- 直し済み: 贈与シーンの構図、注意の三角標識の向き、「3000万円」ラベル位置、人物の大きさ
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。
