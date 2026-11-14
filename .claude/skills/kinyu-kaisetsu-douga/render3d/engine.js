@@ -1672,6 +1672,7 @@ function plantsMesh(atlas) {
   for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
     const h = GH[`${x},${z}`]; if (h === undefined || vGet(x, h - 1, z) !== VB.GRASS || vGet(x, h, z) !== 0) continue;
     const r = vRand(x * 13.1 + z * 7.3); if (r < 0.72) continue;
+    if (spec?.clean && Math.abs(x) < 10 && z > 20 && z < 34) continue;   // clean: keep the stage free of grass
     const t = r > 0.97 ? 21 : 20; const u0 = (t % ATL.n) * tsz, v0 = 1 - (Math.floor(t / ATL.n) + 1) * tsz;
     const cx = x + 0.5 + (vRand(x + z * 3) - 0.5) * 0.4, cz = z + 0.5 + (vRand(z + x * 5) - 0.5) * 0.4, hh = 0.75 + vRand(x * z) * 0.35;
     for (const a of [Math.PI / 4, -Math.PI / 4]) {
@@ -1767,13 +1768,17 @@ function buildVoxel() {
   VX.snowPts = new THREE.Points(sp, new THREE.PointsMaterial({ color: 0xffffff, size: 0.18, transparent: true, opacity: 0.9 })); VX.snowPts.visible = false; g.add(VX.snowPts);
   for (let i = 0; i < 7; i++) { const c = cloudSprite(i + 1); c.position.set(-60 + i * 22, 38 + (i % 3) * 5, -60 + (i % 2) * 20); g.add(c); VX.clouds.push(c); }
   const looks = ['v1', 'v2', 'v3', 'v4', 'worker', 'v1', 'v3', 'v2'];
+  if (spec?.clean) {   // clean: a pale stone stage so the subject stands out from the grass
+    const S = VX.spots.stage; const slab = (w, d, y, h, c) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), new THREE.MeshStandardMaterial({ color: c, roughness: 0.9 })); m.position.set(S[0] + 0.5, S[1] + y, S[2] + 0.2); m.receiveShadow = true; g.add(m); };
+    slab(11.5, 6.2, 0.06, 0.12, 0x9aa3ad); slab(11.0, 5.7, 0.14, 0.12, 0xe9ecef);
+  }
   VX.walkers = looks.map((l, i) => { const p = blockPerson(LOOKS[l]); p.scale.setScalar(0.9); g.add(p); return { p, lane: i % 2 ? 4.6 : 6.4, speed: 1.0 + (i % 3) * 0.25, off: i * 6, dir: i % 3 ? 1 : -1 }; });
   return g;
 }
 function animVoxel(t, snow) {
   if (VX.plantShader) VX.plantShader.uniforms.uTime.value = t;
   VX.clouds.forEach((c, i) => { c.position.x = ((-60 + i * 22 + t * 0.6) + 80) % 160 - 80; });
-  VX.walkers.forEach((w) => { const L = 46; const s = ((t * w.speed + w.off) % L + L) % L; const x = w.dir > 0 ? -23 + s : 23 - s;
+  VX.walkers.forEach((w) => { w.p.visible = !spec?.clean; const L = 46; const s = ((t * w.speed + w.off) % L + L) % L; const x = w.dir > 0 ? -23 + s : 23 - s;
     w.p.position.set(x, 3, w.lane); w.p.rotation.y = w.dir > 0 ? Math.PI / 2 : -Math.PI / 2; animBlock(w.p, t, 'walk', w.off); });
   VX.snowMesh.visible = !!snow; VX.snowPts.visible = !!snow;
   if (snow) { const a = VX.snowPts.geometry.attributes.position; for (let i = 0; i < a.count; i++) { let y = (vRand(i * 3) * 30 - t * (1.2 + vRand(i) * 0.8)) % 30; if (y < 0) y += 30; a.setY(i, y); } a.needsUpdate = true; }
@@ -1974,6 +1979,15 @@ async function init() {
     renderer.toneMappingExposure = 1.08;
     // performance: render at 0.8x and let CSS upscale; shadows only around the camera target
     renderer.setPixelRatio(0.72); renderer.setSize(W, H, false); sun.shadow.mapSize.set(1280, 1280);
+    if (spec.clean) {   // clean: haze + soft focus push the town back, subject stays sharp
+      scene.fog = new THREE.Fog(0xe6eef5, 20, 70);
+      composer = new EffectComposer(renderer); composer.addPass(new RenderPass(scene, camera));
+      const hP = new ShaderPass(HorizontalTiltShiftShader); hP.uniforms.h.value = 5 / W; hP.uniforms.r.value = 0.52; composer.addPass(hP);
+      const vP = new ShaderPass(VerticalTiltShiftShader); vP.uniforms.v.value = 5 / H; vP.uniforms.r.value = 0.52; composer.addPass(vP);
+      composer.addPass(new OutputPass());
+      renderer.domElement.style.filter = 'saturate(0.9)';
+      document.body.classList.add('clean');
+    }
   }
   if (th.set === 'diorama') {
     scene.add(buildDiorama());
@@ -2032,7 +2046,7 @@ function sceneAt(t) {
 function camPose(b, lt, D, t) {
   const c = b.cam; const az = (c.azim + (c.drift ?? 7) * Math.sin(t * 0.22)) * Math.PI / 180;
   const el = ((themeName === 'voxel' ? c.elev * 0.65 : c.elev) + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
-  const dist = c.dist * (themeName === 'voxel' ? 1.6 : DIST_SCALE) * (1 - 0.05 * clamp(lt / D));
+  const dist = c.dist * (themeName === 'voxel' ? (spec.clean ? 1.42 : 1.6) : DIST_SCALE) * (1 - 0.05 * clamp(lt / D));
   const tx = c.tx || 0, tz = c.tz || 0;
   const target = new THREE.Vector3(tx, c.ty, tz);
   const pos = new THREE.Vector3(tx + Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, tz + Math.cos(az) * Math.cos(el) * dist);

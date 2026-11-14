@@ -16,7 +16,7 @@ const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.woff': 'font/woff', '.json': 'application/json' };
 
 function args() {
-  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null, chunk: 240, reuse: null, redo: null };
+  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null, nosafe: false, chunk: 240, reuse: null, redo: null };
   for (let i = 1; i < a.length; i++) {
     if (a[i] === '--out') o.out = a[++i];
     else if (a[i] === '--workers') o.workers = +a[++i];
@@ -24,6 +24,7 @@ function args() {
     else if (a[i] === '--chunk') o.chunk = +a[++i];
     else if (a[i] === '--reuse') o.reuse = a[++i];
     else if (a[i] === '--redo') o.redo = a[++i].split(',').map((r) => r.split('-').map(Number));
+    else if (a[i] === '--no-safe') o.nosafe = true;
     else if (a[i] === '--still') { o.still = []; while (a[i + 1] && !a[i + 1].startsWith('--')) o.still.push(+a[++i]); }
   }
   return o;
@@ -68,7 +69,7 @@ async function main() {
       const page = await openPage(browser, port, o.theme);
       for (const s of o.still) {
         await page.evaluate((t) => window.renderAt(t), s);
-        await page.evaluate(() => {
+        if (!o.nosafe) await page.evaluate(() => {
           const d = document.createElement('div'); d.id = 'safe';
           d.innerHTML = '<div style="position:absolute;left:918px;top:0;width:162px;height:1920px;background:rgba(255,0,0,.25)"></div><div style="position:absolute;left:0;top:1440px;width:1080px;height:480px;background:rgba(255,0,0,.25)"></div>';
           document.getElementById('ov').appendChild(d);
