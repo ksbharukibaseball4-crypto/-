@@ -173,11 +173,29 @@ NAMED = {"whoosh": whoosh, "swish": swish, "wood": woodblock, "bubble": bubble, 
          "alert": alert, "rise": lambda: rise(1.0, True), "fall": lambda: rise(1.0, False)}
 
 
+ALIAS3D = {"money_hook": "hook", "assets": "headline", "section3d": "section", "glassbox": "coins",
+           "formula_blocks": "flow", "subtract_cube": "wall", "pie": "bars3d", "rate_stairs": "bars3d",
+           "coin_stacks": "coins", "split_pay": "flow", "shield_dome": "timeline", "umbrella": "timeline",
+           "gift_timeline": "bills", "calendar10": "calendar", "summary3d": "summary", "consult": "headline",
+           "disclaimer3d": "disclaimer"}
+
+
 def scene_sfx(visual: dict, dur: float, idx: int) -> list[tuple[float, np.ndarray]]:
     """Cue list [(offset_s, samples)] for one scene. Varies by index and type."""
     rng = random.Random(idx * 7919 + 11)
     pv = 1 + rng.uniform(-0.07, 0.07)
     typ = visual.get("type")
+    # 3D renderer visual types → sound categories
+    if typ == "document_stamp":
+        return ([(0.0, page(seed=idx))] if idx else []) + [(0.72, stamp())]
+    if typ == "land":
+        return [(0.0, whoosh(seed=idx))] + [(0.6, rise(0.9, False)), (1.5, bell(880 * pv))]
+    n_items = len(visual.get("items") or visual.get("rates") or visual.get("slices") or visual.get("stacks")
+                  or visual.get("shares") or [0, 0, 0])
+    typ = ALIAS3D.get(typ, typ)
+    if typ == "bars3d":
+        cues = [] if idx == 0 else [(0.0, swish(seed=idx))]
+        return cues + [(0.15 + i * 0.12, marimba(PENTA[min(7, i)] * pv)) for i in range(min(8, n_items))] + [(1.0, coin(pv))]
     cues: list = []
     if idx > 0:
         tr = idx % 5

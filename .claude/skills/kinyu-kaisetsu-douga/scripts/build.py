@@ -41,7 +41,16 @@ def main():
         sys.exit(f"台本が未承認です。ユーザーの承認後に {out/'APPROVED'} を作成してください。")
     run(HERE / "tts.py", a.spec, "--out", out, "--engine", a.engine, *(["--no-sfx"] if a.no_sfx else []))
     run(HERE / "check_script.py", a.spec, "--out", out, "--timeline", *t)
-    run(HERE / "render.py", a.spec, "--out", out)
+    import json
+    if json.loads(Path(a.spec).read_text(encoding="utf-8")).get("renderer") == "3d":
+        r3 = HERE.parent / "render3d"
+        if not (r3 / "node_modules" / "three").exists():
+            subprocess.run(["npm", "install", "--no-audit", "--no-fund"], cwd=r3, check=True)
+        print("$ node render3d.js", a.spec, flush=True)
+        if subprocess.run(["node", str(r3 / "render3d.js"), str(a.spec), "--out", str(out), "--workers", "3"]).returncode:
+            sys.exit("失敗: render3d.js")
+    else:
+        run(HERE / "render.py", a.spec, "--out", out)
     run(HERE / "mux.py", "--out", out, *(["--bgm", a.bgm] if a.bgm else []))
     run(HERE / "final_check.py", a.spec, "--out", out, *t)
     print(f"完成: {out / 'video.mp4'}")

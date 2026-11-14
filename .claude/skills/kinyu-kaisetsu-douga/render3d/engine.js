@@ -197,15 +197,12 @@ const PEOPLE = {
 };
 function warningSign() {
   const g = new THREE.Group();
-  const tri = cyl(1.15, 1.15, 0.22, 'yellow', 3); tri.rotation.set(Math.PI / 2, 0, 0); tri.rotation.y = 0;
-  tri.rotation.z = Math.PI / 2 * 0; const holder = new THREE.Group(); holder.add(tri); holder.rotation.z = -Math.PI / 2;
-  holder.rotation.z = 0; tri.rotation.set(Math.PI / 2, Math.PI / 2, 0);
-  g.add(tri);
+  const tri = cyl(1.15, 1.15, 0.22, 'yellow', 3); tri.rotation.set(-Math.PI / 2, 0, 0); g.add(tri);
   const bar = box(0.18, 0.75, 0.1, 'black', 0.05); bar.position.set(0, 0.12, 0.14); g.add(bar);
   g.add(at(sph(0.11, 'black'), 0, -0.48, 0.14));
   g.position.y = 1.6;
   const out = new THREE.Group(); out.add(g);
-  const pole = cyl(0.07, 0.07, 1.0, 'muted' in M ? 'navy' : 'navy'); pole.position.y = 0.5; out.add(pole);
+  const pole = cyl(0.07, 0.07, 1.0, 'navy'); pole.position.y = 0.5; out.add(pole);
   return out;
 }
 function glassBox(w = 2.6, h = 2.4, d = 2.0) {
@@ -358,7 +355,7 @@ B.glassbox = (v) => {
   const n = 14; const stacks = [];
   for (let i = 0; i < 6; i++) { const cs = coinStack(n, 0.36); cs.position.set(((i % 3) - 1) * 0.85, 0.12, (Math.floor(i / 3) - 0.5) * 0.85); g.add(cs); stacks.push(cs); }
   const people = [];
-  if (v.happy) ['spouse', 'child1', 'child2'].forEach((k, i) => { const p = person({ ...PEOPLE[k], phase: i }); p.position.set((i - 1) * 1.3, 0, 2.2); p.scale.setScalar(0.75); p.userData.baseY = 0; g.add(p); people.push(p); });
+  if (v.happy) ['spouse', 'child1', 'child2'].forEach((k, i) => { const p = person({ ...PEOPLE[k], phase: i }); p.position.set((i - 1) * 1.3, 0, 2.2); p.scale.setScalar(0.95); p.userData.baseY = 0; g.add(p); people.push(p); });
   const line = box(3.2, 0.03, 2.4, new THREE.MeshStandardMaterial({ color: C.gold, transparent: true, opacity: 0.45, metalness: 0.5, roughness: 0.3 })); line.position.y = 2.6 * v.fill + 0.12; g.add(line);
   return {
     group: g, cam: { dist: 13, elev: 18, azim: -12, ty: 1.5 },
@@ -382,7 +379,7 @@ B.formula_blocks = (v) => {
   for (let i = 0; i < n; i++) {
     const b = box(2.2, 0.42, 1.6, 'blue', 0.06); g.add(b); per.push(b);
     const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i % 3]], phase: i * 1.3 });
-    p.scale.setScalar(0.7); p.position.set(1.6 + (i - 1) * 0.9, 0, 1.4 - i * 0.2); p.userData.baseY = 0; g.add(p); people.push(p);
+    p.scale.setScalar(0.9); p.position.set(1.7 + (i - 1) * 1.05, 0, 1.4 - i * 0.2); p.userData.baseY = 0; g.add(p); people.push(p);
   }
   return {
     group: g, cam: { dist: 14, elev: 18, azim: 10, ty: 1.6 },
@@ -400,7 +397,7 @@ B.formula_blocks = (v) => {
       people.forEach((p, i) => animPerson(p, t, v.phase === 'total' && lt > 0.6 + i * 0.45 ? 'cheer' : 'wave'));
     },
     overlay(lt, D) {
-      const items = [callout(base, [-1.1, 0.3, 0.8], v.base, { dx: -10, dy: 330, color: C.gold, delay: 0.2, size: 46 })];
+      const items = [callout(base, [0, -0.2, 0.82], v.base, { dx: 0, dy: 0, color: C.gold, delay: 0.2, size: 46 })];
       if (v.phase === 'formula') {
         items.push(callout(per[0], [0, 0.25, 0.8], `${v.per} × 人数`, { dx: 60, dy: -330, color: C.blue, delay: 0.6, size: 46 }));
       } else {
@@ -446,7 +443,7 @@ B.pie = (v) => {
   });
   const people = slices.map(({ s, mid }, i) => {
     const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i]], phase: i });
-    p.scale.setScalar(0.62); p.position.set(Math.cos(mid) * 3.3, 0, -Math.sin(mid) * 3.3 * 0.8); p.userData.baseY = 0; g.add(p); return p;
+    p.scale.setScalar(0.8); p.position.set(Math.cos(mid) * 3.3, 0, -Math.sin(mid) * 3.3 * 0.8); p.userData.baseY = 0; g.add(p); return p;
   });
   return {
     group: g, cam: { dist: 13.5, elev: 34, azim: 0, ty: 0.6 },
@@ -499,7 +496,7 @@ B.coin_stacks = (v) => {
   const per = 20;
   const stacks = v.stacks.map((s, i) => {
     const n = Math.round(s.value / per); const cs = coinStack(n, 0.5); cs.position.set((i - 1) * 2.0, 0, 0); g.add(cs);
-    const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i]], phase: i }); p.scale.setScalar(0.6); p.position.set((i - 1) * 2.0, 0, -1.5); p.userData.baseY = 0; g.add(p);
+    const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i]], phase: i }); p.scale.setScalar(0.8); p.position.set((i - 1) * 2.0, 0, -1.5); p.userData.baseY = 0; g.add(p);
     return { cs, n, s, p };
   });
   return {
@@ -525,7 +522,7 @@ B.coin_stacks = (v) => {
 B.split_pay = (v) => {
   const g = new THREE.Group();
   const piles = v.shares.map((s, i) => { const cs = coinStack(Math.round(16 * s.frac), 0.45); g.add(cs); return cs; });
-  const people = v.shares.map((s, i) => { const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i]], phase: i }); p.scale.setScalar(0.62); p.position.set((i - 1) * 2.2, 0, -0.8); p.userData.baseY = 0; g.add(p); return p; });
+  const people = v.shares.map((s, i) => { const p = person({ ...PEOPLE[['spouse', 'child1', 'child2'][i]], phase: i }); p.scale.setScalar(0.8); p.position.set((i - 1) * 2.2, 0, -0.8); p.userData.baseY = 0; g.add(p); return p; });
   const dome = new THREE.Mesh(new THREE.SphereGeometry(1.0, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), mat('glassBlue'));
   dome.position.set(-2.2, 0, -0.3); g.add(dome); dome.visible = !!v.shares[0].zero;
   return {
@@ -621,16 +618,16 @@ B.umbrella = (v) => {
 
 B.gift_timeline = (v) => {
   const g = new THREE.Group();
-  const road = box(9.0, 0.08, 1.4, 'pedestal', 0.03); road.position.set(-0.6, 0.04, 0); g.add(road);
-  const pile = billPile(2); pile.scale.setScalar(0.55); pile.position.set(4.0, 0, 0); g.add(pile);
+  const road = box(4.4, 0.1, 1.2, 'navy', 0.04); road.position.set(-0.4, 0.05, 0); g.add(road);
+  const pile = billPile(2); pile.scale.setScalar(0.42); pile.position.set(1.3, 0, 0); g.add(pile);
   const gifts = [];
-  for (let i = 0; i < v.years; i++) { const b = giftBox([C.down, C.blue, C.teal, C.gold, C.pink, C.up, C.roof][i % 7]); b.scale.setScalar(0.85); g.add(b); gifts.push(b); }
+  for (let i = 0; i < v.years; i++) { const b = giftBox([C.down, C.blue, C.teal, C.gold, C.pink, C.up, C.roof][i % 7]); b.scale.setScalar(0.55); g.add(b); gifts.push(b); }
   return {
-    group: g, cam: { dist: 14, elev: 24, azim: -28, ty: 0.8 },
+    group: g, cam: { dist: 11, elev: 30, azim: 0, ty: 0.5, tx: -0.3 },
     update(lt, D, t) {
       gifts.forEach((b, i) => {
-        const x0 = -4.6 + i * 1.05; const k = eInOut((lt - 0.6 - i * 0.18) / 0.5);
-        b.position.set(lerp(x0, 3.6 + (i % 2) * 0.4, k), 0.08 + Math.sin(k * Math.PI) * 1.4 + k * (0.75 + Math.floor(i / 2) * 0.02), lerp(0, (i % 3 - 1) * 0.3, k));
+        const x0 = -2.3 + i * 0.47; const k = eInOut((lt - 0.6 - i * 0.18) / 0.5);
+        b.position.set(lerp(x0, 1.15 + (i % 2) * 0.3, k), 0.1 + Math.sin(k * Math.PI) * 1.2 + k * (0.3 + Math.floor(i / 2) * 0.4), lerp(0, (i % 3 - 1) * 0.3, k));
         b.rotation.y = k * 3;
       });
     },
@@ -644,7 +641,7 @@ B.gift_timeline = (v) => {
 B.calendar10 = (v) => {
   const g = new THREE.Group();
   const cal = calendar(); g.add(cal);
-  const p = person({ ...PEOPLE.child1 }); p.scale.setScalar(0.7); p.position.set(1.8, 0, 0.8); p.userData.baseY = 0; g.add(p);
+  const p = person({ ...PEOPLE.child1 }); p.scale.setScalar(0.9); p.position.set(1.8, 0, 0.8); p.userData.baseY = 0; g.add(p);
   return {
     group: g, cam: { dist: 11, elev: 10, azim: -14, ty: 1.4 },
     update(lt, D, t) {
@@ -777,8 +774,9 @@ function camPose(b, lt, D, t) {
   const c = b.cam; const az = (c.azim + 7 * Math.sin(t * 0.22)) * Math.PI / 180;
   const el = (c.elev + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
   const dist = c.dist * DIST_SCALE * (1 - 0.05 * clamp(lt / D));
-  const target = new THREE.Vector3(0, c.ty, 0);
-  const pos = new THREE.Vector3(Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist);
+  const tx = c.tx || 0;
+  const target = new THREE.Vector3(tx, c.ty, 0);
+  const pos = new THREE.Vector3(tx + Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist);
   return { pos, target };
 }
 
