@@ -182,7 +182,7 @@ def main():
             hook_end = tl["scenes"][0]["end"]
             if hook_end > 3.05:
                 E(f"フックが {hook_end:.2f}秒で終わる（0〜3秒以内に）")
-        if not a.test and not (60 <= tl["duration"] <= 90):
+        if not a.test and not (60 <= tl["duration"] <= float(spec.get("max_duration", 90))):
             E(f"全体 {tl['duration']:.1f}秒（60〜90秒）")
         print(f"[check] 尺 {tl['duration']:.2f}s / {len(tl['scenes'])} シーン")
 

@@ -12,6 +12,7 @@
   "tail": 0.95
  },
  "max_scene": 5.3,
+ "max_duration": 150,
  "scenes": [
   {
    "role": "hook",

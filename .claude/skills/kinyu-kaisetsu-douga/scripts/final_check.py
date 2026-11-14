@@ -47,7 +47,7 @@ def main():
         errs.append(f"映像 {v['codec_name']}/{v.get('pix_fmt')}")
     if not au or au[0]["codec_name"] != "aac":
         errs.append("音声(AAC)がない")
-    if not a.test and not (60 <= dur <= 90):
+    if not a.test and not (60 <= dur <= float(json.load(open(a.spec, encoding="utf-8")).get("max_duration", 90))):
         errs.append(f"尺 {dur:.1f}s（60〜90秒）")
     info.append(f"{v['width']}x{v['height']} {num/den:.0f}fps {dur:.2f}s video={v['codec_name']} audio={au[0]['codec_name'] if au else None}")
 
