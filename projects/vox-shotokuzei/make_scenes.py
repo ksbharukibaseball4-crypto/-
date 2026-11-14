@@ -55,7 +55,7 @@ sc = [
 ]
 spec = dict(title="本当は学校で教えて欲しいシリーズ「所得税」（ブロック風3D）", series="本当は学校で教えて欲しいシリーズ",
             episode="所得税", asof="2026年11月時点", pr=False, renderer="3d", theme="voxel", sub_style="telop",
-            voice=dict(cps=5.5, tail=0.95), max_scene=5.3, max_duration=150, scenes=sc)
+            voice=dict(cps=5.5, tail=0.95), max_scene=5.3, max_duration=150, render_workers=1, scenes=sc)
 here = os.path.dirname(os.path.abspath(__file__))
 json.dump(spec, open(os.path.join(here, "scenes.json"), "w"), ensure_ascii=False, indent=1)
 print("ok", len(sc))

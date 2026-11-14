@@ -1628,7 +1628,9 @@ function genVoxelWorld() {
   VX.spots = { front: [-6, g0, 26], front2: [8, g0, 26], home: [-12, g0, 13], company: [-12, g0, -2], tax: [14, g0, -1], school: [0, g0, -6], town: [13, g0, 15], fountain: [7, g0, 16], cross: [0, g0, 5], field: [5, g0, 9], hill: [-4, 10, -22] };
 }
 function meshVoxels(atlas) {
-  const groups = { solid: { p: [], n: [], uv: [], c: [], i: [] }, cut: { p: [], n: [], uv: [], c: [], i: [] }, water: { p: [], n: [], uv: [], c: [], i: [] } };
+  // faces are grouped per 16x16 column chunk so the camera and the shadow camera can cull what they don't see
+  const groups = {};
+  const grpOf = (x, z, k) => { const key = `${Math.floor((x + VOFF.x) / 16)},${Math.floor((z + VOFF.z) / 16)},${k}`; return groups[key] || (groups[key] = { k, p: [], n: [], uv: [], c: [], i: [] }); };
   const DIRS = [
     { d: [0, 1, 0], c: [[0, 1, 1], [1, 1, 1], [1, 1, 0], [0, 1, 0]], f: 0, sh: 1.0 }, { d: [0, -1, 0], c: [[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], f: 2, sh: 0.5 },
     { d: [1, 0, 0], c: [[1, 0, 1], [1, 0, 0], [1, 1, 0], [1, 1, 1]], f: 1, sh: 0.82 }, { d: [-1, 0, 0], c: [[0, 0, 0], [0, 0, 1], [0, 1, 1], [0, 1, 0]], f: 1, sh: 0.82 },
@@ -1637,7 +1639,7 @@ function meshVoxels(atlas) {
   const tsz = 1 / ATL.n; const occ = (x, y, z) => (isOpaque(vGet(x, y, z)) ? 1 : 0);
   for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let y = 0; y < VSIZE.y; y++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
     const b = vGet(x, y, z); if (!b) continue;
-    const grp = b === VB.WATER ? groups.water : (b === VB.LEAVES || b === VB.GLASS ? groups.cut : groups.solid);
+    const grp = grpOf(x, z, b === VB.WATER ? 'water' : (b === VB.LEAVES || b === VB.GLASS ? 'cut' : 'solid'));
     for (const D of DIRS) {
       const nb = vGet(x + D.d[0], y + D.d[1], z + D.d[2]);
       if (isOpaque(nb) || (nb === b && b !== VB.LEAVES)) continue;
@@ -1659,14 +1661,15 @@ function meshVoxels(atlas) {
       if (aos[0] + aos[2] > aos[1] + aos[3]) grp.i.push(base, base + 1, base + 2, base, base + 2, base + 3); else grp.i.push(base + 1, base + 2, base + 3, base + 1, base + 3, base);
     }
   }
-  const out = [];
-  for (const [k, g] of Object.entries(groups)) {
+  const out = []; const mats = {};
+  const matFor = (k) => mats[k] || (mats[k] = new THREE.MeshStandardMaterial({ map: atlas, vertexColors: true, roughness: 0.92, metalness: 0,
+    transparent: k === 'water', opacity: k === 'water' ? 0.82 : 1, alphaTest: k === 'cut' ? 0.5 : 0, side: k === 'cut' ? THREE.DoubleSide : THREE.FrontSide }));
+  for (const g of Object.values(groups)) { const k = g.k; if (!g.i.length) continue;
     const geo = new THREE.BufferGeometry();
     geo.setAttribute('position', new THREE.Float32BufferAttribute(g.p, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(g.n, 3));
     geo.setAttribute('uv', new THREE.Float32BufferAttribute(g.uv, 2)); geo.setAttribute('color', new THREE.Float32BufferAttribute(g.c, 3)); geo.setIndex(g.i);
-    const m = new THREE.MeshStandardMaterial({ map: atlas, vertexColors: true, roughness: 0.92, metalness: 0,
-      transparent: k === 'water', opacity: k === 'water' ? 0.82 : 1, alphaTest: k === 'cut' ? 0.5 : 0, side: k === 'cut' ? THREE.DoubleSide : THREE.FrontSide });
-    const mesh = new THREE.Mesh(geo, m); mesh.castShadow = k !== 'water'; mesh.receiveShadow = true; out.push(mesh);
+    geo.computeBoundingSphere(); geo.computeBoundingBox();
+    const mesh = new THREE.Mesh(geo, matFor(k)); mesh.castShadow = k !== 'water'; mesh.receiveShadow = true; out.push(mesh);
   }
   return out;
 }
@@ -1674,7 +1677,7 @@ function plantsMesh(atlas) {
   const p = [], uv = [], idx = [], nrm = []; const tsz = 1 / ATL.n;
   for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
     const h = GH[`${x},${z}`]; if (h === undefined || vGet(x, h - 1, z) !== VB.GRASS || vGet(x, h, z) !== 0) continue;
-    const r = vRand(x * 13.1 + z * 7.3); if (r < 0.62) continue;
+    const r = vRand(x * 13.1 + z * 7.3); if (r < 0.72) continue;
     const t = r > 0.97 ? 21 : 20; const u0 = (t % ATL.n) * tsz, v0 = 1 - (Math.floor(t / ATL.n) + 1) * tsz;
     const cx = x + 0.5 + (vRand(x + z * 3) - 0.5) * 0.4, cz = z + 0.5 + (vRand(z + x * 5) - 0.5) * 0.4, hh = 0.75 + vRand(x * z) * 0.35;
     for (const a of [Math.PI / 4, -Math.PI / 4]) {
@@ -1946,11 +1949,13 @@ async function init() {
   if (th.set === 'school') scene.add(buildSchool());
   if (th.set === 'voxel') {
     scene.add(buildVoxel()); floor.visible = false;
-    scene.fog = new THREE.Fog(th.fog, 45, 150); camera.fov = 40; camera.far = 400; camera.updateProjectionMatrix();
+    scene.fog = new THREE.Fog(th.fog, 45, 150); camera.fov = 40; camera.far = 170; camera.updateProjectionMatrix();
     sun.color.setHex(0xfff0d8); sun.intensity = 3.0; sun.shadow.radius = 4; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
-    Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 140 }); sun.shadow.camera.updateProjectionMatrix();
+    Object.assign(sun.shadow.camera, { left: -20, right: 20, top: 20, bottom: -20, near: 1, far: 120 }); sun.shadow.camera.updateProjectionMatrix();
     scene.add(sun.target); hemi.color.setHex(0xcfe6ff); hemi.groundColor.setHex(0x6b5a40); hemi.intensity = 1.0; scene.environmentIntensity = 0.35;
-    renderer.toneMappingExposure = 1.05; renderer.domElement.style.filter = 'saturate(1.12) contrast(1.05)';
+    renderer.toneMappingExposure = 1.08;
+    // performance: render at 0.8x and let CSS upscale; shadows only around the camera target
+    renderer.setPixelRatio(0.72); renderer.setSize(W, H, false); sun.shadow.mapSize.set(1280, 1280);
   }
   if (th.set === 'diorama') {
     scene.add(buildDiorama());

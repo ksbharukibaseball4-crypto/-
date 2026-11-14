@@ -16,11 +16,12 @@ const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.woff': 'font/woff', '.json': 'application/json' };
 
 function args() {
-  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null };
+  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null, chunk: 240 };
   for (let i = 1; i < a.length; i++) {
     if (a[i] === '--out') o.out = a[++i];
     else if (a[i] === '--workers') o.workers = +a[++i];
     else if (a[i] === '--theme') o.theme = a[++i];
+    else if (a[i] === '--chunk') o.chunk = +a[++i];
     else if (a[i] === '--still') { o.still = []; while (a[i + 1] && !a[i + 1].startsWith('--')) o.still.push(+a[++i]); }
   }
   return o;
@@ -75,34 +76,43 @@ async function main() {
       }
       return;
     }
-    const fps = 30; const n = Math.ceil(tl.duration * fps);
-    const W = Math.max(1, o.workers); const per = Math.ceil(n / W);
-    const t0 = Date.now(); let done = 0;
-    const segs = await Promise.all([...Array(W).keys()].map(async (w) => {
-      const a = w * per, b = Math.min(n, a + per); if (a >= b) return null;
-      const seg = path.join(out, `seg_${w}.mp4`);
-      const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
-        '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(fps), seg], { stdio: ['pipe', 'inherit', 'inherit'] });
+    // Resumable rendering: frames are rendered in chunks (default 240) into <out>/segs_<hash>/chunk_XXXX.mp4.
+    // Finished chunks are kept, so an interrupted run continues where it stopped. The hash covers the
+    // spec, the timeline and the engine sources, so stale chunks are never reused after a change.
+    const fps = 30; const n = Math.ceil(tl.duration * fps); const CH = o.chunk || 240;
+    const crypto = require('crypto'); const h = crypto.createHash('sha1');
+    for (const f of [specPath, tlPath, path.join(ROOT, 'engine.js'), path.join(ROOT, 'rpg.js'), path.join(ROOT, 'index.html')]) if (fs.existsSync(f)) h.update(fs.readFileSync(f));
+    const segDir = path.join(out, `segs_${h.digest('hex').slice(0, 10)}`); fs.mkdirSync(segDir, { recursive: true });
+    const chunks = [...Array(Math.ceil(n / CH)).keys()];
+    const todo = chunks.filter((c) => !fs.existsSync(path.join(segDir, `chunk_${String(c).padStart(4, '0')}.mp4`)));
+    console.log(`[render3d] ${n} frames, ${chunks.length} chunks, ${chunks.length - todo.length} already done -> ${segDir}`);
+    const t0 = Date.now(); let done = 0; const total = todo.reduce((acc, c) => acc + Math.min(CH, n - c * CH), 0);
+    const W = Math.max(1, Math.min(o.workers, todo.length || 1));
+    await Promise.all([...Array(W).keys()].map(async () => {
       const page = await openPage(browser, port, o.theme);
-      for (let f = a; f < b; f++) {
-        await page.evaluate((t) => window.renderAt(t), f / fps);
-        const buf = await page.screenshot({ type: 'jpeg', quality: 92 });
-        if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
-        done++;
-        if (done % 150 === 0) {
-          const el = (Date.now() - t0) / 1000;
-          console.log(`[render3d] ${done}/${n} frames, ${el.toFixed(0)}s elapsed, ~${(el / done * (n - done)).toFixed(0)}s left`);
+      while (todo.length) {
+        const c = todo.shift(); const a = c * CH, b = Math.min(n, a + CH);
+        const fin = path.join(segDir, `chunk_${String(c).padStart(4, '0')}.mp4`); const tmp = fin + '.part.mp4';
+        const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'mjpeg', '-i', '-',
+          '-c:v', 'libx264', '-preset', 'medium', '-crf', '18', '-pix_fmt', 'yuv420p', '-r', String(fps), tmp], { stdio: ['pipe', 'inherit', 'inherit'] });
+        for (let f = a; f < b; f++) {
+          await page.evaluate((t) => window.renderAt(t), f / fps);
+          const buf = await page.screenshot({ type: 'jpeg', quality: 92 });
+          if (!ff.stdin.write(buf)) await new Promise((r) => ff.stdin.once('drain', r));
+          done++;
+          if (done % 150 === 0) { const el = (Date.now() - t0) / 1000; console.log(`[render3d] ${done}/${total} frames this run, ${el.toFixed(0)}s elapsed, ~${(el / done * (total - done)).toFixed(0)}s left`); }
         }
+        ff.stdin.end(); const code = await new Promise((r) => ff.on('close', r));
+        if (code !== 0) throw new Error(`ffmpeg failed for chunk ${c}`);
+        fs.renameSync(tmp, fin);
       }
-      ff.stdin.end(); await new Promise((r) => ff.on('close', r)); await page.close();
-      return seg;
+      await page.close();
     }));
-    const list = path.join(out, 'segs.txt');
-    fs.writeFileSync(list, segs.filter(Boolean).map((s) => `file '${s}'`).join('\n'));
+    const list = path.join(segDir, 'list.txt');
+    fs.writeFileSync(list, chunks.map((c) => `file '${path.join(segDir, `chunk_${String(c).padStart(4, '0')}.mp4`)}'`).join('\n'));
     await new Promise((res, rej) => spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', list, '-c', 'copy',
       path.join(out, 'visual.mp4')], { stdio: 'inherit' }).on('close', (c) => (c ? rej(new Error('concat failed')) : res())));
-    segs.filter(Boolean).forEach((s) => fs.unlinkSync(s)); fs.unlinkSync(list);
-    console.log(`[render3d] ${n} frames -> ${path.join(out, 'visual.mp4')} (${((Date.now() - t0) / 1000).toFixed(0)}s)`);
+    console.log(`[render3d] ${n} frames -> ${path.join(out, 'visual.mp4')} (${((Date.now() - t0) / 1000).toFixed(0)}s this run)`);
   } finally {
     await browser.close(); srv.close();
   }

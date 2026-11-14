@@ -47,7 +47,8 @@ def main():
         if not (r3 / "node_modules" / "three").exists():
             subprocess.run(["npm", "install", "--no-audit", "--no-fund"], cwd=r3, check=True)
         print("$ node render3d.js", a.spec, flush=True)
-        if subprocess.run(["node", str(r3 / "render3d.js"), str(a.spec), "--out", str(out), "--workers", "3"]).returncode:
+        wk = str(json.loads(Path(a.spec).read_text(encoding="utf-8")).get("render_workers", 3))
+        if subprocess.run(["node", str(r3 / "render3d.js"), str(a.spec), "--out", str(out), "--workers", wk]).returncode:
             sys.exit("失敗: render3d.js")
     else:
         run(HERE / "render.py", a.spec, "--out", out)
