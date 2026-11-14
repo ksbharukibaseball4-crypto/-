@@ -1,0 +1,10 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>html,body{margin:0;width:1080px;height:1920px;background:transparent;overflow:hidden}
+.t{position:absolute;left:90px;width:900px;text-align:center;font-family:"Zen Maru Gothic";font-weight:900;color:#fff;line-height:1.28;
+ text-shadow:0 0 3px #1a1208,4px 0 0 #1a1208,-4px 0 0 #1a1208,0 4px 0 #1a1208,0 -4px 0 #1a1208,3px 3px 0 #1a1208,-3px 3px 0 #1a1208,3px -3px 0 #1a1208,-3px -3px 0 #1a1208,0 10px 24px rgba(0,0,0,.45)}
+.em{color:#ffd84a}
+.series{display:inline-block;font-family:"Noto Sans JP";font-weight:900;font-size:34px;letter-spacing:.2em;color:#1a1208;background:#ffd84a;padding:6px 28px;border-radius:999px;text-shadow:none;margin-bottom:18px}
+</style></head><body><div class="t" id="t"></div>
+<script>const q=new URLSearchParams(location.search);const t=document.getElementById('t');t.style.top=(q.get('y')||'230')+'px';t.style.fontSize=(q.get('fs')||'76')+'px';t.innerHTML=q.get('h');document.fonts.ready.then(()=>{window.ready=true})</script></body></html>
