@@ -185,6 +185,8 @@ def scene_sfx(visual: dict, dur: float, idx: int) -> list[tuple[float, np.ndarra
     rng = random.Random(idx * 7919 + 11)
     pv = 1 + rng.uniform(-0.07, 0.07)
     typ = visual.get("type")
+    if typ == "rpg":
+        return rpg_sfx(visual, dur, idx)
     # 3D renderer visual types → sound categories
     if typ == "document_stamp":
         return ([(0.0, page(seed=idx))] if idx else []) + [(0.72, stamp())]
@@ -255,4 +257,51 @@ def scene_sfx(visual: dict, dur: float, idx: int) -> list[tuple[float, np.ndarra
         cues += [(0.1, chord((1047 * pv, 1319 * pv, 1568 * pv))), (0.5, sparkle(idx))]
     elif typ == "disclaimer":
         cues += [(0.1, bell(784))]
+    return cues
+
+
+# ---- original chiptune-style sounds (square / triangle waves) for the retro-RPG theme
+def _sq(f, d, duty=0.5, vol=0.16, decay=0.15):
+    t = _t(d)
+    w = np.where((t * f) % 1 < duty, 1.0, -1.0)
+    return _f32(w * _env(len(t), 0.002, decay), vol)
+
+
+def _notes(seq, dur=0.09, duty=0.5, vol=0.14):
+    out = np.concatenate([_sq(f, dur, duty, vol, dur * 0.9) if f else np.zeros(int(dur * SR), np.float32) for f in seq])
+    return out.astype(np.float32)
+
+
+def chip_blip(): return _sq(1320, 0.035, 0.25, 0.08, 0.02)
+def chip_encounter(): return _notes([392, 523, 659, 784, 659, 784, 988], 0.055, 0.25, 0.12)
+def chip_hit(): return _f32(_noise(int(0.18 * SR), 3) * _env(int(0.18 * SR), 0.001, 0.05), 0.35) + _sq(110, 0.18, 0.5, 0.12, 0.08)
+def chip_spell(): return _notes([523, 659, 784, 1047, 1319, 1568, 2093], 0.045, 0.125, 0.1)
+def chip_coin(): return _notes([988, 1319], 0.07, 0.5, 0.12)
+def chip_fanfare(): return _notes([523, 523, 523, 659, 0, 587, 659, 784, 784], 0.11, 0.5, 0.13)
+def chip_open(): return _notes([392, 494, 587, 784], 0.07, 0.25, 0.12)
+def chip_step(): return _sq(196, 0.05, 0.5, 0.08, 0.03)
+def chip_down(): return _notes([523, 440, 349, 262], 0.08, 0.5, 0.12)
+
+
+def rpg_sfx(visual: dict, dur: float, idx: int) -> list:
+    k, ev = visual.get("kind"), visual.get("event")
+    cues = [] if idx == 0 else [(0.0, chip_step())]
+    if k == "map":
+        if ev == "chest": cues += [(0.5, chip_open()), (0.85, chip_coin())]
+        elif ev in ("sad", "alone", "calc"): cues += [(0.3, chip_down())]
+        elif ev == "sage_in": cues += [(0.2 + i * 0.25, chip_step()) for i in range(4)] + [(1.25, chip_blip())]
+        elif ev == "cart": cues += [(0.3 + i * 0.5, chip_step()) for i in range(int(dur / 0.5) - 1)]
+        elif ev == "spring": cues += [(0.2 + i * 0.6, chip_coin()) for i in range(int(dur / 0.6))]
+        elif ev == "wind": cues += [(0.3, swish(idx))]
+        elif ev == "bye": cues += [(0.3, chip_fanfare())]
+    elif k == "battle":
+        if ev == "encounter": cues += [(0.0, chip_encounter())]
+        elif ev == "hit": cues += [(0.45, chip_hit()), (0.9, chip_hit())]
+        elif ev == "join": cues += [(0.6, chip_encounter())]
+        elif ev == "spell": cues += [(0.3, chip_spell()), (1.6, chip_fanfare())]
+        elif ev == "refund": cues += [(0.3 + i * 0.25, chip_coin()) for i in range(5)]
+        elif ev == "extra": cues += [(0.4, chip_down())]
+    elif k in ("title", "end"): cues += [(0.1, chip_fanfare())]
+    elif k in ("skill", "levelup"): cues += [(0.1, chip_fanfare())]
+    elif k in ("status", "effects", "items", "months"): cues += [(0.3 + i * 0.4, chip_blip()) for i in range(3)]
     return cues

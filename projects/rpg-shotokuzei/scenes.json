@@ -1,0 +1,332 @@
+{
+ "title": "本当は学校で教えてほしいシリーズ「所得税」（レトロRPG風）",
+ "series": "本当は学校で教えてほしいシリーズ",
+ "episode": "所得税",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "rpg",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "narr",
+   "text": "初めての給料を/手に入れた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "home",
+    "event": "chest"
+   },
+   "cps": 7.0,
+   "tail": 0.45
+  },
+  {
+   "role": "premise",
+   "speaker": "hero",
+   "text": "あれ？/思ったより/少ない…",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "home",
+    "event": "sad"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "税金たちが/あらわれた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [
+     "shotoku",
+     "shakai"
+    ],
+    "event": "encounter"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "給料から/税金が/引かれた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [
+     "shotoku",
+     "shakai"
+    ],
+    "event": "hit"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "翌年からは/住民税も/あらわれる！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [
+     "shotoku",
+     "shakai",
+     "jumin"
+    ],
+    "event": "join"
+   },
+   "asof": true,
+   "note": "※前年の所得にかかるため、一般に働き始めた翌年の6月ごろから"
+  },
+  {
+   "role": "premise",
+   "speaker": "hero",
+   "text": "誰も/教えてくれなかった…",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "crossroad",
+    "event": "alone"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "sage",
+   "text": "ならば/わしが/教えよう。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "crossroad",
+    "event": "sage_in"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "第1章/「所得税」",
+   "visual": {
+    "type": "rpg",
+    "kind": "title",
+    "chapter": "第1章",
+    "title": "所得税"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "所得税は、/所得に応じて/納める税金じゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "status"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "本来は/自分で計算して/納めるものじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "home",
+    "event": "calc"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "じゃが日本は、/会社員が/とても多い。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "company",
+    "event": "crowd"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "そこで会社が/先に引いて/国に納めるのじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "road",
+    "event": "cart"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "「源泉徴収」の/しくみを/知った！",
+   "visual": {
+    "type": "rpg",
+    "kind": "skill",
+    "name": "源泉徴収",
+    "desc": "会社が給料から先に税金を引き、国に納める"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "源泉、/つまり/お金の出どころで/集めるのじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "fountain",
+    "event": "spring"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "取り漏れが/なくなり、/手間も減る。",
+   "visual": {
+    "type": "rpg",
+    "kind": "effects",
+    "lines": [
+     "取り漏れを防ぐ",
+     "納める手間が減る"
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "ただし、/毎月の額は/見込みじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "months"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "1年の収入を/予想した/概算なのじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "months",
+    "labels": true
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "12月、/ズレが/あらわれた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [
+     "zure"
+    ],
+    "event": "encounter"
+   },
+   "asof": true,
+   "note": "※年末調整は通常、その年の最後の給料のとき"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "年末調整で/正しく/計算し直す！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [
+     "zure"
+    ],
+    "event": "spell",
+    "spell": "年末調整"
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "narr",
+   "text": "取りすぎた税金が/戻ってきた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [],
+    "event": "refund"
+   }
+  },
+  {
+   "role": "example",
+   "speaker": "narr",
+   "text": "足りないときは/追加で/引かれる。",
+   "visual": {
+    "type": "rpg",
+    "kind": "battle",
+    "enemies": [],
+    "event": "extra"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "生命保険料や/地震保険料も/ここで反映じゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "items",
+    "items": [
+     "生命保険料の控除証明書",
+     "地震保険料の控除証明書",
+     "扶養控除等申告書"
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "sage",
+   "text": "書類を/出し忘れると、/税金が戻らんぞ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "home",
+    "event": "wind"
+   },
+   "note": "※あとから確定申告で取り戻せる場合もあります"
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "年末調整の/しくみを/おぼえた！",
+   "visual": {
+    "type": "rpg",
+    "kind": "levelup",
+    "stat": "お金の知識"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "sage",
+   "text": "今日の授業は/ここまでじゃ。",
+   "visual": {
+    "type": "rpg",
+    "kind": "map",
+    "at": "school",
+    "event": "bye"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "次回も/お楽しみに！",
+   "visual": {
+    "type": "rpg",
+    "kind": "end"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "narr",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

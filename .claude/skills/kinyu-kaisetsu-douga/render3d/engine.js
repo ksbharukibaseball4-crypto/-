@@ -27,7 +27,7 @@ const eOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
 const eBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
 const eInOut = (x) => { x = clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
 
-let spec, tl, renderer, scene, camera, floor, composer = null, themeName = 'studio';
+let spec, tl, renderer, scene, camera, floor, composer = null, themeName = 'studio', sunLight = null, hemiLight = null;
 const built = new Map();
 const ov = document.getElementById('ov');
 const svg = document.getElementById('lines');
@@ -1497,10 +1497,16 @@ B.dio = (v, sc) => {
     ov = () => act === 'scale' ? [callout(bs.userData.pans[0], [0, -0.3, 0], '見込み', { dx: -60, dy: -120, color: C.blue, delay: 0.3, size: 36 }), callout(bs.userData.pans[1], [0, -0.3, 0], '正しい1年分', { dx: 60, dy: -160, color: C.gold, delay: 0.5, size: 36 }), telopTitle('12月にズレを発見', TITLE_Y, 54, 0.6)]
       : [telopTitle('1年分をピッタリ計算', TITLE_Y, 54, 0.6)];
   } else if (act === 'insurance') {
-    const h1 = S.houses[0], h2 = S.houses[2]; const u = umbrella(); u.scale.setScalar(0.35); const p1 = worldPos(h1); u.position.set(p1.x, 0.6, p1.z); g.add(u);
-    cam = { dist: 6.5, elev: 30, azim: 0, ty: 0.7, tx: -4.5, tz: 2.8 };
-    upd = (lt, D, t) => { h2.rotation.z = 0.06 * Math.sin(t * 18) * (lt > 0.8 && lt < 2.6 ? 1 : 0); };
-    ov = () => [callout(h1, [0, 2.2, 0], '生命保険料', { dx: -20, dy: -220, color: C.down, delay: 0.3, size: 38 }), callout(h2, [0, 2.2, 0], '地震保険料', { dx: 30, dy: -170, color: C.blue, delay: 0.6, size: 38 }), telopTitle('保険料の控除もここで', TITLE_Y, 52, 0.8)];
+    const hero = person('hero', P3('front', 0, 0, 0), 0.2);
+    const cert = (dx, color) => { const g2 = new THREE.Group(); const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), new THREE.MeshStandardMaterial({ color: 0x8a5a2b })); post.position.y = 0.6; g2.add(post);
+      const bd = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.0, 0.08), new THREE.MeshStandardMaterial({ color: 0xfbfaf5, roughness: 0.9 })); bd.position.y = 2.0; bd.castShadow = true; g2.add(bd);
+      const band = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.35, 0.1), new THREE.MeshStandardMaterial({ color })); band.position.y = 2.8; g2.add(band);
+      g2.position.copy(P3('front', dx, 0, -1.2)); g.add(g2); g2.userData.bd = bd; return g2; };
+    const c1 = cert(-2.2, 0xe0473c), c2 = cert(2.4, 0x3a6fd8);
+    look(P3('front', 0, 0, -0.5), 8, 8, 0, 1.6);
+    upd = (lt, D, t) => { animBlock(hero, t, 'point'); [c1, c2].forEach((c, i) => { c.scale.setScalar(Math.max(0.001, eBack((lt - 0.2 - i * 0.3) / 0.5))); c.rotation.y = 0.15 * Math.sin(t + i); }); };
+    ov = () => [{ kind: 'tag', obj: c1.userData.bd, local: [0, 0, 0.06], text: '生命保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.4 },
+      { kind: 'tag', obj: c2.userData.bd, local: [0, 0, 0.06], text: '地震保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.7 }, tt('各種控除を まとめて整理', TITLE_Y, 50, 0.9)];
   } else if (act === 'forget') {
     const hp = worldPos(S.houses[3]); const p = miniPerson('red'); p.scale.setScalar(0.4); p.position.set(hp.x + 0.8, 0.52, hp.z + 0.9); g.add(p);
     const papers = [...Array(5)].map(() => { const q = box(0.22, 0.01, 0.3, 'paper'); g.add(q); return q; });
@@ -1520,6 +1526,381 @@ B.dio = (v, sc) => {
   return { group: g, cam, update: (lt, D, t) => { upd(lt, D, t); }, overlay: (lt, D, t) => ov(lt, D, t) };
 };
 
+// ------------------------------------------------------------------ voxel (block-style) theme — original textures & characters
+const VX = { world: null, meshes: [], snowMesh: null, snowPts: null, clouds: [], walkers: [], spots: {}, plants: null };
+const VB = { AIR: 0, GRASS: 1, DIRT: 2, STONE: 3, LOG: 4, LEAVES: 5, PLANKS: 6, BRICK: 7, WHITE: 8, GLASS: 9, PATH: 10, WATER: 11, ROOFB: 12, ROOFR: 13, GOLD: 14, SAND: 15, SBRICK: 16, ROOFG: 17 };
+const VSIZE = { x: 80, y: 30, z: 64 }; const VOFF = { x: 40, z: 32 };
+const ATL = { n: 8, px: 16 };
+function vRand(i) { const x = Math.sin(i * 12.9898 + 78.233) * 43758.5453; return x - Math.floor(x); }
+function makeAtlas() {
+  const cv = document.createElement('canvas'); cv.width = ATL.n * ATL.px; cv.height = ATL.n * ATL.px; const c = cv.getContext('2d');
+  const tile = (idx, fn) => { const ox = (idx % ATL.n) * ATL.px, oy = Math.floor(idx / ATL.n) * ATL.px; for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { c.fillStyle = fn(x, y, vRand(idx * 997 + y * 16 + x)); c.fillRect(ox + x, oy + y, 1, 1); } };
+  const sh = (r, g, b, k) => `rgb(${Math.round(r * k)},${Math.round(g * k)},${Math.round(b * k)})`;
+  tile(0, (x, y, r) => sh(108, 176, 74, 0.86 + r * 0.22));                                                  // grass top
+  tile(1, (x, y, r) => (y < 3 + (vRand(x * 7) > 0.5 ? 1 : 0) ? sh(108, 176, 74, 0.85 + r * 0.2) : sh(134, 96, 67, 0.8 + r * 0.3)));   // grass side
+  tile(2, (x, y, r) => sh(134, 96, 67, 0.78 + r * 0.32));                                                   // dirt
+  tile(3, (x, y, r) => sh(128, 128, 132, 0.8 + r * 0.28));                                                  // stone
+  tile(4, (x, y, r) => sh(112, 82, 50, (x % 4 === 0 ? 0.75 : 0.95) + r * 0.12));                            // log side
+  tile(5, (x, y, r) => (r > 0.22 ? sh(64, 140, 56, 0.7 + r * 0.4) : 'rgba(0,0,0,0)'));                      // leaves
+  tile(6, (x, y, r) => sh(186, 146, 96, ((y % 4 === 3) ? 0.72 : 0.95) + r * 0.1));                          // planks
+  tile(7, (x, y, r) => ((y % 4 === 3 || (x + (Math.floor(y / 4) % 2) * 4) % 8 === 7) ? sh(200, 190, 175, 1) : sh(170, 82, 66, 0.88 + r * 0.18)));  // brick
+  tile(8, (x, y, r) => sh(236, 232, 222, 0.94 + r * 0.06));                                                 // white (plaster)
+  tile(9, (x, y, r) => ((x === 0 || y === 0 || x === 15 || y === 15) ? 'rgb(230,240,248)' : (x + y === 10 || x + y === 12 ? 'rgba(255,255,255,0.6)' : 'rgba(170,215,240,0.35)')));  // glass
+  tile(10, (x, y, r) => sh(196, 168, 118, 0.82 + r * 0.26));                                                // path
+  tile(11, (x, y, r) => sh(64, 128, 220, 0.85 + r * 0.2));                                                  // water
+  tile(12, (x, y, r) => sh(58, 96, 176, (y % 4 === 0 ? 0.75 : 0.95) + r * 0.08));                           // roof blue
+  tile(13, (x, y, r) => sh(176, 66, 52, (y % 4 === 0 ? 0.75 : 0.95) + r * 0.08));                           // roof red
+  tile(14, (x, y, r) => sh(242, 194, 72, ((x === 0 || y === 0) ? 1.12 : (x === 15 || y === 15) ? 0.75 : 0.95) + r * 0.06));   // gold
+  tile(15, (x, y, r) => sh(222, 208, 160, 0.9 + r * 0.14));                                                 // sand
+  tile(16, (x, y, r) => ((y % 8 === 7 || (x + (Math.floor(y / 8) % 2) * 8) % 16 === 15) ? sh(90, 90, 96, 1) : sh(150, 150, 156, 0.88 + r * 0.16)));  // stone brick
+  tile(17, (x, y, r) => sh(70, 140, 92, (y % 4 === 0 ? 0.75 : 0.95) + r * 0.08));                           // roof green
+  tile(18, (x, y, r) => sh(150, 112, 70, 0.8 + 0.2 * Math.abs(Math.sin(Math.hypot(x - 7.5, y - 7.5) * 1.3))));   // log top
+  tile(19, (x, y, r) => sh(245, 248, 252, 0.94 + r * 0.06));                                                // snow
+  // tall grass (cross plant) & flowers
+  tile(20, (x, y, r) => { const blade = (x % 3 === (y % 5 === 0 ? 1 : 0)) && y > 3 + (x * 7) % 6; return blade ? sh(90, 160, 64, 0.8 + r * 0.3) : 'rgba(0,0,0,0)'; });
+  tile(21, (x, y, r) => { if (x === 7 && y > 7) return sh(70, 140, 56, 1); if (Math.hypot(x - 7, y - 5) < 3) return Math.hypot(x - 7, y - 5) < 1.2 ? '#ffd23f' : '#f6f0d0'; return 'rgba(0,0,0,0)'; });
+  const tx = new THREE.CanvasTexture(cv); tx.magFilter = THREE.NearestFilter; tx.minFilter = THREE.NearestFilter; tx.generateMipmaps = false; tx.colorSpace = THREE.SRGBColorSpace;
+  return tx;
+}
+const FACE_TEX = {   // [top, side, bottom]
+  1: [0, 1, 2], 2: [2, 2, 2], 3: [3, 3, 3], 4: [18, 4, 18], 5: [5, 5, 5], 6: [6, 6, 6], 7: [7, 7, 7], 8: [8, 8, 8], 9: [9, 9, 9], 10: [10, 10, 2],
+  11: [11, 11, 11], 12: [12, 12, 12], 13: [13, 13, 13], 14: [14, 14, 14], 15: [15, 15, 15], 16: [16, 16, 16], 17: [17, 17, 17],
+};
+const vIdx = (x, y, z) => ((x + VOFF.x) + VSIZE.x * (y + VSIZE.y * (z + VOFF.z)));
+function vGet(x, y, z) { if (x < -VOFF.x || x >= VSIZE.x - VOFF.x || z < -VOFF.z || z >= VSIZE.z - VOFF.z || y < 0 || y >= VSIZE.y) return 0; return VX.world[vIdx(x, y, z)]; }
+function vSet(x, y, z, b) { if (x < -VOFF.x || x >= VSIZE.x - VOFF.x || z < -VOFF.z || z >= VSIZE.z - VOFF.z || y < 0 || y >= VSIZE.y) return; VX.world[vIdx(x, y, z)] = b; }
+const vFill = (x0, y0, z0, x1, y1, z1, b) => { for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) for (let z = z0; z <= z1; z++) vSet(x, y, z, b); };
+const isOpaque = (b) => b !== 0 && b !== VB.GLASS && b !== VB.LEAVES && b !== VB.WATER;
+let GH = null;   // ground height map
+function genVoxelWorld() {
+  VX.world = new Uint8Array(VSIZE.x * VSIZE.y * VSIZE.z); GH = {};
+  for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
+    let h = 3;
+    const hill = Math.max(0, (-z - 14)) * 0.55 + Math.sin(x * 0.18) * 1.6 + Math.cos(x * 0.07 + z * 0.11) * 1.4;   // mountains behind
+    const side = Math.max(0, Math.abs(x) - 26) * 0.5;
+    h += Math.max(0, Math.round(hill + (z < 0 ? side : 0)));
+    if (z > 21) h = 3;
+    h = Math.min(h, 22); GH[`${x},${z}`] = h;
+    for (let y = 0; y < h; y++) vSet(x, y, z, y < h - 4 ? VB.STONE : (y < h - 1 ? VB.DIRT : VB.GRASS));
+    if (h > 12 && vRand(x * 31 + z) > 0.8) vSet(x, h - 1, z, VB.STONE);
+  }
+  const g0 = 3;   // village ground level (top surface at y=3)
+  // flatten village area
+  for (let x = -24; x <= 24; x++) for (let z = -13; z <= 21; z++) { for (let y = g0; y < VSIZE.y; y++) vSet(x, y, z, 0); vSet(x, g0 - 1, z, VB.GRASS); GH[`${x},${z}`] = g0; }
+  // roads
+  vFill(-24, g0 - 1, 4, 24, g0 - 1, 6, VB.PATH); vFill(-1, g0 - 1, -12, 1, g0 - 1, 21, VB.PATH);
+  // pond
+  for (let x = 15; x <= 22; x++) for (let z = 14; z <= 20; z++) if (Math.hypot((x - 18.5) / 3.5, (z - 17) / 3) < 1) { vSet(x, g0 - 1, z, VB.WATER); vSet(x, g0 - 2, z, VB.SAND); }
+  const bld = (x0, z0, w, d, h, wall, roof, glassRows = true) => {
+    vFill(x0, g0, z0, x0 + w - 1, g0 + h - 1, z0 + d - 1, wall);
+    vFill(x0 + 1, g0, z0 + 1, x0 + w - 2, g0 + h - 1, z0 + d - 2, 0);
+    if (glassRows) for (let y = g0 + 1; y < g0 + h - 1; y += 2) for (let x = x0 + 1; x < x0 + w - 1; x += 2) { vSet(x, y, z0 + d - 1, VB.GLASS); vSet(x, y, z0, VB.GLASS); }
+    for (let i = 0; i <= Math.floor(Math.min(w, d) / 2); i++) vFill(x0 - 1 + i, g0 + h + i, z0 - 1 + (roof === VB.WHITE ? 0 : i), x0 + w - i, g0 + h + i, z0 + d - (roof === VB.WHITE ? 1 : i), roof);
+    vFill(x0 + Math.floor(w / 2), g0, z0 + d - 1, x0 + Math.floor(w / 2), g0 + 1, z0 + d - 1, 0);   // door
+  };
+  // company tower (stone brick + glass)
+  vFill(-16, g0, -10, -9, g0 + 15, -4, VB.SBRICK); vFill(-15, g0, -9, -10, g0 + 15, -5, 0);
+  for (let y = g0 + 1; y < g0 + 15; y++) for (let x = -15; x <= -10; x++) if (y % 3 !== 0) vSet(x, y, -4, VB.GLASS);
+  for (let y = g0 + 1; y < g0 + 15; y++) for (let z = -9; z <= -5; z++) if (y % 3 !== 0) vSet(-9, y, z, VB.GLASS);
+  vFill(-13, g0, -4, -12, g0 + 1, -4, 0); vFill(-17, g0 + 16, -11, -8, g0 + 16, -3, VB.SBRICK);
+  // tax office (white with blue roof, columns)
+  bld(8, -11, 12, 7, 5, VB.WHITE, VB.ROOFB, false);
+  for (let x = 8; x <= 19; x += 2) vFill(x, g0, -3, x, g0 + 4, -3, VB.WHITE);
+  vFill(7, g0 + 5, -4, 20, g0 + 5, -3, VB.WHITE);
+  vFill(19, g0 + 6, -10, 19, g0 + 12, -10, VB.LOG);
+  // school (brick, green roof)
+  bld(-6, -13, 13, 6, 5, VB.BRICK, VB.ROOFG);
+  vFill(-1, g0 + 5, -10, 1, g0 + 8, -8, VB.BRICK);
+  // town hall (planks/brick, red roof)
+  bld(9, 9, 9, 6, 4, VB.PLANKS, VB.ROOFR);
+  // houses
+  [[-20, 9, VB.ROOFR], [-14, 11, VB.ROOFB], [-8, 9, VB.ROOFG], [-20, 15, VB.ROOFB]].forEach(([x, z, r]) => bld(x, z, 5, 5, 3, VB.PLANKS, r));
+  // fountain
+  for (let x = 4; x <= 10; x++) for (let z = 13; z <= 19; z++) { const d = Math.hypot(x - 7, z - 16); if (d < 3.6) vSet(x, g0, z, d > 2.6 ? VB.SBRICK : VB.WATER); }
+  vFill(7, g0, 16, 7, g0 + 2, 16, VB.SBRICK);
+  // trees
+  const tree = (x, z, h = 5) => { const gy = GH[`${x},${z}`] ?? g0; for (let y = gy; y < gy + h; y++) vSet(x, y, z, VB.LOG);
+    for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) for (let dy = -1; dy <= 1; dy++) if (Math.abs(dx) + Math.abs(dz) + Math.abs(dy) < 4 && vRand(x * 9 + dx * 3 + dz * 5 + dy) > 0.12) { if (vGet(x + dx, gy + h - 1 + dy, z + dz) === 0) vSet(x + dx, gy + h - 1 + dy, z + dz, VB.LEAVES); }
+    vSet(x, gy + h + 1, z, VB.LEAVES); };
+  [[-22, -2], [-19, 1], [22, -1], [23, 8], [-23, 19], [21, 2]].forEach(([x, z], i) => tree(x, z, 4 + (i % 3)));
+  for (let i = 0; i < 60; i++) { const x = Math.floor(vRand(i * 3.1) * 76) - 38, z = Math.floor(vRand(i * 7.7) * 16) - 30; if (Math.abs(x) < 26 && z > -14) continue; tree(x, z, 4 + (i % 3)); }
+  for (let i = 0; i < 10; i++) { const x = (i % 2 ? 1 : -1) * (27 + Math.floor(vRand(i * 5.3 + 1) * 10)), z = Math.floor(vRand(i * 2.9 + 2) * 30) - 4; tree(x, z, 4 + (i % 3)); }
+  VX.spots = { front: [-6, g0, 26], front2: [8, g0, 26], home: [-12, g0, 13], company: [-12, g0, -2], tax: [14, g0, -1], school: [0, g0, -6], town: [13, g0, 15], fountain: [7, g0, 16], cross: [0, g0, 5], field: [5, g0, 9], hill: [-4, 10, -22] };
+}
+function meshVoxels(atlas) {
+  const groups = { solid: { p: [], n: [], uv: [], c: [], i: [] }, cut: { p: [], n: [], uv: [], c: [], i: [] }, water: { p: [], n: [], uv: [], c: [], i: [] } };
+  const DIRS = [
+    { d: [0, 1, 0], c: [[0, 1, 1], [1, 1, 1], [1, 1, 0], [0, 1, 0]], f: 0, sh: 1.0 }, { d: [0, -1, 0], c: [[0, 0, 0], [1, 0, 0], [1, 0, 1], [0, 0, 1]], f: 2, sh: 0.5 },
+    { d: [1, 0, 0], c: [[1, 0, 1], [1, 0, 0], [1, 1, 0], [1, 1, 1]], f: 1, sh: 0.82 }, { d: [-1, 0, 0], c: [[0, 0, 0], [0, 0, 1], [0, 1, 1], [0, 1, 0]], f: 1, sh: 0.82 },
+    { d: [0, 0, 1], c: [[0, 0, 1], [1, 0, 1], [1, 1, 1], [0, 1, 1]], f: 1, sh: 0.92 }, { d: [0, 0, -1], c: [[1, 0, 0], [0, 0, 0], [0, 1, 0], [1, 1, 0]], f: 1, sh: 0.7 },
+  ];
+  const tsz = 1 / ATL.n; const occ = (x, y, z) => (isOpaque(vGet(x, y, z)) ? 1 : 0);
+  for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let y = 0; y < VSIZE.y; y++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
+    const b = vGet(x, y, z); if (!b) continue;
+    const grp = b === VB.WATER ? groups.water : (b === VB.LEAVES || b === VB.GLASS ? groups.cut : groups.solid);
+    for (const D of DIRS) {
+      const nb = vGet(x + D.d[0], y + D.d[1], z + D.d[2]);
+      if (isOpaque(nb) || (nb === b && b !== VB.LEAVES)) continue;
+      if (b === VB.WATER && D.d[1] !== 1) continue;
+      const tIdx = FACE_TEX[b][D.f]; const u0 = (tIdx % ATL.n) * tsz, v0 = 1 - (Math.floor(tIdx / ATL.n) + 1) * tsz;
+      const base = grp.p.length / 3;
+      const uvs = [[u0, v0], [u0 + tsz, v0], [u0 + tsz, v0 + tsz], [u0, v0 + tsz]];
+      const aos = D.c.map((cc) => {
+        // ambient occlusion from the 3 neighbours around this corner in the face's outer layer
+        const ox = x + D.d[0], oy = y + D.d[1], oz = z + D.d[2];
+        const sx = cc[0] ? 1 : -1, sy = cc[1] ? 1 : -1, sz = cc[2] ? 1 : -1;
+        let a, bb, cr;
+        if (D.d[1] !== 0) { a = occ(ox + sx, oy, oz); bb = occ(ox, oy, oz + sz); cr = occ(ox + sx, oy, oz + sz); }
+        else if (D.d[0] !== 0) { a = occ(ox, oy + sy, oz); bb = occ(ox, oy, oz + sz); cr = occ(ox, oy + sy, oz + sz); }
+        else { a = occ(ox + sx, oy, oz); bb = occ(ox, oy + sy, oz); cr = occ(ox + sx, oy + sy, oz); }
+        const lvl = a && bb ? 0 : 3 - (a + bb + cr); return [0.5, 0.66, 0.82, 1.0][lvl];
+      });
+      D.c.forEach((cc, k) => { grp.p.push(x + cc[0], y + cc[1] - (b === VB.WATER ? 0.12 : 0), z + cc[2]); grp.n.push(...D.d); grp.uv.push(...uvs[k]); const s = D.sh * aos[k]; grp.c.push(s, s, s); });
+      if (aos[0] + aos[2] > aos[1] + aos[3]) grp.i.push(base, base + 1, base + 2, base, base + 2, base + 3); else grp.i.push(base + 1, base + 2, base + 3, base + 1, base + 3, base);
+    }
+  }
+  const out = [];
+  for (const [k, g] of Object.entries(groups)) {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(g.p, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(g.n, 3));
+    geo.setAttribute('uv', new THREE.Float32BufferAttribute(g.uv, 2)); geo.setAttribute('color', new THREE.Float32BufferAttribute(g.c, 3)); geo.setIndex(g.i);
+    const m = new THREE.MeshStandardMaterial({ map: atlas, vertexColors: true, roughness: 0.92, metalness: 0,
+      transparent: k === 'water', opacity: k === 'water' ? 0.82 : 1, alphaTest: k === 'cut' ? 0.5 : 0, side: k === 'cut' ? THREE.DoubleSide : THREE.FrontSide });
+    const mesh = new THREE.Mesh(geo, m); mesh.castShadow = k !== 'water'; mesh.receiveShadow = true; out.push(mesh);
+  }
+  return out;
+}
+function plantsMesh(atlas) {
+  const p = [], uv = [], idx = [], nrm = []; const tsz = 1 / ATL.n;
+  for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
+    const h = GH[`${x},${z}`]; if (h === undefined || vGet(x, h - 1, z) !== VB.GRASS || vGet(x, h, z) !== 0) continue;
+    const r = vRand(x * 13.1 + z * 7.3); if (r < 0.62) continue;
+    const t = r > 0.97 ? 21 : 20; const u0 = (t % ATL.n) * tsz, v0 = 1 - (Math.floor(t / ATL.n) + 1) * tsz;
+    const cx = x + 0.5 + (vRand(x + z * 3) - 0.5) * 0.4, cz = z + 0.5 + (vRand(z + x * 5) - 0.5) * 0.4, hh = 0.75 + vRand(x * z) * 0.35;
+    for (const a of [Math.PI / 4, -Math.PI / 4]) {
+      const dx = Math.cos(a) * 0.45, dz = Math.sin(a) * 0.45; const b = p.length / 3;
+      p.push(cx - dx, h, cz - dz, cx + dx, h, cz + dz, cx + dx, h + hh, cz + dz, cx - dx, h + hh, cz - dz);
+      uv.push(u0, v0, u0 + tsz, v0, u0 + tsz, v0 + tsz, u0, v0 + tsz); nrm.push(0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0);
+      idx.push(b, b + 1, b + 2, b, b + 2, b + 3);
+    }
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  geo.setAttribute('normal', new THREE.Float32BufferAttribute(nrm, 3)); geo.setIndex(idx);
+  const m = new THREE.MeshStandardMaterial({ map: atlas, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 1 });
+  m.onBeforeCompile = (sh) => { sh.uniforms.uTime = { value: 0 }; VX.plantShader = sh;
+    sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n float sway = (position.y - floor(position.y)) * 0.12 * sin(uTime * 1.8 + position.x * 0.7 + position.z * 0.5);\n transformed.x += sway; transformed.z += sway * 0.6;'); };
+  const mesh = new THREE.Mesh(geo, m); mesh.receiveShadow = true; return mesh;
+}
+function snowLayer() {
+  const p = [], idx = []; for (let x = -VOFF.x; x < VSIZE.x - VOFF.x; x++) for (let z = -VOFF.z; z < VSIZE.z - VOFF.z; z++) {
+    let y = VSIZE.y - 1; while (y > 0 && !vGet(x, y, z)) y--; const b = vGet(x, y, z); if (!b || b === VB.WATER || b === VB.GLASS) continue;
+    const yy = y + 1.02; const k = p.length / 3; p.push(x, yy, z, x + 1, yy, z, x + 1, yy, z + 1, x, yy, z + 1); idx.push(k, k + 2, k + 1, k, k + 3, k + 2);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xf4f7fb, roughness: 0.9 })); m.receiveShadow = true; m.visible = false; return m;
+}
+function cloudSprite(seed) {
+  const cv = document.createElement('canvas'); cv.width = 512; cv.height = 256; const c = cv.getContext('2d');
+  for (let i = 0; i < 26; i++) { const x = 90 + vRand(seed * 31 + i) * 330, y = 120 + (vRand(seed * 17 + i) - 0.5) * 70, r = 40 + vRand(seed * 7 + i) * 60;
+    const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, 'rgba(255,255,255,0.95)'); g.addColorStop(0.6, 'rgba(250,250,255,0.6)'); g.addColorStop(1, 'rgba(255,255,255,0)'); c.fillStyle = g; c.fillRect(0, 0, 512, 256); }
+  const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tx, transparent: true, depthWrite: false, fog: false })); s.scale.set(60, 30, 1); return s;
+}
+// ---- block characters (original look)
+function faceTex(skin, eye, extra) {
+  const cv = document.createElement('canvas'); cv.width = 8; cv.height = 8; const c = cv.getContext('2d');
+  c.fillStyle = skin; c.fillRect(0, 0, 8, 8); c.fillStyle = extra.hair; c.fillRect(0, 0, 8, 2); c.fillRect(0, 2, 1, 2); c.fillRect(7, 2, 1, 2);
+  c.fillStyle = '#fff'; c.fillRect(1, 4, 2, 1); c.fillRect(5, 4, 2, 1); c.fillStyle = eye; c.fillRect(2, 4, 1, 1); c.fillRect(5, 4, 1, 1);
+  if (extra.glasses) { c.fillStyle = '#222'; c.fillRect(1, 3, 6, 1); }
+  c.fillStyle = '#b5654f'; c.fillRect(3, 6, 2, 1);
+  const tx = new THREE.CanvasTexture(cv); tx.magFilter = THREE.NearestFilter; tx.minFilter = THREE.NearestFilter; tx.colorSpace = THREE.SRGBColorSpace; return tx;
+}
+function blockPerson(o = {}) {
+  const g = new THREE.Group(); const lam = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 });
+  const skin = o.skin || '#f0c8a0'; const shirt = lam(o.shirt || 0x3a6fd8), pants = lam(o.pants || 0x27375f), skinM = lam(skin);
+  const part = (w, h, d, m, x, y, z, pivotY) => { const piv = new THREE.Group(); piv.position.set(x, pivotY ?? y, z); const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); mesh.position.y = pivotY !== undefined ? y - pivotY : 0; mesh.castShadow = true; piv.add(mesh); g.add(piv); return piv; };
+  const legL = part(0.25, 0.75, 0.25, pants, -0.125, 0.375, 0, 0.75), legR = part(0.25, 0.75, 0.25, pants, 0.125, 0.375, 0, 0.75);
+  part(0.5, 0.75, 0.25, shirt, 0, 1.125, 0);
+  if (o.tie) { const tie = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.02), lam(0xd23b3b)); tie.position.set(0, 1.25, 0.135); g.add(tie); }
+  const armL = part(0.22, 0.75, 0.22, o.sleeve === false ? skinM : shirt, -0.36, 1.125, 0, 1.45), armR = part(0.22, 0.75, 0.22, o.sleeve === false ? skinM : shirt, 0.36, 1.125, 0, 1.45);
+  const headM = [skinM, skinM, lam(o.hair || '#4a2c1a'), skinM, new THREE.MeshStandardMaterial({ map: faceTex(skin, '#2a2a3a', { hair: o.hair || '#4a2c1a', glasses: o.glasses }), roughness: 0.85 }), lam(o.hair || '#4a2c1a')];
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 0.5), headM); head.position.y = 1.75; head.castShadow = true; g.add(head);
+  g.userData = { legL, legR, armL, armR, head };
+  return g;
+}
+function animBlock(p, t, mode = 'idle', ph = 0) {
+  const u = p.userData; const s = mode === 'walk' ? Math.sin(t * 8 + ph) * 0.6 : 0;
+  u.legL.rotation.x = s; u.legR.rotation.x = -s; u.armL.rotation.x = -s * 0.8; u.armR.rotation.x = s * 0.8;
+  if (mode === 'wave') u.armR.rotation.z = 2.6 + 0.3 * Math.sin(t * 8 + ph);
+  else if (mode === 'cheer') { u.armR.rotation.z = 2.8; u.armL.rotation.z = -2.8; }
+  else if (mode === 'point') { u.armR.rotation.x = -1.4; }
+  else { u.armR.rotation.z = 0; u.armL.rotation.z = 0; }
+  u.head.rotation.y = 0.25 * Math.sin(t * 0.8 + ph); u.head.rotation.x = mode === 'sad' ? 0.35 : 0;
+  if (mode === 'cheer') p.position.y = (p.userData.baseY || 0) + Math.abs(Math.sin(t * 5 + ph)) * 0.25;
+}
+const LOOKS = {
+  hero: { shirt: 0xf5f5f5, pants: 0x27375f, tie: true, hair: '#3a2416' },
+  v1: { shirt: 0xe07a5f, pants: 0x3d405b, hair: '#2a1c14' }, v2: { shirt: 0x81b29a, pants: 0x3d405b, hair: '#6b3e1f' },
+  v3: { shirt: 0xf2cc8f, pants: 0x4a4e69, hair: '#1f1f1f' }, v4: { shirt: 0x8e6cc9, pants: 0x22223b, hair: '#5a3a22' },
+  worker: { shirt: 0x2f3e5c, pants: 0x1e2433, tie: true, hair: '#222' },
+};
+function vxCoin() { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.08, 20), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.8, roughness: 0.3 })); c.castShadow = true; c.rotation.x = Math.PI / 2; return c; }
+function vxSign(w = 3) {
+  const g = new THREE.Group(); const wood = new THREE.MeshStandardMaterial({ color: 0xa8743f, roughness: 0.8 });
+  const post = new THREE.Mesh(new THREE.BoxGeometry(0.2, 1.6, 0.2), wood); post.position.y = 0.8; post.castShadow = true; g.add(post);
+  const board = new THREE.Mesh(new THREE.BoxGeometry(w, 1.2, 0.15), new THREE.MeshStandardMaterial({ color: 0xc89b6d, roughness: 0.8 })); board.position.y = 2.0; board.castShadow = true; g.add(board);
+  g.userData.board = board; return g;
+}
+function buildVoxel() {
+  const g = new THREE.Group(); genVoxelWorld();
+  const atlas = makeAtlas(); meshVoxels(atlas).forEach((m) => g.add(m)); VX.plants = plantsMesh(atlas); g.add(VX.plants);
+  VX.snowMesh = snowLayer(); g.add(VX.snowMesh);
+  const sp = new THREE.BufferGeometry(); const arr = []; for (let i = 0; i < 1500; i++) arr.push((vRand(i) - 0.5) * 70, vRand(i * 3) * 30, (vRand(i * 7) - 0.5) * 60);
+  sp.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
+  VX.snowPts = new THREE.Points(sp, new THREE.PointsMaterial({ color: 0xffffff, size: 0.18, transparent: true, opacity: 0.9 })); VX.snowPts.visible = false; g.add(VX.snowPts);
+  for (let i = 0; i < 7; i++) { const c = cloudSprite(i + 1); c.position.set(-60 + i * 22, 38 + (i % 3) * 5, -60 + (i % 2) * 20); g.add(c); VX.clouds.push(c); }
+  const looks = ['v1', 'v2', 'v3', 'v4', 'worker', 'v1', 'v3', 'v2'];
+  VX.walkers = looks.map((l, i) => { const p = blockPerson(LOOKS[l]); p.scale.setScalar(0.9); g.add(p); return { p, lane: i % 2 ? 4.6 : 6.4, speed: 1.0 + (i % 3) * 0.25, off: i * 6, dir: i % 3 ? 1 : -1 }; });
+  return g;
+}
+function animVoxel(t, snow) {
+  if (VX.plantShader) VX.plantShader.uniforms.uTime.value = t;
+  VX.clouds.forEach((c, i) => { c.position.x = ((-60 + i * 22 + t * 0.6) + 80) % 160 - 80; });
+  VX.walkers.forEach((w) => { const L = 46; const s = ((t * w.speed + w.off) % L + L) % L; const x = w.dir > 0 ? -23 + s : 23 - s;
+    w.p.position.set(x, 3, w.lane); w.p.rotation.y = w.dir > 0 ? Math.PI / 2 : -Math.PI / 2; animBlock(w.p, t, 'walk', w.off); });
+  VX.snowMesh.visible = !!snow; VX.snowPts.visible = !!snow;
+  if (snow) { const a = VX.snowPts.geometry.attributes.position; for (let i = 0; i < a.count; i++) { let y = (vRand(i * 3) * 30 - t * (1.2 + vRand(i) * 0.8)) % 30; if (y < 0) y += 30; a.setY(i, y); } a.needsUpdate = true; }
+}
+
+B.vx = (v, sc) => {
+  const g = new THREE.Group(); const S = VX.spots; const act = v.act;
+  const P3 = (k, dx = 0, dy = 0, dz = 0) => new THREE.Vector3(S[k][0] + dx, S[k][1] + dy, S[k][2] + dz);
+  let cam = { dist: 12, elev: 18, azim: 0, ty: 4, tx: 0, tz: 6 }; let upd = () => {}; let ov = () => [];
+  const look = (p, d, el, az, dy = 1.5) => { cam = { dist: d, elev: el, azim: az, ty: p.y + dy, tx: p.x, tz: p.z }; };
+  const person = (lk, pos, ry = 0) => { const p = blockPerson(LOOKS[lk]); p.position.copy(pos); p.rotation.y = ry; p.userData.baseY = pos.y; g.add(p); return p; };
+  const coins = (n) => [...Array(n)].map(() => { const c = vxCoin(); g.add(c); return c; });
+  const fly = (cs, a, b, lt, t, o = {}) => cs.forEach((c, i) => { const ph = ((lt - (o.delay ?? 0.3)) * (o.speed ?? 0.5) + i / cs.length) % 1; c.visible = lt > (o.delay ?? 0.3);
+    c.position.set(lerp(a.x, b.x, ph), lerp(a.y, b.y, ph) + Math.sin(ph * Math.PI) * (o.arc ?? 3), lerp(a.z, b.z, ph)); c.rotation.set(Math.PI / 2, 0, t * 4 + i); });
+  const anchorAt = (pos) => { const o = new THREE.Object3D(); o.position.copy(pos); g.add(o); return o; };
+  const tt = (html, y = TITLE_Y, size = 52, delay = 0.3) => ({ kind: 'title', y, html, size, color: '#fff', bg: 'rgba(20,24,32,0.82)', delay });
+  if (act === 'title' || act === 'title_ep') {
+    cam = { dist: 34, elev: 22, azim: -20, ty: 6, tx: 0, tz: 2 };
+    if (act === 'title_ep') cam = { dist: 22, elev: 14, azim: 25, ty: 5, tx: 0, tz: -4 };
+    ov = () => [{ kind: 'bigtitle', y: 1100, series: act === 'title' ? '' : spec.series, title: v.title, delay: 0.2, small: act === 'title' }];
+  } else if (act === 'payday') {
+    const hero = person('hero', P3('front', 0, 0, 0), 0.2);
+    const paper = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.8, 0.03), new THREE.MeshStandardMaterial({ color: 0xffffff })); paper.position.set(0.4, 1.25, 0.35); hero.add(paper);
+    const c1 = coins(4), c2 = coins(4);
+    look(hero.position, 6, 8, 18, 1.3);
+    upd = (lt, D, t) => { animBlock(hero, t, lt > 2.0 ? 'sad' : 'idle'); if (lt > 1.5) { fly(c1, hero.position.clone().add(new THREE.Vector3(0.4, 1.6, 0.4)), P3('tax', 0, 5, -3), lt - 1.5, t, { arc: 4, speed: 0.4 }); fly(c2, hero.position.clone().add(new THREE.Vector3(0.4, 1.6, 0.4)), P3('town', 0, 4, -1), lt - 1.7, t, { arc: 3, speed: 0.4 }); } };
+    ov = (lt) => lt > 1.6 ? [callout(anchorAt(P3('tax', 0, 6, -3)), [0, 0, 0], '税金', { dx: 0, dy: -150, color: C.down, delay: 1.8, size: 40 }), callout(anchorAt(P3('town', 0, 5, -1)), [0, 0, 0], '社会保険料', { dx: 0, dy: -150, color: C.teal, delay: 2.0, size: 40 })] : [tt('はじめての給料！', TITLE_Y, 54, 0.3)];
+  } else if (act === 'juminzei') {
+    look(P3('town', 0, 0, 0), 14, 16, -20, 2); const sg = vxSign(3.4); sg.position.copy(P3('town', -3, 0, 7)); g.add(sg);
+    ov = () => [{ kind: 'tag', obj: sg.userData.board, local: [0, 0, 0.1], text: '住民税', size: 64, dark: true, color: '#3b2a1a', delay: 0.3 }, tt('1年後から 住民税も', TITLE_Y, 52, 0.6)];
+  } else if (act === 'alone') {
+    const hero = person('hero', P3('field', 0, 0, 0), 0.2); look(hero.position, 7, 8, 30, 1.3);
+    upd = (lt, D, t) => animBlock(hero, t, 'sad');
+    ov = () => [{ kind: 'tag', obj: hero, local: [0, 2.6, 0], text: '？', size: 90, dark: true, color: '#eb4d4b', delay: 0.3 }];
+  } else if (act === 'school') {
+    look(P3('school', 0, 0, 0), 18, 14, 10, 4);
+    const kids = ['v1', 'v2', 'v3', 'v4'].map((l, i) => person(l, P3('school', -3 + i * 2, 0, 6), Math.PI));
+    upd = (lt, D, t) => kids.forEach((k, i) => { k.position.z = S.school[2] + 6 - ((lt * 0.8 + i * 0.4) % 4); animBlock(k, t, 'walk', i); });
+    ov = () => [callout(anchorAt(P3('school', 0, 9, 0)), [0, 0, 0], 'お金の授業', { dx: 0, dy: -150, color: C.gold, delay: 0.3, size: 44 })];
+  } else if (act === 'define') {
+    const pos = P3('field', -3, 0, 0); const heights = [2, 4, 7]; const towers = [];
+    heights.forEach((h, i) => { const tw = new THREE.Group(); tw.position.set(pos.x + i * 3, pos.y, pos.z); for (let j = 0; j < h; j++) { const top = j >= h - Math.max(1, Math.round(h * (0.15 + i * 0.1))); const b = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: top ? 0xe0473c : 0xf2c248, metalness: top ? 0.1 : 0.6, roughness: 0.4 })); b.position.y = 0.5 + j; b.castShadow = true; b.receiveShadow = true; tw.add(b); } g.add(tw); towers.push(tw); person(['v1', 'v2', 'v3'][i], new THREE.Vector3(tw.position.x, pos.y, pos.z + 1.6), 0); });
+    look(new THREE.Vector3(pos.x + 3, pos.y, pos.z), 13, 14, 0, 2.5);
+    upd = (lt) => towers.forEach((tw, i) => tw.children.forEach((b, j) => { b.visible = j < Math.ceil(tw.children.length * eOut((lt - 0.2 - i * 0.25) / 1.0)); }));
+    ov = () => [callout(towers[2], [0, 7, 0], '赤い部分が税金', { dx: 40, dy: -160, color: C.down, delay: 1.2, size: 40 }), tt('所得が多いほど 税金も多い', TITLE_Y, 48, 1.5)];
+  } else if (act === 'selfcalc') {
+    const hero = person('hero', P3('front', 0, 0, 0), -0.4);
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.8), new THREE.MeshStandardMaterial({ color: 0xa8743f, roughness: 0.8 })); desk.position.copy(P3('front', 1.5, 0.45, 0.5)); desk.castShadow = true; g.add(desk);
+    const paper = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff })); paper.position.copy(P3('front', 1.4, 0.92, 0.5)); g.add(paper);
+    look(hero.position.clone().add(new THREE.Vector3(0.7, 0, 0)), 5.5, 12, 20, 1.6);
+    upd = (lt, D, t) => animBlock(hero, t, 'point');
+    ov = () => [tt('自分で申告・計算', TITLE_Y, 52, 0.4)];
+  } else if (act === 'commuters') {
+    look(P3('company', 0, 0, 0), 22, 14, 12, 6);
+    const ps = [...Array(10)].map((_, i) => person(['worker', 'v1', 'worker', 'v3'][i % 4], P3('company', 0, 0, 8), Math.PI));
+    upd = (lt, D, t) => ps.forEach((p, i) => { const k = (lt * 0.18 + i / 10) % 1; p.position.set(S.company[0] - 2 + (i % 3) * 1.2, S.company[1], lerp(S.company[2] + 9, S.company[2] - 1, k)); animBlock(p, t, 'walk', i); });
+    ov = () => [callout(anchorAt(P3('company', 0, 14, -4)), [0, 0, 0], '会社', { dx: 40, dy: -120, color: C.blue, delay: 0.3, size: 44 })];
+  } else if (act === 'company') {
+    const cart = new THREE.Group(); const box_ = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 1), new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.8 })); box_.position.y = 0.7; box_.castShadow = true; cart.add(box_);
+    for (let i = 0; i < 3; i++) { const c = vxCoin(); c.rotation.set(0, 0, 0); c.position.set(-0.4 + i * 0.4, 1.15, 0); cart.add(c); }
+    for (const x of [-0.5, 0.5]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.15, 12), new THREE.MeshStandardMaterial({ color: 0x333 })); w.rotation.x = Math.PI / 2; w.position.set(x, 0.28, 0.55); cart.add(w); }
+    g.add(cart); const worker = person('worker', P3('company', 0, 0, 6), 0); const hero = person('hero', P3('company', 3, 0, 9), Math.PI);
+    const pay = coins(3);
+    cam = { dist: 30, elev: 18, azim: 0, ty: 5, tx: 1, tz: 4 };
+    upd = (lt, D, t) => { const k = clamp((lt - 1.0) / (D - 1.5)); cart.position.set(lerp(S.company[0] + 1, S.tax[0] - 2, eInOut(k)), S.company[1], 5.4); cart.rotation.y = 0; animBlock(worker, t, 'point'); animBlock(hero, t, 'idle');
+      fly(pay, worker.position.clone().add(new THREE.Vector3(0, 1.6, 0)), hero.position.clone().add(new THREE.Vector3(0, 1.6, 0)), lt, t, { arc: 1.2, speed: 0.6, delay: 0.5 }); };
+    ov = () => [callout(cart, [0, 1.5, 0], '先に引いた税金', { dx: 0, dy: -140, color: C.gold, delay: 1.0, size: 38 }), callout(anchorAt(P3('tax', 0, 9, -4)), [0, 0, 0], '国（税務署）', { dx: -30, dy: -120, color: C.down, delay: 0.6, size: 38 }), callout(hero, [0, 2.2, 0], '残りが給与', { dx: 40, dy: -120, color: C.blue, delay: 0.8, size: 36 })];
+  } else if (act === 'vault') {
+    const vault = new THREE.Group(); const vb = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.4, 2.4), new THREE.MeshStandardMaterial({ color: 0x7b8494, metalness: 0.6, roughness: 0.35 })); vb.position.y = 1.2; vb.castShadow = true; vault.add(vb);
+    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.1, 20), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.8, roughness: 0.3 })); dial.rotation.x = Math.PI / 2; dial.position.set(0, 1.3, 1.25); vault.add(dial);
+    vault.position.copy(P3('front2', 0, 0, 0)); g.add(vault); const cs = coins(5);
+    look(vault.position, 7, 10, -15, 1.8);
+    upd = (lt, D, t) => { dial.rotation.z = t; fly(cs, vault.position.clone().add(new THREE.Vector3(-4, 3, 2)), vault.position.clone().add(new THREE.Vector3(0, 2.5, 0)), lt, t, { arc: 1.5, speed: 0.6 }); };
+    ov = () => [tt('徴収漏れを防ぐ', TITLE_Y, 54, 0.3)];
+  } else if (act === 'relax') {
+    const ps = ['v1', 'v2', 'v3', 'hero'].map((l, i) => person(l, P3('fountain', -3 + i * 2, 0, 5), 0));
+    look(P3('fountain', 0, 0, 2), 13, 12, -10, 1.8);
+    upd = (lt, D, t) => ps.forEach((p, i) => animBlock(p, t, 'cheer', i));
+    ov = () => [tt('納税者の負担が減る', TITLE_Y, 52, 0.4)];
+  } else if (act === 'sign' || act === 'sign_nenmatsu') {
+    const sg = vxSign(5); sg.position.copy(P3('cross', 3.5, 0, 3)); sg.scale.setScalar(1.2); g.add(sg);
+    look(sg.position, 9, 10, -8, 2.2);
+    upd = (lt) => { sg.scale.setScalar(1.2 * Math.max(0.001, eBack((lt - 0.1) / 0.5))); };
+    ov = () => [{ kind: 'tag', obj: sg.userData.board, local: [0, 0, 0.1], text: v.label, size: 96, dark: true, color: '#3b2a1a', delay: 0.4 }];
+  } else if (act === 'spring') {
+    look(P3('fountain', 0, 0, 0), 9, 18, 15, 1.5); const cs = coins(8);
+    upd = (lt, D, t) => cs.forEach((c, i) => { const ph = (t * 0.6 + i / 8) % 1; const a = i * 0.8; c.position.set(S.fountain[0] + 0.5 + Math.cos(a) * ph * 2.5, S.fountain[1] + 3 + Math.sin(ph * Math.PI) * 3, S.fountain[2] + 0.5 + Math.sin(a) * ph * 2.5); c.rotation.set(Math.PI / 2, 0, t * 4 + i); });
+    ov = () => [callout(anchorAt(P3('fountain', 0.5, 3, 0.5)), [0, 0, 0], '源＝お金が湧く出どころ', { dx: 0, dy: -200, color: C.blue, delay: 0.4, size: 40 })];
+  } else if (act === 'months') {
+    const base = P3('field', -6, 0, -1); const hs = [3, 4, 3, 5, 4, 3, 4, 6, 4, 3, 5, 7]; const cols = hs.map((h, i) => { const tw = new THREE.Group(); tw.position.set(base.x + i * 1.2, base.y, base.z); for (let j = 0; j < h; j++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.8), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.6, roughness: 0.35 })); b.position.y = 0.25 + j * 0.5; b.castShadow = true; tw.add(b); } g.add(tw); return tw; });
+    look(new THREE.Vector3(base.x + 6.6, base.y, base.z), 14, 16, 0, 2.0);
+    upd = (lt) => cols.forEach((tw, i) => { tw.scale.y = Math.max(0.001, eBack((lt - 0.1 - i * 0.06) / 0.4)); });
+    ov = () => [callout(cols[0], [0, 1.8, 0], '1月', { dx: -30, dy: -110, color: C.blue, delay: 0.5, size: 34 }), callout(cols[11], [0, 3.6, 0], '12月', { dx: 30, dy: -110, color: C.blue, delay: 0.7, size: 34 }), tt('毎月の額は 1年分の予測から', TITLE_Y, 48, 0.8)];
+  } else if (act === 'december' || act === 'recalc' || act === 'refund' || act === 'extra') {
+    const hero = person('hero', P3('front', 0, 0, 0), 0.3); const cs = coins(4);
+    look(hero.position, 6, 8, 14, 1.3);
+    if (act === 'december') { cam = { dist: 24, elev: 20, azim: -10, ty: 6, tx: -2, tz: 4 }; }
+    upd = (lt, D, t) => { animBlock(hero, t, act === 'refund' ? 'cheer' : (act === 'extra' ? 'sad' : 'idle'));
+      if (act === 'refund') fly(cs, P3('tax', 0, 4, 0), hero.position.clone().add(new THREE.Vector3(0, 1.8, 0)), lt, t, { arc: 4, speed: 0.4 });
+      if (act === 'extra') fly(cs, hero.position.clone().add(new THREE.Vector3(0, 1.8, 0)), P3('tax', 0, 4, 0), lt, t, { arc: 4, speed: 0.4 }); };
+    ov = () => act === 'december' ? [tt('12月', 700, 90, 0.2)]
+      : act === 'recalc' ? [tt('1年分を正確に計算', TITLE_Y, 52, 0.4)]
+      : act === 'refund' ? [tt('取りすぎた分は<span style="color:#7dff9a">返ってくる</span>', TITLE_Y, 50, 0.4)]
+      : [tt('足りない分は<span style="color:#ff8a8a">改めて徴収</span>', TITLE_Y, 50, 0.4)];
+  } else if (act === 'insurance') {
+    const h1 = P3('home', 0, 0, -1); const umb = new THREE.Group();
+    const top = new THREE.Mesh(new THREE.ConeGeometry(3, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0xe0473c, roughness: 0.6 })); top.position.y = 7.5; top.castShadow = true; umb.add(top);
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3, 8), new THREE.MeshStandardMaterial({ color: 0x333 })); pole.position.y = 6; umb.add(pole);
+    umb.position.copy(P3('home', -8, 0, -2)); g.add(umb);
+    look(P3('home', -4, 0, 2), 15, 10, 0, 3);
+    ov = () => [callout(umb, [0, 8.2, 0], '生命保険', { dx: -20, dy: -120, color: C.down, delay: 0.3, size: 40 }), callout(anchorAt(P3('home', 2, 5, -2)), [0, 0, 0], '地震保険', { dx: 30, dy: -140, color: C.blue, delay: 0.6, size: 40 }), tt('各種控除を まとめて整理', TITLE_Y, 50, 0.8)];
+    upd = (lt, D, t) => { umb.rotation.y = 0.2 * Math.sin(t); };
+  } else if (act === 'forget') {
+    const hero = person('hero', P3('front', 0, 0, 0), 0.3); const papers = [...Array(6)].map(() => { const q = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff })); q.castShadow = true; g.add(q); return q; });
+    look(hero.position, 6.5, 8, 22, 1.3);
+    upd = (lt, D, t) => { animBlock(hero, t, 'sad'); papers.forEach((q, i) => { const k = ((lt * 0.35 + i / 6) % 1); q.position.set(hero.position.x + 0.5 + k * 9, hero.position.y + 1.5 + k * 4 + Math.sin(k * 8 + i) * 0.6, hero.position.z - k * 3); q.rotation.set(t * 3 + i, t * 2, t + i); }); };
+    ov = () => [tt('書類の出し忘れに注意', TITLE_Y, 52, 0.4)];
+  } else if (act === 'books') {
+    const box_ = new THREE.Group(); const wood = new THREE.MeshStandardMaterial({ color: 0x9a6a3c, roughness: 0.75 });
+    const bx = new THREE.Mesh(new THREE.BoxGeometry(2, 1.2, 1.4), wood); bx.position.y = 0.6; bx.castShadow = true; box_.add(bx);
+    const trim = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.12, 1.45), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.7, roughness: 0.3 })); trim.position.y = 1.1; box_.add(trim);
+    box_.position.copy(P3('front2', 0, 0, 0)); g.add(box_); const books = [0xd9534f, 0x3b82c4, 0x6aa84f, 0xe0a23b, 0x8e6cc9].map((c) => { const b = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.18, 0.9), new THREE.MeshStandardMaterial({ color: c, roughness: 0.6 })); b.castShadow = true; g.add(b); return b; });
+    const hero = person('hero', P3('front2', -2.2, 0, 0.8), 0.6); look(box_.position.clone().add(new THREE.Vector3(-1, 0, 0)), 7, 10, 10, 1.6);
+    upd = (lt, D, t) => { animBlock(hero, t, 'cheer'); books.forEach((b, i) => { const k = clamp((lt - 0.3 - i * 0.4) / 0.6); b.visible = k > 0 && k < 1; b.position.set(box_.position.x, box_.position.y + lerp(5, 1.2, k * k), box_.position.z); b.rotation.set(0, t * 2 + i, k); }); };
+    ov = () => [tt('知識を<span style="color:#ffd84a">蓄えよう</span>', TITLE_Y, 56, 0.4)];
+  } else if (act === 'sunset') {
+    const hero = person('hero', P3('cross', -1, 0, 7), 0); look(hero.position, 26, 14, -20, 3);
+    upd = (lt, D, t) => animBlock(hero, t, 'wave');
+    ov = (lt, D) => lt > D - 3.2 ? [{ kind: 'bigtitle', y: 1100, series: spec.series, title: '次回もお楽しみに', delay: D - 3.2, small: true }] : [tt('今日の授業はここまで', TITLE_Y, 54, 0.3)];
+  }
+  return { group: g, cam, snow: ['december', 'recalc', 'refund', 'extra', 'sign_nenmatsu', 'insurance', 'forget'].includes(act), sunset: act === 'sunset',
+    update: (lt, D, t) => upd(lt, D, t), overlay: (lt, D, t) => ov(lt, D, t) };
+};
+
 // ------------------------------------------------------------------ setup
 function gradientTexture(top, bottom) {
   const cv = document.createElement('canvas'); cv.width = 4; cv.height = 512;
@@ -1532,12 +1913,17 @@ const THEMES = {
   navy: { top: '#0b1634', bottom: '#1b2f63', floor: 0x14254f, fog: 0x15264f },
   school: { top: '#f3ead9', bottom: '#e8dcc6', floor: 0xc9a47a, fog: 0xefe5d3, set: 'school' },
   diorama: { top: '#efe8dc', bottom: '#cbbda6', floor: 0xb98a5c, fog: 0xd8ccb8, set: 'diorama' },
+  voxel: { top: '#5f9ee6', bottom: '#dfeaf3', floor: 0x6cb04a, fog: 0xd3e3ef, set: 'voxel' },
 };
 
 async function init() {
   spec = await (await fetch('/__spec.json')).json();
   tl = await (await fetch('/__timeline.json')).json();
   themeName = new URLSearchParams(location.search).get('theme') || spec.theme || 'studio';
+  if (themeName === 'rpg') {
+    const m = await import('./rpg.js'); await m.setupRPG(spec, tl);
+    await document.fonts.ready; window.ready = true; return;
+  }
   const th = THEMES[themeName];
   renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(1); renderer.setSize(W, H, false);
@@ -1551,13 +1937,21 @@ async function init() {
   scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
   scene.environmentIntensity = 0.7;
   camera = new THREE.PerspectiveCamera(32, W / H, 0.1, 200);
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x8892a6, 0.8); scene.add(hemi);
-  const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(5, 10, 7); sun.castShadow = true;
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x8892a6, 0.8); scene.add(hemi); hemiLight = hemi;
+  const sun = new THREE.DirectionalLight(0xffffff, 2.2); sunLight = sun; sun.position.set(5, 10, 7); sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -0.0004;
   Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 1, far: 40 }); scene.add(sun);
   floor = new THREE.Mesh(new THREE.CircleGeometry(40, 64), new THREE.MeshStandardMaterial({ color: th.floor, roughness: 0.85 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   if (th.set === 'school') scene.add(buildSchool());
+  if (th.set === 'voxel') {
+    scene.add(buildVoxel()); floor.visible = false;
+    scene.fog = new THREE.Fog(th.fog, 45, 150); camera.fov = 40; camera.far = 400; camera.updateProjectionMatrix();
+    sun.color.setHex(0xfff0d8); sun.intensity = 3.0; sun.shadow.radius = 4; sun.shadow.bias = -0.0006; sun.shadow.normalBias = 0.02;
+    Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 26, bottom: -26, near: 1, far: 140 }); sun.shadow.camera.updateProjectionMatrix();
+    scene.add(sun.target); hemi.color.setHex(0xcfe6ff); hemi.groundColor.setHex(0x6b5a40); hemi.intensity = 1.0; scene.environmentIntensity = 0.35;
+    renderer.toneMappingExposure = 1.05; renderer.domElement.style.filter = 'saturate(1.12) contrast(1.05)';
+  }
   if (th.set === 'diorama') {
     scene.add(buildDiorama());
     scene.fog = new THREE.Fog(th.fog, 30, 75);
@@ -1583,11 +1977,29 @@ async function init() {
   window.ready = true;
 }
 
+// voxel: raise the camera until nothing blocks the line of sight to the target (checked over the whole drift range)
+function vxClearCam(c) {
+  const blocked = (el, az, dist) => {
+    const tx = c.tx || 0, tz = c.tz || 0; const e = el * Math.PI / 180, a = az * Math.PI / 180;
+    const dir = new THREE.Vector3(Math.sin(a) * Math.cos(e), Math.sin(e), Math.cos(a) * Math.cos(e));
+    for (let d = 2.0; d < dist; d += 0.4) { const x = tx + dir.x * d, y = c.ty + dir.y * d, z = tz + dir.z * d; if (vGet(Math.floor(x), Math.floor(y), Math.floor(z))) return true; }
+    return false;
+  };
+  for (let k = 0; k < 24; k++) {
+    let ok = true;
+    for (const az of [c.azim - 7, c.azim, c.azim + 7]) for (const de of [-2, 2]) if (blocked(c.elev * 0.65 + de, az, c.dist * 1.6)) ok = false;
+    if (ok) return;
+    c.elev += 4; if (c.elev > 80) { c.dist *= 0.85; c.elev = 30; }
+  }
+}
+function groupStart(i) { let j = i; while (j > 0 && spec.scenes[j].visual?.cont) j--; return j; }
 function getBuilt(i) {
+  if (spec.scenes[i].visual?.cont) { const g0 = groupStart(i); const b = getBuilt(g0); built.set(i, b); return b; }
   if (!built.has(i)) {
     const sc = spec.scenes[i]; const v = sc.visual || {};
     const fn = B[v.type] || B.summary3d;
     const b = fn(v, sc); b.group.visible = false; scene.add(b.group); built.set(i, b);
+    if (themeName === 'voxel' && v.type === 'vx') vxClearCam(b.cam);
   }
   return built.get(i);
 }
@@ -1596,8 +2008,8 @@ function sceneAt(t) {
 }
 function camPose(b, lt, D, t) {
   const c = b.cam; const az = (c.azim + 7 * Math.sin(t * 0.22)) * Math.PI / 180;
-  const el = (c.elev + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
-  const dist = c.dist * DIST_SCALE * (1 - 0.05 * clamp(lt / D));
+  const el = ((themeName === 'voxel' ? c.elev * 0.65 : c.elev) + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
+  const dist = c.dist * (themeName === 'voxel' ? 1.6 : DIST_SCALE) * (1 - 0.05 * clamp(lt / D));
   const tx = c.tx || 0, tz = c.tz || 0;
   const target = new THREE.Vector3(tx, c.ty, tz);
   const pos = new THREE.Vector3(tx + Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, tz + Math.cos(az) * Math.cos(el) * dist);
@@ -1706,23 +2118,32 @@ function overlayHTML(items, lt, sceneTl, sc, t) {
 
 // ------------------------------------------------------------------ frame
 window.renderAt = (t) => {
-  const s = sceneAt(t); const i = s.index; const lt = t - s.start; const D = s.end - s.start;
+  const s = sceneAt(t); const i = s.index;
+  const g0 = groupStart(i); let gEnd = i; while (gEnd + 1 < spec.scenes.length && spec.scenes[gEnd + 1].visual?.cont) gEnd++;
+  const lt = t - tl.scenes[g0].start; const D = tl.scenes[gEnd].end - tl.scenes[g0].start;
   const cur = getBuilt(i);
+  if (themeName === 'voxel') {
+    animVoxel(t, cur.snow);
+    const sunset = cur.sunset ? clamp(lt / 2) : 0;
+    sunLight.color.setRGB(1, lerp(0.94, 0.62, sunset), lerp(0.85, 0.42, sunset)); sunLight.intensity = lerp(3.0, 2.2, sunset);
+    scene.fog.color.setRGB(lerp(0.83, 0.98, sunset), lerp(0.89, 0.78, sunset), lerp(0.94, 0.66, sunset));
+  }
   for (const [j, b] of built) b.group.visible = j === i || (j === i - 1 && lt < 0.35);
   cur.group.visible = true;
-  const fixedWorld = themeName === 'diorama' && spec.scenes[i].visual?.type === 'dio';
+  const fixedWorld = (themeName === 'diorama' && spec.scenes[i].visual?.type === 'dio') || (themeName === 'voxel' && spec.scenes[i].visual?.type === 'vx');
   const pop = eBack(lt / 0.5); cur.group.scale.setScalar(fixedWorld ? 1 : Math.max(0.001, lerp(0.75, 1, pop)));
   if (DIO.town) animTown(t);
   cur.update(lt, D, t);
   let pose = camPose(cur, lt, D, t);
-  if (i > 0 && lt < (themeName === 'diorama' ? 0.9 : 0.6)) {
-    const ps = tl.scenes[i - 1]; const prev = getBuilt(i - 1); const Dp = ps.end - ps.start;
+  if (g0 > 0 && lt < (themeName === 'diorama' || themeName === 'voxel' ? 0.9 : 0.6)) {
+    const pg = groupStart(g0 - 1); const prev = getBuilt(g0 - 1); const Dp = tl.scenes[g0 - 1].end - tl.scenes[pg].start;
     if (lt < 0.35 && !fixedWorld) { prev.group.visible = true; prev.group.scale.setScalar(Math.max(0.001, 1 - eOut(lt / 0.3))); prev.update(Dp + lt, Dp, t); }
     else if (fixedWorld) prev.group.visible = false;
     const pp = camPose(prev, Dp, Dp, t); const k = eInOut(lt / (fixedWorld ? 0.9 : 0.6));
     pose = { pos: pp.pos.clone().lerp(pose.pos, k), target: pp.target.clone().lerp(pose.target, k) };
   }
   camera.position.copy(pose.pos); camera.lookAt(pose.target);
+  if (themeName === 'voxel') { sunLight.target.position.copy(pose.target); sunLight.position.copy(pose.target).add(new THREE.Vector3(30, 42, 22)); }
   // keep the composition centred between the subtitles and the bottom safe line
   camera.setViewOffset(W, H, 0, -40, W, H); camera.updateProjectionMatrix();
   const isPhoto = spec.scenes[i].visual?.type === 'photo';

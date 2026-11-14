@@ -4,6 +4,7 @@
   "description": "3D scene renderer (Three.js in headless Chromium) for kinyu-kaisetsu-douga",
   "dependencies": {
     "@fontsource/dela-gothic-one": "^5.1.0",
+    "@fontsource/dotgothic16": "^5.1.0",
     "@fontsource/klee-one": "^5.1.0",
     "@fontsource/noto-sans-jp": "5.1.1",
     "@fontsource/zen-maru-gothic": "^5.1.0",

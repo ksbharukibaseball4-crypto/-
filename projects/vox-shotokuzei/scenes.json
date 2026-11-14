@@ -1,0 +1,524 @@
+{
+ "title": "本当は学校で教えて欲しいシリーズ「所得税」（ブロック風3D）",
+ "series": "本当は学校で教えて欲しいシリーズ",
+ "episode": "所得税",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "voxel",
+ "sub_style": "telop",
+ "voice": {
+  "cps": 5.5,
+  "tail": 0.95
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "narr",
+   "text": "本当は/学校で教えて欲しい/シリーズ",
+   "tail": 0.45,
+   "visual": {
+    "type": "vx",
+    "act": "title",
+    "cont": false,
+    "title": "本当は学校で教えて欲しいシリーズ"
+   },
+   "cps": 7.0
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "新社会人になって、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "payday",
+    "cont": false
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "いきなり給与から、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "payday",
+    "cont": true
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "税金や社会保険料が/引かれる。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "payday",
+    "cont": true
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "1年後には/住民税が/引かれる。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "juminzei",
+    "cont": false
+   },
+   "asof": true,
+   "note": "※住民税は前年の所得にかかるため、一般に翌年6月ごろから"
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "何も知らない、/誰も教えてくれない/まま。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "alone",
+    "cont": false
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "そんなお金の授業を、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "school",
+    "cont": false
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "わかりやすく、/面白く/解説していきます。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "school",
+    "cont": true
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "今回の授業は/「所得税」。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "title_ep",
+    "cont": false,
+    "title": "所得税"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "narr",
+   "text": "では、/ご覧ください。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "title_ep",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "所得税は、/皆さんの/所得に応じて、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "define",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "その一部を/税金として/納めるシステムです。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "define",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "本来は/自分で申告して/税額を計算し、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "selfcalc",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "納める制度でしたが、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "selfcalc",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "日本では、/給与所得者、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "commuters",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "いわゆる/会社勤めの/サラリーマンが多いので、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "commuters",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "給与を支払う/会社側が、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "company",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "あらかじめ/給与から/税金を差し引いて、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "company",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "支払うことで、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "company",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "税金の/徴収漏れを/防いだり、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "vault",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "納税者の/負担を/減らすことができます。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "relax",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "この/会社が給与から/天引きするシステムを",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "sign",
+    "cont": false,
+    "label": "源泉徴収"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "源泉徴収/といいます。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "sign",
+    "cont": true,
+    "label": "源泉徴収"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "「源泉」、/いわゆる源から、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "spring",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "税金を徴収する/システムです。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "spring",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "ただし、/あくまでこの天引きは、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "months",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "月額の給与から、/1年間の収入を予測して、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "months",
+    "cont": true
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "概算で/徴収しているため、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "months",
+    "cont": true
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "12月の時点で、/税金を/取りすぎていたり、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "december",
+    "cont": false
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "少ない場合が/あります。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "december",
+    "cont": true
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "1年間の給与の額を/正確に計算し、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "recalc",
+    "cont": false
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "narr",
+   "text": "取りすぎていた税金は/返し、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "refund",
+    "cont": false
+   }
+  },
+  {
+   "role": "example",
+   "speaker": "narr",
+   "text": "少なかった場合は/改めて徴収する。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "extra",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "これを/年末調整/といいます。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "sign_nenmatsu",
+    "cont": false,
+    "label": "年末調整"
+   },
+   "note": "※通常はその年の最後の給料のとき"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "日々支払っている/生命保険や地震保険など、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "insurance",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "各種控除を/このタイミングで整理し、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "insurance",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "改めて/計算します。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "insurance",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "年末調整で/しっかり整理しないと、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "forget",
+    "cont": false
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "返ってくるはずの税金が、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "forget",
+    "cont": true
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "narr",
+   "text": "返ってこなくなってしまうので、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "forget",
+    "cont": true
+   },
+   "note": "※出し忘れても、確定申告で取り戻せる場合があります"
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "しっかりと/知識を/蓄えておきましょう。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "books",
+    "cont": false
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "今日の授業は、/ここまで。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "sunset",
+    "cont": false
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "生きていく上で、/大切なお金の知識、",
+   "tail": 0.35,
+   "visual": {
+    "type": "vx",
+    "act": "sunset",
+    "cont": true
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "narr",
+   "text": "次回も/お楽しみに。",
+   "tail": 0.95,
+   "visual": {
+    "type": "vx",
+    "act": "sunset",
+    "cont": true
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "narr",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/700.css">
 <link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/900.css">
 <link rel="stylesheet" href="node_modules/@fontsource/dela-gothic-one/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/dotgothic16/400.css">
 <style>
   html, body { margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
   body { font-family: "Noto Sans JP", sans-serif; }
@@ -47,6 +48,21 @@
                padding: 8px 30px; border-radius: 999px; border: 6px solid #3b2a1a; margin-bottom: 18px; }
   .bt-main { font-family: "Dela Gothic One", "Noto Sans JP"; font-size: 210px; color: #ff4b3e; -webkit-text-stroke: 22px #fff; paint-order: stroke fill;
              filter: drop-shadow(10px 12px 0 #3b2a1a); line-height: 1.1; }
+  .rwin, .rmsg, .rtag { position: absolute; font-family: "DotGothic16", monospace; color: #fff; background: #0b0b14;
+         border: 6px solid #fff; border-radius: 14px; box-shadow: inset 0 0 0 4px #0b0b14, inset 0 0 0 7px #8a8fa8; box-sizing: border-box; padding: 22px 28px; }
+  .rtag { left: 162px; top: 232px; width: 756px; padding: 6px 18px; font-size: 30px; border-width: 4px; text-align: center; box-shadow: none; }
+  .rmsg { left: 162px; top: 1010px; width: 756px; min-height: 300px; padding: 34px 36px; }
+  .rspk { position: absolute; top: -34px; left: 28px; background: #0b0b14; border: 5px solid #fff; border-radius: 10px; padding: 0 18px; font-size: 36px; }
+  .rtext { font-size: 54px; line-height: 1.55; letter-spacing: 2px; }
+  .rcur { color: #ffe066; margin-left: 8px; }
+  .rname { font-size: 40px; } .rsmall { font-size: 34px; line-height: 1.5; } .rmid { font-size: 44px; line-height: 1.6; } .rbig { font-size: 56px; line-height: 1.5; }
+  .rbar { height: 26px; border: 4px solid #fff; margin: 10px 0 6px; background: #22223a; } .rbar span { display: block; height: 100%; background: #7dff9a; }
+  .rrow { display: flex; align-items: center; gap: 16px; margin: 6px 0; } .rlab { font-size: 32px; width: 290px; }
+  .rbar2 { flex: 1; height: 24px; border: 3px solid #fff; background: #22223a; } .rbar2 span { display: block; height: 100%; }
+  .rpop { position: absolute; left: 540px; transform: translateX(-50%); font-family: "DotGothic16"; font-size: 60px; -webkit-text-stroke: 10px #0b0b14; paint-order: stroke fill; white-space: nowrap; }
+  .rtitle { position: absolute; left: 540px; top: 640px; text-align: center; font-family: "DotGothic16"; color: #fff; white-space: nowrap; }
+  .rt-s { font-size: 40px; color: #ffe066; margin-bottom: 20px; } .rt-c { font-size: 64px; } .rt-m { font-size: 200px; -webkit-text-stroke: 14px #3a6fd8; paint-order: stroke fill; text-shadow: 10px 10px 0 #0b0b14; }
+  .rnote { position: absolute; left: 162px; width: 756px; top: 1360px; text-align: center; font-family: "Noto Sans JP"; font-weight: 700; font-size: 28px; color: #fff; background: rgba(11,11,20,0.85); border-radius: 12px; padding: 6px 14px; box-sizing: border-box; }
   .callout { position: absolute; transform: translate(-50%, -50%); background: rgba(17, 24, 39, 0.92);
              color: #fff; font-weight: 900; border-radius: 18px; padding: 14px 28px; white-space: nowrap;
              box-shadow: 0 8px 22px rgba(0,0,0,0.28); display: flex; align-items: center; gap: 14px; }
