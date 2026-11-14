@@ -187,6 +187,8 @@ def scene_sfx(visual: dict, dur: float, idx: int) -> list[tuple[float, np.ndarra
     typ = visual.get("type")
     if typ == "rpg":
         return rpg_sfx(visual, dur, idx)
+    if typ == "vx":
+        return vx_sfx(visual, dur, idx)
     # 3D renderer visual types → sound categories
     if typ == "document_stamp":
         return ([(0.0, page(seed=idx))] if idx else []) + [(0.72, stamp())]
@@ -305,3 +307,39 @@ def rpg_sfx(visual: dict, dur: float, idx: int) -> list:
     elif k in ("skill", "levelup"): cues += [(0.1, chip_fanfare())]
     elif k in ("status", "effects", "items", "months"): cues += [(0.3 + i * 0.4, chip_blip()) for i in range(3)]
     return cues
+
+
+def vx_sfx(visual: dict, dur: float, idx: int) -> list:
+    """Block-style 3D scenes. Continued shots (cont) get no transition sound."""
+    act = visual.get("act"); cont = visual.get("cont")
+    rng = random.Random(idx * 31 + 7); pv = 1 + rng.uniform(-0.06, 0.06)
+    cues = [] if (idx == 0 or cont) else [(0.0, [whoosh, swish, lambda seed=0: woodblock(820 * pv), lambda seed=0: bubble(380 * pv)][idx % 4](seed=idx) if idx % 4 < 2 else [whoosh, swish, lambda: woodblock(820 * pv), lambda: bubble(380 * pv)][idx % 4]())]
+    if cont:
+        return cues + [(0.15, marimba(PENTA[idx % 6] * pv) * 0.6)]
+    table = {
+        "title": [(0.05, drum()), (0.3, chord((784 * pv, 988 * pv, 1175 * pv), 1.2))],
+        "title_ep": [(0.05, drum()), (0.3, chord((659 * pv, 830 * pv, 988 * pv), 1.2)), (0.6, sparkle(idx))],
+        "payday": [(0.4, register())],
+        "juminzei": [(0.3, bell(880 * pv))],
+        "alone": [(0.3, rise(0.8, False))],
+        "school": [(0.2, bell(1047 * pv)), (0.8, bell(1319 * pv))],
+        "define": [(0.3 + i * 0.25, marimba(PENTA[i] * pv)) for i in range(4)],
+        "selfcalc": [(0.3 + i * 0.18, typekey(i)) for i in range(6)],
+        "commuters": [(0.2 + i * 0.3, woodblock(600 + 40 * i)) for i in range(5)],
+        "company": [(0.5, coin(pv)), (1.1, thud(1))],
+        "vault": [(0.6, stamp()), (1.0, coin(pv))],
+        "relax": [(0.2, sparkle(idx))],
+        "sign": [(0.2, drum())],
+        "sign_nenmatsu": [(0.2, drum()), (0.4, bell(784))],
+        "spring": [(0.2 + i * 0.5, coin(pv * (1 + 0.04 * i))) for i in range(4)],
+        "months": [(0.15 + i * 0.07, tick(2000 + 90 * i)) for i in range(12)],
+        "december": [(0.2, bell(1175 * pv)), (0.7, bell(1568 * pv))],
+        "recalc": [(0.3 + i * 0.15, typekey(i + 9)) for i in range(8)],
+        "refund": [(0.4, register()), (0.9, sparkle(idx))],
+        "extra": [(0.4, alert())],
+        "insurance": [(0.2, page(seed=idx)), (0.5, page(seed=idx + 1))],
+        "forget": [(0.2, whoosh(0.6, seed=idx))],
+        "books": [(0.3 + i * 0.4, thud(i) * 0.6) for i in range(5)],
+        "sunset": [(0.2, chord((523 * pv, 659 * pv, 784 * pv), 1.4))],
+    }
+    return cues + table.get(act, [])
