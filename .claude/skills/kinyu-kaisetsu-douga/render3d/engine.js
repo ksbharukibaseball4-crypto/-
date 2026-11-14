@@ -1497,16 +1497,10 @@ B.dio = (v, sc) => {
     ov = () => act === 'scale' ? [callout(bs.userData.pans[0], [0, -0.3, 0], '見込み', { dx: -60, dy: -120, color: C.blue, delay: 0.3, size: 36 }), callout(bs.userData.pans[1], [0, -0.3, 0], '正しい1年分', { dx: 60, dy: -160, color: C.gold, delay: 0.5, size: 36 }), telopTitle('12月にズレを発見', TITLE_Y, 54, 0.6)]
       : [telopTitle('1年分をピッタリ計算', TITLE_Y, 54, 0.6)];
   } else if (act === 'insurance') {
-    const hero = person('hero', P3('front', 0, 0, 0), 0.2);
-    const cert = (dx, color) => { const g2 = new THREE.Group(); const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), new THREE.MeshStandardMaterial({ color: 0x8a5a2b })); post.position.y = 0.6; g2.add(post);
-      const bd = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.0, 0.08), new THREE.MeshStandardMaterial({ color: 0xfbfaf5, roughness: 0.9 })); bd.position.y = 2.0; bd.castShadow = true; g2.add(bd);
-      const band = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.35, 0.1), new THREE.MeshStandardMaterial({ color })); band.position.y = 2.8; g2.add(band);
-      g2.position.copy(P3('front', dx, 0, -1.2)); g.add(g2); g2.userData.bd = bd; return g2; };
-    const c1 = cert(-2.2, 0xe0473c), c2 = cert(2.4, 0x3a6fd8);
-    look(P3('front', 0, 0, -0.5), 8, 8, 0, 1.6);
-    upd = (lt, D, t) => { animBlock(hero, t, 'point'); [c1, c2].forEach((c, i) => { c.scale.setScalar(Math.max(0.001, eBack((lt - 0.2 - i * 0.3) / 0.5))); c.rotation.y = 0.15 * Math.sin(t + i); }); };
-    ov = () => [{ kind: 'tag', obj: c1.userData.bd, local: [0, 0, 0.06], text: '生命保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.4 },
-      { kind: 'tag', obj: c2.userData.bd, local: [0, 0, 0.06], text: '地震保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.7 }, tt('各種控除を まとめて整理', TITLE_Y, 50, 0.9)];
+    const h1 = S.houses[0], h2 = S.houses[2]; const u = umbrella(); u.scale.setScalar(0.35); const p1 = worldPos(h1); u.position.set(p1.x, 0.6, p1.z); g.add(u);
+    cam = { dist: 6.5, elev: 30, azim: 0, ty: 0.7, tx: -4.5, tz: 2.8 };
+    upd = (lt, D, t) => { h2.rotation.z = 0.06 * Math.sin(t * 18) * (lt > 0.8 && lt < 2.6 ? 1 : 0); };
+    ov = () => [callout(h1, [0, 2.2, 0], '生命保険料', { dx: -20, dy: -220, color: C.down, delay: 0.3, size: 38 }), callout(h2, [0, 2.2, 0], '地震保険料', { dx: 30, dy: -170, color: C.blue, delay: 0.6, size: 38 }), telopTitle('保険料の控除もここで', TITLE_Y, 52, 0.8)];
   } else if (act === 'forget') {
     const hp = worldPos(S.houses[3]); const p = miniPerson('red'); p.scale.setScalar(0.4); p.position.set(hp.x + 0.8, 0.52, hp.z + 0.9); g.add(p);
     const papers = [...Array(5)].map(() => { const q = box(0.22, 0.01, 0.3, 'paper'); g.add(q); return q; });
@@ -1625,7 +1619,7 @@ function genVoxelWorld() {
   [[-22, -2], [-19, 1], [22, -1], [23, 8], [-23, 19], [21, 2]].forEach(([x, z], i) => tree(x, z, 4 + (i % 3)));
   for (let i = 0; i < 60; i++) { const x = Math.floor(vRand(i * 3.1) * 76) - 38, z = Math.floor(vRand(i * 7.7) * 16) - 30; if (Math.abs(x) < 26 && z > -14) continue; tree(x, z, 4 + (i % 3)); }
   for (let i = 0; i < 10; i++) { const x = (i % 2 ? 1 : -1) * (27 + Math.floor(vRand(i * 5.3 + 1) * 10)), z = Math.floor(vRand(i * 2.9 + 2) * 30) - 4; tree(x, z, 4 + (i % 3)); }
-  VX.spots = { front: [-6, g0, 26], front2: [8, g0, 26], home: [-12, g0, 13], company: [-12, g0, -2], tax: [14, g0, -1], school: [0, g0, -6], town: [13, g0, 15], fountain: [7, g0, 16], cross: [0, g0, 5], field: [5, g0, 9], hill: [-4, 10, -22] };
+  VX.spots = { stage: [0, g0, 27], front: [-6, g0, 26], front2: [8, g0, 26], home: [-12, g0, 13], company: [-12, g0, -2], tax: [14, g0, -1], school: [0, g0, -6], town: [13, g0, 15], fountain: [7, g0, 16], cross: [0, g0, 5], field: [5, g0, 9], hill: [-4, 10, -22] };
 }
 function meshVoxels(atlas) {
   // faces are grouped per 16x16 column chunk so the camera and the shadow camera can cull what they don't see
@@ -1810,11 +1804,14 @@ B.vx = (v, sc) => {
     upd = (lt, D, t) => kids.forEach((k, i) => { k.position.z = S.school[2] + 6 - ((lt * 0.8 + i * 0.4) % 4); animBlock(k, t, 'walk', i); });
     ov = () => [callout(anchorAt(P3('school', 0, 9, 0)), [0, 0, 0], 'お金の授業', { dx: 0, dy: -150, color: C.gold, delay: 0.3, size: 44 })];
   } else if (act === 'define') {
-    const pos = P3('field', -3, 0, 0); const heights = [2, 4, 7]; const towers = [];
-    heights.forEach((h, i) => { const tw = new THREE.Group(); tw.position.set(pos.x + i * 3, pos.y, pos.z); for (let j = 0; j < h; j++) { const top = j >= h - Math.max(1, Math.round(h * (0.15 + i * 0.1))); const b = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: top ? 0xe0473c : 0xf2c248, metalness: top ? 0.1 : 0.6, roughness: 0.4 })); b.position.y = 0.5 + j; b.castShadow = true; b.receiveShadow = true; tw.add(b); } g.add(tw); towers.push(tw); person(['v1', 'v2', 'v3'][i], new THREE.Vector3(tw.position.x, pos.y, pos.z + 1.6), 0); });
-    look(new THREE.Vector3(pos.x + 3, pos.y, pos.z), 13, 14, 0, 2.5);
-    upd = (lt) => towers.forEach((tw, i) => tw.children.forEach((b, j) => { b.visible = j < Math.ceil(tw.children.length * eOut((lt - 0.2 - i * 0.25) / 1.0)); }));
-    ov = () => [callout(towers[2], [0, 7, 0], '赤い部分が税金', { dx: 40, dy: -160, color: C.down, delay: 1.2, size: 40 }), tt('所得が多いほど 税金も多い', TITLE_Y, 48, 1.5)];
+    const heights = [2, 4, 7]; const towers = [];
+    heights.forEach((h, i) => { const x = -2.6 + i * 2.6; const tw = new THREE.Group(); tw.position.copy(P3('stage', x + 0.7, 0, 0));
+      const nTax = Math.max(1, Math.round(h * (0.12 + i * 0.1)));
+      for (let j = 0; j < h; j++) { const top = j >= h - nTax; const b = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), new THREE.MeshStandardMaterial({ color: top ? 0xe0473c : 0xf2c248, metalness: top ? 0.1 : 0.55, roughness: 0.4 })); b.position.y = 0.45 + j * 0.92; b.castShadow = true; b.receiveShadow = true; tw.add(b); }
+      g.add(tw); towers.push(tw); person(['v1', 'v2', 'v3'][i], P3('stage', x - 0.6, 0, 0.3), 0); });
+    look(P3('stage', 0.9, 0, 0), 15, 9, 0, 3.0); cam.drift = 2.5;
+    upd = (lt) => towers.forEach((tw, i) => tw.children.forEach((b, j) => { b.visible = j < Math.ceil(tw.children.length * eOut((lt - 0.2 - i * 0.35) / 1.0)); }));
+    ov = () => [callout(towers[2], [0, 6.7, 0], '赤い部分＝税金', { dx: -60, dy: -110, color: C.down, delay: 1.4, size: 38 })];
   } else if (act === 'selfcalc') {
     const hero = person('hero', P3('front', 0, 0, 0), -0.4);
     const desk = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.8), new THREE.MeshStandardMaterial({ color: 0xa8743f, roughness: 0.8 })); desk.position.copy(P3('front', 1.5, 0.45, 0.5)); desk.castShadow = true; g.add(desk);
@@ -1828,22 +1825,29 @@ B.vx = (v, sc) => {
     upd = (lt, D, t) => ps.forEach((p, i) => { const k = (lt * 0.18 + i / 10) % 1; p.position.set(S.company[0] - 2 + (i % 3) * 1.2, S.company[1], lerp(S.company[2] + 9, S.company[2] - 1, k)); animBlock(p, t, 'walk', i); });
     ov = () => [callout(anchorAt(P3('company', 0, 14, -4)), [0, 0, 0], '会社', { dx: 40, dy: -120, color: C.blue, delay: 0.3, size: 44 })];
   } else if (act === 'company') {
-    const cart = new THREE.Group(); const box_ = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.8, 1), new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.8 })); box_.position.y = 0.7; box_.castShadow = true; cart.add(box_);
-    for (let i = 0; i < 3; i++) { const c = vxCoin(); c.rotation.set(0, 0, 0); c.position.set(-0.4 + i * 0.4, 1.15, 0); cart.add(c); }
-    for (const x of [-0.5, 0.5]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.15, 12), new THREE.MeshStandardMaterial({ color: 0x333 })); w.rotation.x = Math.PI / 2; w.position.set(x, 0.28, 0.55); cart.add(w); }
-    g.add(cart); const worker = person('worker', P3('company', 0, 0, 6), 0); const hero = person('hero', P3('company', 3, 0, 9), Math.PI);
-    const pay = coins(3);
-    cam = { dist: 30, elev: 18, azim: 0, ty: 5, tx: 1, tz: 4 };
-    upd = (lt, D, t) => { const k = clamp((lt - 1.0) / (D - 1.5)); cart.position.set(lerp(S.company[0] + 1, S.tax[0] - 2, eInOut(k)), S.company[1], 5.4); cart.rotation.y = 0; animBlock(worker, t, 'point'); animBlock(hero, t, 'idle');
-      fly(pay, worker.position.clone().add(new THREE.Vector3(0, 1.6, 0)), hero.position.clone().add(new THREE.Vector3(0, 1.6, 0)), lt, t, { arc: 1.2, speed: 0.6, delay: 0.5 }); };
-    ov = () => [callout(cart, [0, 1.5, 0], '先に引いた税金', { dx: 0, dy: -140, color: C.gold, delay: 1.0, size: 38 }), callout(anchorAt(P3('tax', 0, 9, -4)), [0, 0, 0], '国（税務署）', { dx: -30, dy: -120, color: C.down, delay: 0.6, size: 38 }), callout(hero, [0, 2.2, 0], '残りが給与', { dx: 40, dy: -120, color: C.blue, delay: 0.8, size: 36 })];
+    const sCo = vxSign(2.0); sCo.position.copy(P3('stage', -2.7, 0, -0.5)); g.add(sCo);
+    const sKu = vxSign(2.0); sKu.position.copy(P3('stage', 2.7, 0, -0.5)); g.add(sKu);
+    const hero = person('hero', P3('stage', 0, 0, 1.6), 0);
+    const cart = new THREE.Group(); const box_ = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.7, 0.9), new THREE.MeshStandardMaterial({ color: 0x8a5a2b, roughness: 0.8 })); box_.position.y = 0.6; box_.castShadow = true; cart.add(box_);
+    for (let i = 0; i < 3; i++) { const c = vxCoin(); c.rotation.set(0, 0, 0); c.position.set(-0.35 + i * 0.35, 1.0, 0); cart.add(c); }
+    for (const x of [-0.42, 0.42]) { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.24, 0.12, 12), new THREE.MeshStandardMaterial({ color: 0x333333 })); w.rotation.x = Math.PI / 2; w.position.set(x, 0.24, 0.5); cart.add(w); }
+    g.add(cart); const pay = coins(3);
+    look(P3('stage', 0.3, 0, 0), 15, 9, 0, 2.0); cam.drift = 2.5;
+    upd = (lt, D, t) => { const k = clamp((lt - 1.2) / (D - 1.8)); cart.position.copy(P3('stage', lerp(-2.4, 2.4, eInOut(k)), 0, 0.2)); animBlock(hero, t, 'idle');
+      fly(pay, P3('stage', -2.4, 2.2, -0.3), hero.position.clone().add(new THREE.Vector3(0, 1.8, 0)), lt, t, { arc: 1.5, speed: 0.55, delay: 0.4 }); };
+    ov = () => [{ kind: 'tag', obj: sCo.userData.board, local: [0, 0, 0.1], text: '会社', size: 64, dark: true, color: '#3b2a1a', delay: 0.1 },
+      { kind: 'tag', obj: sKu.userData.board, local: [0, 0, 0.1], text: '国', size: 64, dark: true, color: '#3b2a1a', delay: 0.2 },
+      callout(hero, [0, 2.2, 0], '残りが給与', { dx: 0, dy: -150, color: C.blue, delay: 0.8, size: 36 }),
+      callout(cart, [0, 1.3, 0], '先に引いた税金', { dx: 0, dy: 160, color: C.gold, delay: 1.4, size: 36 })];
   } else if (act === 'vault') {
-    const vault = new THREE.Group(); const vb = new THREE.Mesh(new THREE.BoxGeometry(2.4, 2.4, 2.4), new THREE.MeshStandardMaterial({ color: 0x7b8494, metalness: 0.6, roughness: 0.35 })); vb.position.y = 1.2; vb.castShadow = true; vault.add(vb);
-    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.1, 20), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.8, roughness: 0.3 })); dial.rotation.x = Math.PI / 2; dial.position.set(0, 1.3, 1.25); vault.add(dial);
-    vault.position.copy(P3('front2', 0, 0, 0)); g.add(vault); const cs = coins(5);
-    look(vault.position, 7, 10, -15, 1.8);
-    upd = (lt, D, t) => { dial.rotation.z = t; fly(cs, vault.position.clone().add(new THREE.Vector3(-4, 3, 2)), vault.position.clone().add(new THREE.Vector3(0, 2.5, 0)), lt, t, { arc: 1.5, speed: 0.6 }); };
-    ov = () => [tt('徴収漏れを防ぐ', TITLE_Y, 54, 0.3)];
+    const vault = new THREE.Group(); const vb = new THREE.Mesh(new THREE.BoxGeometry(2.2, 2.2, 2.2), new THREE.MeshStandardMaterial({ color: 0x7b8494, metalness: 0.6, roughness: 0.35 })); vb.position.y = 1.1; vb.castShadow = true; vault.add(vb);
+    const door = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.6, 0.08), new THREE.MeshStandardMaterial({ color: 0x5b6475, metalness: 0.6, roughness: 0.35 })); door.position.set(0, 1.1, 1.12); vault.add(door);
+    const dial = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.1, 20), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.8, roughness: 0.3 })); dial.rotation.x = Math.PI / 2; dial.position.set(0, 1.2, 1.2); vault.add(dial);
+    const slot = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.2), new THREE.MeshStandardMaterial({ color: 0x1a1a22 })); slot.position.set(0, 2.21, 0); vault.add(slot);
+    vault.position.copy(P3('stage', 0, 0, 0)); g.add(vault); const cs = coins(4);
+    look(P3('stage', 0, 0, 0), 9, 10, 0, 1.8); cam.drift = 2.5;
+    upd = (lt, D, t) => { dial.rotation.y = t; cs.forEach((c, i) => { const ph = ((lt - 0.3) * 0.7 + i / 4) % 1; c.visible = lt > 0.3; c.position.copy(P3('stage', 0, lerp(5.5, 2.2, ph * ph), 0)); c.rotation.set(0, t * 3 + i, 0); c.scale.setScalar(ph > 0.95 ? 0.001 : 1); }); };
+    ov = () => [];
   } else if (act === 'relax') {
     const ps = ['v1', 'v2', 'v3', 'hero'].map((l, i) => person(l, P3('fountain', -3 + i * 2, 0, 5), 0));
     look(P3('fountain', 0, 0, 2), 13, 12, -10, 1.8);
@@ -1859,10 +1863,11 @@ B.vx = (v, sc) => {
     upd = (lt, D, t) => cs.forEach((c, i) => { const ph = (t * 0.6 + i / 8) % 1; const a = i * 0.8; c.position.set(S.fountain[0] + 0.5 + Math.cos(a) * ph * 2.5, S.fountain[1] + 3 + Math.sin(ph * Math.PI) * 3, S.fountain[2] + 0.5 + Math.sin(a) * ph * 2.5); c.rotation.set(Math.PI / 2, 0, t * 4 + i); });
     ov = () => [callout(anchorAt(P3('fountain', 0.5, 3, 0.5)), [0, 0, 0], '源＝お金が湧く出どころ', { dx: 0, dy: -200, color: C.blue, delay: 0.4, size: 40 })];
   } else if (act === 'months') {
-    const base = P3('field', -6, 0, -1); const hs = [3, 4, 3, 5, 4, 3, 4, 6, 4, 3, 5, 7]; const cols = hs.map((h, i) => { const tw = new THREE.Group(); tw.position.set(base.x + i * 1.2, base.y, base.z); for (let j = 0; j < h; j++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.5, 0.8), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.6, roughness: 0.35 })); b.position.y = 0.25 + j * 0.5; b.castShadow = true; tw.add(b); } g.add(tw); return tw; });
-    look(new THREE.Vector3(base.x + 6.6, base.y, base.z), 14, 16, 0, 2.0);
+    const hs = [3, 4, 3, 5, 4, 3, 4, 6, 4, 3, 5, 7]; const cols = hs.map((h, i) => { const tw = new THREE.Group(); tw.position.copy(P3('stage', -3.3 + i * 0.6, 0, 0));
+      for (let j = 0; j < h; j++) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.42, 0.48), new THREE.MeshStandardMaterial({ color: 0xf2c248, metalness: 0.55, roughness: 0.35 })); b.position.y = 0.23 + j * 0.46; b.castShadow = true; tw.add(b); } g.add(tw); return tw; });
+    look(P3('stage', 0.2, 0, 0), 14, 10, 0, 1.4); cam.drift = 2.5;
     upd = (lt) => cols.forEach((tw, i) => { tw.scale.y = Math.max(0.001, eBack((lt - 0.1 - i * 0.06) / 0.4)); });
-    ov = () => [callout(cols[0], [0, 1.8, 0], '1月', { dx: -30, dy: -110, color: C.blue, delay: 0.5, size: 34 }), callout(cols[11], [0, 3.6, 0], '12月', { dx: 30, dy: -110, color: C.blue, delay: 0.7, size: 34 }), tt('毎月の額は 1年分の予測から', TITLE_Y, 48, 0.8)];
+    ov = () => [{ kind: 'tag', obj: cols[0], local: [0, -0.4, 0.6], text: '1月', size: 34, delay: 0.5 }, { kind: 'tag', obj: cols[11], local: [0, -0.4, 0.6], text: '12月', size: 34, delay: 0.7 }];
   } else if (act === 'december' || act === 'recalc' || act === 'refund' || act === 'extra') {
     const hero = person('hero', P3('front', 0, 0, 0), 0.3); const cs = coins(4);
     look(hero.position, 6, 8, 14, 1.3);
@@ -1875,13 +1880,16 @@ B.vx = (v, sc) => {
       : act === 'refund' ? [tt('取りすぎた分は<span style="color:#7dff9a">返ってくる</span>', TITLE_Y, 50, 0.4)]
       : [tt('足りない分は<span style="color:#ff8a8a">改めて徴収</span>', TITLE_Y, 50, 0.4)];
   } else if (act === 'insurance') {
-    const h1 = P3('home', 0, 0, -1); const umb = new THREE.Group();
-    const top = new THREE.Mesh(new THREE.ConeGeometry(3, 1.2, 8), new THREE.MeshStandardMaterial({ color: 0xe0473c, roughness: 0.6 })); top.position.y = 7.5; top.castShadow = true; umb.add(top);
-    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 3, 8), new THREE.MeshStandardMaterial({ color: 0x333 })); pole.position.y = 6; umb.add(pole);
-    umb.position.copy(P3('home', -8, 0, -2)); g.add(umb);
-    look(P3('home', -4, 0, 2), 15, 10, 0, 3);
-    ov = () => [callout(umb, [0, 8.2, 0], '生命保険', { dx: -20, dy: -120, color: C.down, delay: 0.3, size: 40 }), callout(anchorAt(P3('home', 2, 5, -2)), [0, 0, 0], '地震保険', { dx: 30, dy: -140, color: C.blue, delay: 0.6, size: 40 }), tt('各種控除を まとめて整理', TITLE_Y, 50, 0.8)];
-    upd = (lt, D, t) => { umb.rotation.y = 0.2 * Math.sin(t); };
+    const hero = person('hero', P3('front', 0, 0, 0), 0.2);
+    const cert = (dx, color) => { const g2 = new THREE.Group(); const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.2, 0.15), new THREE.MeshStandardMaterial({ color: 0x8a5a2b })); post.position.y = 0.6; g2.add(post);
+      const bd = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.0, 0.08), new THREE.MeshStandardMaterial({ color: 0xfbfaf5, roughness: 0.9 })); bd.position.y = 2.0; bd.castShadow = true; g2.add(bd);
+      const band = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.35, 0.1), new THREE.MeshStandardMaterial({ color })); band.position.y = 2.8; g2.add(band);
+      g2.position.copy(P3('front', dx, 0, -1.2)); g.add(g2); g2.userData.bd = bd; return g2; };
+    const c1 = cert(-1.9, 0xe0473c), c2 = cert(1.9, 0x3a6fd8);
+    look(P3('front', 0, 0, -0.5), 11, 8, 0, 1.7); cam.drift = 2.5;
+    upd = (lt, D, t) => { animBlock(hero, t, 'point'); [c1, c2].forEach((c, i) => { c.scale.setScalar(Math.max(0.001, eBack((lt - 0.2 - i * 0.3) / 0.5))); c.rotation.y = 0.15 * Math.sin(t + i); }); };
+    ov = () => [{ kind: 'tag', obj: c1.userData.bd, local: [0, 0, 0.06], text: '生命保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.4 },
+      { kind: 'tag', obj: c2.userData.bd, local: [0, 0, 0.06], text: '地震保険料<br>控除証明書', size: 34, dark: true, color: '#1f2937', delay: 0.7 }, tt('各種控除を まとめて整理', TITLE_Y, 50, 0.9)];
   } else if (act === 'forget') {
     const hero = person('hero', P3('front', 0, 0, 0), 0.3); const papers = [...Array(6)].map(() => { const q = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 0.7), new THREE.MeshStandardMaterial({ color: 0xffffff })); q.castShadow = true; g.add(q); return q; });
     look(hero.position, 6.5, 8, 22, 1.3);
@@ -2012,7 +2020,7 @@ function sceneAt(t) {
   const ss = tl.scenes; for (const s of ss) if (t >= s.start && t < s.end) return s; return ss[ss.length - 1];
 }
 function camPose(b, lt, D, t) {
-  const c = b.cam; const az = (c.azim + 7 * Math.sin(t * 0.22)) * Math.PI / 180;
+  const c = b.cam; const az = (c.azim + (c.drift ?? 7) * Math.sin(t * 0.22)) * Math.PI / 180;
   const el = ((themeName === 'voxel' ? c.elev * 0.65 : c.elev) + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
   const dist = c.dist * (themeName === 'voxel' ? 1.6 : DIST_SCALE) * (1 - 0.05 * clamp(lt / D));
   const tx = c.tx || 0, tz = c.tz || 0;

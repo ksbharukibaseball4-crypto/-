@@ -16,12 +16,14 @@ const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg',
   '.woff': 'font/woff', '.json': 'application/json' };
 
 function args() {
-  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null, chunk: 240 };
+  const a = process.argv.slice(2); const o = { spec: a[0], out: 'out', workers: 3, theme: null, still: null, chunk: 240, reuse: null, redo: null };
   for (let i = 1; i < a.length; i++) {
     if (a[i] === '--out') o.out = a[++i];
     else if (a[i] === '--workers') o.workers = +a[++i];
     else if (a[i] === '--theme') o.theme = a[++i];
     else if (a[i] === '--chunk') o.chunk = +a[++i];
+    else if (a[i] === '--reuse') o.reuse = a[++i];
+    else if (a[i] === '--redo') o.redo = a[++i].split(',').map((r) => r.split('-').map(Number));
     else if (a[i] === '--still') { o.still = []; while (a[i + 1] && !a[i + 1].startsWith('--')) o.still.push(+a[++i]); }
   }
   return o;
@@ -84,6 +86,13 @@ async function main() {
     for (const f of [specPath, tlPath, path.join(ROOT, 'engine.js'), path.join(ROOT, 'rpg.js'), path.join(ROOT, 'index.html')]) if (fs.existsSync(f)) h.update(fs.readFileSync(f));
     const segDir = path.join(out, `segs_${h.digest('hex').slice(0, 10)}`); fs.mkdirSync(segDir, { recursive: true });
     const chunks = [...Array(Math.ceil(n / CH)).keys()];
+    if (o.reuse && o.redo) {   // partial re-render: copy untouched chunks from a previous render of the same timeline
+      for (const c of chunks) {
+        const a0 = c * CH / fps, a1 = Math.min(n, (c + 1) * CH) / fps; const name = `chunk_${String(c).padStart(4, '0')}.mp4`;
+        const touched = o.redo.some(([r0, r1]) => r0 < a1 && r1 > a0);
+        if (!touched && fs.existsSync(path.join(o.reuse, name)) && !fs.existsSync(path.join(segDir, name))) fs.copyFileSync(path.join(o.reuse, name), path.join(segDir, name));
+      }
+    }
     const todo = chunks.filter((c) => !fs.existsSync(path.join(segDir, `chunk_${String(c).padStart(4, '0')}.mp4`)));
     console.log(`[render3d] ${n} frames, ${chunks.length} chunks, ${chunks.length - todo.length} already done -> ${segDir}`);
     const t0 = Date.now(); let done = 0; const total = todo.reduce((acc, c) => acc + Math.min(CH, n - c * CH), 0);
