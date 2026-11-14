@@ -1,0 +1,15 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#000;font-family:"Noto Sans JP"}
+.bg{position:absolute;inset:0;background:url(b1_full.png) center/cover}
+.tel{position:absolute;top:270px;left:0;width:1080px;text-align:center;font-weight:900;font-size:78px;line-height:1.3;color:#fff;text-shadow:0 6px 30px rgba(0,0,0,.6)}
+.tel .em{color:#f0b84c}.sm{display:block;font-size:28px;letter-spacing:.4em;color:#9aa0aa;font-weight:700;margin-bottom:22px}
+.chip{position:absolute;background:rgba(15,17,22,.72);backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:34px;padding:12px 26px;border-radius:999px;border:1px solid rgba(255,255,255,.18);white-space:nowrap}
+.chip i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:12px;position:relative;top:-3px;vertical-align:middle}
+</style></head><body><div class="bg"></div>
+<div class="tel"><span class="sm">源泉徴収</span>そこで会社が<br>給料から<span class="em">先に引いて</span><br>国に納めます。</div>
+<div class="chip" style="left:120px;top:1370px"><i style="background:#f0b84c"></i>あなたの給料</div>
+<div class="chip" style="left:330px;top:800px"><i style="background:#e0453b"></i>先に引かれる税金</div>
+<div class="chip" style="left:730px;top:1170px"><i style="background:#fff"></i>国へ</div>
+<script>const im=new Image();im.src='b1_full.png';im.onload=()=>document.fonts.ready.then(()=>{window.ready=true})</script></body></html>
