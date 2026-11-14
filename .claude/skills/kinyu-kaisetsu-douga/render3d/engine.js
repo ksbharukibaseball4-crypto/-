@@ -1752,6 +1752,16 @@ function buildVoxel() {
   const g = new THREE.Group(); genVoxelWorld();
   const atlas = makeAtlas(); meshVoxels(atlas).forEach((m) => g.add(m)); VX.plants = plantsMesh(atlas); g.add(VX.plants);
   VX.snowMesh = snowLayer(); g.add(VX.snowMesh);
+  // ground continues beyond the edges of the voxel world (4 strips around it, so nothing inside is covered)
+  const gcv = document.createElement('canvas'); gcv.width = 16; gcv.height = 16; const gc = gcv.getContext('2d');
+  for (let y = 0; y < 16; y++) for (let x = 0; x < 16; x++) { const k = 0.86 + vRand(5000 + y * 16 + x) * 0.22; gc.fillStyle = `rgb(${Math.round(108 * k)},${Math.round(176 * k)},${Math.round(74 * k)})`; gc.fillRect(x, y, 1, 1); }
+  const gtx = new THREE.CanvasTexture(gcv); gtx.magFilter = THREE.NearestFilter; gtx.minFilter = THREE.NearestFilter; gtx.wrapS = gtx.wrapT = THREE.RepeatWrapping; gtx.colorSpace = THREE.SRGBColorSpace;
+  const gm = new THREE.MeshStandardMaterial({ map: gtx, roughness: 0.95 }); gm.color.setScalar(0.92);
+  const strip = (x0, x1, z0, z1) => { const t = gtx.clone(); t.needsUpdate = true; t.repeat.set(x1 - x0, z1 - z0);
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, z1 - z0), new THREE.MeshStandardMaterial({ map: t, roughness: 0.95, color: 0xebebeb }));
+    m.rotation.x = -Math.PI / 2; m.position.set((x0 + x1) / 2, 3, (z0 + z1) / 2); m.receiveShadow = true; g.add(m); };
+  const X0 = -VOFF.x, X1 = VSIZE.x - VOFF.x, Z0 = -VOFF.z, Z1 = VSIZE.z - VOFF.z;
+  strip(-220, 220, Z1, 220); strip(-220, 220, -220, Z0); strip(-220, X0, Z0, Z1); strip(X1, 220, Z0, Z1);
   const sp = new THREE.BufferGeometry(); const arr = []; for (let i = 0; i < 1500; i++) arr.push((vRand(i) - 0.5) * 70, vRand(i * 3) * 30, (vRand(i * 7) - 0.5) * 60);
   sp.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3));
   VX.snowPts = new THREE.Points(sp, new THREE.PointsMaterial({ color: 0xffffff, size: 0.18, transparent: true, opacity: 0.9 })); VX.snowPts.visible = false; g.add(VX.snowPts);
@@ -2082,7 +2092,7 @@ function overlayHTML(items, lt, sceneTl, sc, t) {
     } else if (it.kind === 'bigtitle') {
       const sc2 = eBack((lt - (it.delay || 0)) / 0.5);
       html += `<div class="bigtitle" style="top:${it.y}px;opacity:${k};transform:translate(-50%,-50%) scale(${it.small ? 0.7 * sc2 : sc2}) rotate(-4deg)">
-        <div class="bt-series">${it.series || ''}</div><div class="bt-main" style="font-size:${Math.min(210, Math.floor(1500 / String(it.title).length))}px">${it.title}</div></div>`;
+        <div class="bt-series">${it.series || ''}</div><div class="bt-main" style="font-size:${Math.min(210, Math.floor(860 / String(it.title).length))}px">${it.title}</div></div>`;
     } else if (it.kind === 'ring') {
       const [x, y] = project(it.obj, it.local);
       html += `<div style="position:absolute;left:${x}px;top:${y}px;width:${it.w}px;height:${it.h}px;transform:translate(-50%,-50%) scale(${lerp(1.3, 1, k)});opacity:${k};border:8px solid ${it.color};border-radius:${it.h / 2}px;box-shadow:0 0 18px ${it.color}88"></div>`;

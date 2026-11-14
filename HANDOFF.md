@@ -86,6 +86,8 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 - 方針: マイクラそのものの再現はせず、オリジナルのブロック（ボクセル）風3D（`"theme": "voxel"`、engine.js の B.vx / buildVoxel）。台本の文言はユーザーのものをそのまま使用。
 - 保存先: `projects/vox-shotokuzei/`（make_scenes.py・scenes.json・script.md・プレビュー）
 - 状態: **完成**（ユーザー回答: A＝字幕＋効果音のみ、140秒のまま）。`video.mp4`（140.8秒・約89MB）。
+- 修正（2026-11-14）: 「被ってごちゃごちゃして見にくい」との指摘（31秒 定義／53秒 会社／58秒 金庫／78秒 月ごと／1:48 保険）→ 該当シーンを広場（spot 'stage'）で作り直して要素を減らし、カメラの揺れ（drift）を小さくした。引きのカメラでワールドの端（土の断面）が見えたので、ワールドの外側に草の地面を追加（engine.js の voxel テーマ）。タイトルの文字幅も縮小。
+- 部分再描画: `render3d.js ... --reuse <前回の segs_xxx> --redo 開始-終了秒,...`（変更したシーンの時間帯だけ描き直す）。
 - 3D描画は重い（1本約100分）。render3d.js は240フレームごとの分割保存で再開可能。`render_workers: 1` が最速（SwiftShader は並列で速くならない）。mux は 5Mbps 上限で再エンコード。
 
 ## 4. 環境の制約（このクラウド環境）
