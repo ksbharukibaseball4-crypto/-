@@ -4,6 +4,12 @@
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { HorizontalTiltShiftShader } from 'three/addons/shaders/HorizontalTiltShiftShader.js';
+import { VerticalTiltShiftShader } from 'three/addons/shaders/VerticalTiltShiftShader.js';
 
 const W = 1080, H = 1920;
 const DIST_SCALE = 1.7;   // portrait frame is narrow: pull every camera back
@@ -21,7 +27,7 @@ const eOut = (x) => 1 - Math.pow(1 - clamp(x), 3);
 const eBack = (x) => { x = clamp(x); const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
 const eInOut = (x) => { x = clamp(x); return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
 
-let spec, tl, renderer, scene, camera, floor;
+let spec, tl, renderer, scene, camera, floor, composer = null, themeName = 'studio';
 const built = new Map();
 const ov = document.getElementById('ov');
 const svg = document.getElementById('lines');
@@ -1220,6 +1226,300 @@ function renderPhoto(i, lt, D) {
 B.photo = (v) => ({ group: new THREE.Group(), cam: { dist: 10, elev: 10, azim: 0, ty: 1 }, update() {},
   overlay() { return (v.tags || []).map((tg) => ({ kind: 'title', y: tg.y, html: tg.text, size: tg.size || 48, color: tg.color || '#fff', bg: tg.bg || 'rgba(17,24,39,0.88)', delay: tg.delay ?? 0.3 })); } });
 
+// ------------------------------------------------------------------ diorama theme (miniature town on a desk)
+const DIO = { town: null, walkers: [], trucks: [], spots: {} };
+function canvasTex(w, h, draw, repeat) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d'), w, h);
+  const tx = new THREE.CanvasTexture(cv); tx.colorSpace = THREE.SRGBColorSpace;
+  if (repeat) { tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(repeat[0], repeat[1]); }
+  return tx;
+}
+function std2(o) { return new THREE.MeshStandardMaterial(o); }
+function tree(s = 1) {
+  const g = new THREE.Group();
+  g.add(at(cyl(0.05 * s, 0.07 * s, 0.35 * s, 'wood', 8), 0, 0.17 * s, 0));
+  const leaf = new THREE.Mesh(new THREE.IcosahedronGeometry(0.32 * s, 1), std2({ color: 0x5fae5a, roughness: 0.8, flatShading: true }));
+  leaf.position.y = 0.55 * s; leaf.castShadow = true; g.add(leaf);
+  return g;
+}
+function officeTower(color = 0x8fb3e8, floors = 6) {
+  const g = new THREE.Group();
+  g.add(at(box(1.3, floors * 0.32, 1.1, std2({ color: 0xf2f4f7, roughness: 0.5 }), 0.03), 0, floors * 0.16, 0));
+  for (let f = 0; f < floors; f++) for (let c = 0; c < 3; c++) {
+    g.add(at(box(0.28, 0.18, 0.04, std2({ color, roughness: 0.2, metalness: 0.2, emissive: 0x223355, emissiveIntensity: 0.15 })), -0.4 + c * 0.4, 0.2 + f * 0.32, 0.56));
+  }
+  g.add(at(box(1.36, 0.1, 1.16, std2({ color: 0x3b5ba8 }), 0.02), 0, floors * 0.32 + 0.05, 0));
+  return g;
+}
+function govBuilding(roofColor = 0x2f4f8f) {
+  const g = new THREE.Group();
+  g.add(at(box(1.9, 0.14, 1.2, 'pedestal', 0.02), 0, 0.07, 0));
+  for (let i = 0; i < 4; i++) g.add(at(cyl(0.07, 0.07, 0.8, 'white', 12), -0.66 + i * 0.44, 0.54, 0.42));
+  g.add(at(box(1.7, 0.8, 0.7, 'white', 0.02), 0, 0.54, -0.12));
+  const s = new THREE.Shape(); s.moveTo(-1.0, 0); s.lineTo(1.0, 0); s.lineTo(0, 0.42); s.lineTo(-1.0, 0);
+  const roof = new THREE.Mesh(new THREE.ExtrudeGeometry(s, { depth: 1.25, bevelEnabled: false }), std2({ color: roofColor, roughness: 0.5 }));
+  roof.position.set(0, 0.94, -0.62); roof.castShadow = true; g.add(roof);
+  const pole = cyl(0.02, 0.02, 0.8, 'gray', 6); pole.position.set(0.8, 1.3, 0.4); g.add(pole);
+  const flag = box(0.32, 0.2, 0.01, 'white'); flag.position.set(0.97, 1.6, 0.4); g.add(flag);
+  const sun = cyl(0.055, 0.055, 0.015, 'red', 16); sun.rotation.x = Math.PI / 2; sun.position.set(0.97, 1.6, 0.41); g.add(sun);
+  return g;
+}
+function schoolBldg() {
+  const g = new THREE.Group();
+  g.add(at(box(2.6, 1.0, 1.0, std2({ color: 0xf3ead7, roughness: 0.6 }), 0.03), 0, 0.5, 0));
+  for (let r = 0; r < 2; r++) for (let c = 0; c < 6; c++) g.add(at(box(0.28, 0.24, 0.04, 'window'), -1.05 + c * 0.42, 0.3 + r * 0.42, 0.51));
+  g.add(at(box(0.6, 1.5, 0.9, std2({ color: 0xf3ead7, roughness: 0.6 }), 0.03), 0, 0.75, 0.08));
+  const clk = cyl(0.17, 0.17, 0.04, 'white', 24); clk.rotation.x = Math.PI / 2; clk.position.set(0, 1.25, 0.54); g.add(clk);
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.17, 0.025, 6, 24), mat('navy')); rim.position.set(0, 1.25, 0.56); g.add(rim);
+  return g;
+}
+function miniHouse(color) {
+  const h = house(); h.scale.setScalar(0.42);
+  h.traverse((o) => { if (o.isMesh && o.material === mat('roof')) o.material = std2({ color, roughness: 0.5 }); });
+  return h;
+}
+function fountain() {
+  const g = new THREE.Group();
+  g.add(at(cyl(0.6, 0.65, 0.18, 'pedestal', 32), 0, 0.09, 0));
+  const water = cyl(0.52, 0.52, 0.05, std2({ color: 0x7cc4ff, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.85 }), 32); water.position.y = 0.17; g.add(water);
+  g.add(at(cyl(0.08, 0.1, 0.45, 'pedestal', 12), 0, 0.32, 0));
+  const jet = cyl(0.03, 0.07, 0.4, std2({ color: 0xbfe4ff, transparent: true, opacity: 0.7 }), 12); jet.position.y = 0.72; g.add(jet);
+  g.userData.jet = jet; return g;
+}
+function truck(color = C.down) {
+  const g = new THREE.Group();
+  g.add(at(box(0.62, 0.32, 0.36, std2({ color: 0xf5f6f9, roughness: 0.4 }), 0.03), -0.12, 0.27, 0));
+  g.add(at(box(0.3, 0.3, 0.36, std2({ color, roughness: 0.4 }), 0.04), 0.36, 0.26, 0));
+  g.add(at(box(0.04, 0.14, 0.3, 'window'), 0.52, 0.32, 0));
+  for (const x of [-0.28, 0.32]) for (const z of [-0.19, 0.19]) { const w = cyl(0.08, 0.08, 0.06, 'black', 14); w.rotation.x = Math.PI / 2; w.position.set(x, 0.09, z); g.add(w); }
+  const load = new THREE.Group(); load.position.set(-0.12, 0.45, 0); g.add(load);
+  for (let i = 0; i < 3; i++) { const c = coin(0.11); c.position.set(-0.15 + i * 0.15, 0.02, 0); load.add(c); }
+  g.userData.load = load; return g;
+}
+function miniPerson(body, phase = 0) { const p = person({ body, hair: 0x2a1c14, phase }); p.scale.setScalar(0.28); p.userData.baseY = 0.5; return p; }
+function signpost(w = 1.6) {
+  const g = new THREE.Group();
+  for (const x of [-w / 2 + 0.12, w / 2 - 0.12]) g.add(at(cyl(0.04, 0.04, 1.2, 'wood', 8), x, 0.6, 0));
+  const b = box(w, 0.6, 0.06, std2({ color: 0xf7f1e3, roughness: 0.8 }), 0.03); b.position.y = 1.15; g.add(b);
+  const fr = box(w + 0.08, 0.68, 0.04, 'wood', 0.03); fr.position.set(0, 1.15, -0.03); g.add(fr);
+  g.userData.board = b; return g;
+}
+function balanceScale() {
+  const g = new THREE.Group();
+  g.add(at(cyl(0.35, 0.4, 0.1, 'goldDeep', 24), 0, 0.05, 0));
+  g.add(at(cyl(0.05, 0.05, 1.3, 'gold', 12), 0, 0.7, 0));
+  const beam = new THREE.Group(); beam.position.y = 1.35; g.add(beam);
+  const bar = box(1.9, 0.06, 0.08, 'gold'); beam.add(bar);
+  const pans = [-0.9, 0.9].map((x) => {
+    const pg = new THREE.Group(); pg.position.x = x; beam.add(pg);
+    pg.add(at(cyl(0.012, 0.012, 0.5, 'gold', 6), 0, -0.25, 0));
+    const pan = cyl(0.32, 0.25, 0.05, 'gold', 28); pan.position.y = -0.52; pg.add(pan);
+    const cs = coinStack(x < 0 ? 5 : 4, 0.16); cs.position.y = -0.49; pg.add(cs); return pg;
+  });
+  g.userData = { beam, pans }; return g;
+}
+function piggy() {
+  const g = new THREE.Group(); const pink = std2({ color: 0xf6a9c0, roughness: 0.45 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.9, 32, 20), pink); body.scale.set(1.25, 1, 1); body.position.y = 0.95; body.castShadow = true; g.add(body);
+  const snout = cyl(0.3, 0.3, 0.18, pink, 24); snout.rotation.z = Math.PI / 2; snout.position.set(1.15, 0.95, 0); g.add(snout);
+  for (const z of [-0.1, 0.1]) g.add(at(sph(0.05, 'black', 10), 1.25, 0.95, z));
+  for (const z of [-0.45, 0.45]) { const e = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.3, 12), pink); e.position.set(0.55, 1.75, z); g.add(e); }
+  for (const x of [-0.6, 0.6]) for (const z of [-0.45, 0.45]) g.add(at(cyl(0.16, 0.16, 0.35, pink, 12), x, 0.17, z));
+  for (const z of [-0.3, 0.3]) g.add(at(sph(0.07, 'black', 10), 0.85, 1.25, z));
+  g.add(at(box(0.5, 0.05, 0.08, 'black'), -0.1, 1.86, 0));
+  return g;
+}
+function bookProp(color) { return box(0.32, 0.08, 0.44, std2({ color, roughness: 0.6 }), 0.02); }
+
+function buildDiorama() {
+  const g = new THREE.Group();
+  // desk
+  const wood = canvasTex(1024, 1024, (c, w, h) => {
+    c.fillStyle = '#b98a5c'; c.fillRect(0, 0, w, h);
+    for (let i = 0; i < 260; i++) { c.strokeStyle = `rgba(${90 + Math.random() * 40},${55 + Math.random() * 25},30,${0.08 + Math.random() * 0.12})`; c.lineWidth = 1 + Math.random() * 3; c.beginPath(); const y = Math.random() * h; c.moveTo(0, y); c.bezierCurveTo(w * 0.3, y + 10 - Math.random() * 20, w * 0.7, y - 10 + Math.random() * 20, w, y + Math.random() * 6); c.stroke(); }
+  }, [4, 4]);
+  floor.material = std2({ map: wood, roughness: 0.6 });
+  // base
+  g.add(at(box(14.4, 0.5, 10.4, std2({ color: 0x6b4a2f, roughness: 0.7 }), 0.06), 0, 0.25, 0));
+  const grass = canvasTex(1024, 768, (c, w, h) => {
+    c.fillStyle = '#86c06c'; c.fillRect(0, 0, w, h);
+    for (let i = 0; i < 9000; i++) { c.fillStyle = `rgba(${60 + Math.random() * 60},${120 + Math.random() * 60},${50 + Math.random() * 30},0.35)`; c.fillRect(Math.random() * w, Math.random() * h, 2, 2); }
+  });
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(14, 10), std2({ map: grass, roughness: 0.95 })); top.rotation.x = -Math.PI / 2; top.position.y = 0.505; top.receiveShadow = true; g.add(top);
+  const road = (x, z, w, d) => { const r = new THREE.Mesh(new THREE.PlaneGeometry(w, d), std2({ color: 0x5d636e, roughness: 0.9 })); r.rotation.x = -Math.PI / 2; r.position.set(x, 0.51, z); r.receiveShadow = true; g.add(r); };
+  road(0, 0.4, 14, 1.1); road(-0.6, -2.55, 1.1, 4.8);
+  for (let x = -6.6; x < 6.8; x += 0.7) { const d = new THREE.Mesh(new THREE.PlaneGeometry(0.35, 0.06), std2({ color: 0xf5f5f5 })); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.515, 0.4); g.add(d); }
+  const walk = (x, z, w, d) => { const r = box(w, 0.04, d, std2({ color: 0xd9d4c7, roughness: 0.9 })); r.position.set(x, 0.52, z); g.add(r); };
+  walk(0, -0.32, 14, 0.3); walk(0, 1.12, 14, 0.3);
+  // buildings
+  const company = officeTower(); company.position.set(-3.4, 0.5, -2.6); g.add(company);
+  const company2 = officeTower(0x9ad1c8, 4); company2.position.set(-5.4, 0.5, -2.4); company2.scale.setScalar(0.9); g.add(company2);
+  const taxOffice = govBuilding(); taxOffice.position.set(3.6, 0.5, -2.5); g.add(taxOffice);
+  const insOffice = govBuilding(0x2bb3a3); insOffice.position.set(6.0, 0.5, -2.7); insOffice.scale.setScalar(0.75); g.add(insOffice);
+  const school = schoolBldg(); school.position.set(1.3, 0.5, -3.6); g.add(school);
+  const townHall = govBuilding(0x8a5a2b); townHall.position.set(4.8, 0.5, 2.8); g.add(townHall);
+  const houses = [0xd9534f, 0x3b82c4, 0xe0a23b, 0x6aa84f].map((c, i) => { const h = miniHouse(c); h.position.set(-5.8 + i * 1.25, 0.5, 2.6 + (i % 2) * 0.6); h.rotation.y = (i % 2 ? -0.2 : 0.15); g.add(h); return h; });
+  const ftn = fountain(); ftn.position.set(1.4, 0.5, 2.9); g.add(ftn);
+  // trees
+  const tp = [[-6.5, -4.4], [-1.8, -4.3], [-1.6, -1.4], [0.2, -1.4], [2.6, -1.3], [5.0, -4.3], [6.5, -1.3], [-6.6, 4.4], [-2.2, 4.2], [0.3, 2.3], [2.5, 2.2], [0.6, 4.3], [2.6, 4.2], [6.5, 4.4], [3.4, 4.5], [-6.6, -1.3]];
+  tp.forEach(([x, z], i) => { const t = tree(0.8 + (i % 3) * 0.15); t.position.set(x, 0.5, z); g.add(t); });
+  // ambient life
+  const bodies = ['blue', 'teal', 'red', 'pink', 'purple', 'navy', 'blue', 'red', 'teal', 'pink'];
+  DIO.walkers = bodies.map((b, i) => { const p = miniPerson(b, i * 0.7); g.add(p); return { p, lane: i % 2 ? -0.32 : 1.12, speed: 0.25 + (i % 4) * 0.06, off: i * 1.4, dir: i % 3 ? 1 : -1 }; });
+  DIO.trucks = [C.down, C.blue].map((c, i) => { const tk = truck(c); g.add(tk); return { tk, z: i ? 0.65 : 0.15, speed: 0.9 + i * 0.3, off: i * 6, dir: i ? -1 : 1 }; });
+  DIO.spots = { company, taxOffice, insOffice, school, townHall, houses, ftn, front: new THREE.Vector3(0, 0, 6.6) };
+  DIO.town = g;
+  return g;
+}
+function animTown(t) {
+  DIO.walkers.forEach((w) => {
+    const L = 13; const s = ((t * w.speed + w.off) % L + L) % L; const x = w.dir > 0 ? -6.5 + s : 6.5 - s;
+    w.p.position.set(x, 0.54, w.lane); w.p.rotation.y = w.dir > 0 ? Math.PI / 2 : -Math.PI / 2;
+    w.p.userData.baseY = 0.54; animPerson(w.p, t * 1.5, 'idle'); w.p.position.y += Math.abs(Math.sin(t * 6 + w.off)) * 0.03;
+  });
+  DIO.trucks.forEach((d) => { const L = 15; const s = ((t * d.speed + d.off) % L + L) % L; d.tk.position.set(d.dir > 0 ? -7 + s : 7 - s, 0.52, d.z); d.tk.rotation.y = d.dir > 0 ? 0 : Math.PI; });
+  if (DIO.spots.ftn) DIO.spots.ftn.userData.jet.scale.y = 1 + 0.15 * Math.sin(t * 7);
+}
+const worldPos = (o, dy = 0) => { const v = new THREE.Vector3(); o.getWorldPosition(v); v.y += dy; return v; };
+function anchor(g, v) { const a = new THREE.Object3D(); a.position.copy(v); g.add(a); return a; }
+const telopTitle = (html, y = TITLE_Y, size = 56, delay = 0.3) => ({ kind: 'title', y, html, size, color: '#fff', bg: 'rgba(43,30,18,0.88)', delay });
+
+B.dio = (v, sc) => {
+  const g = new THREE.Group(); const S = DIO.spots; const act = v.act;
+  let cam = { dist: 7, elev: 38, azim: 0, ty: 0.6, tx: 0, tz: 0 };
+  let upd = () => {}; let ov = () => [];
+  const focus = (o, d = 6.5, el = 38, az = 0, dy = 0.4) => { const p = worldPos(o); cam = { dist: d, elev: el, azim: az, ty: p.y + dy, tx: p.x, tz: p.z }; };
+  const coinsFly = (n, from, to, opts = {}) => {
+    const cs = [...Array(n)].map(() => { const c = coin(opts.r || 0.14); g.add(c); return c; });
+    return (lt, t) => cs.forEach((c, i) => { const ph = ((lt - (opts.delay || 0.3)) * (opts.speed || 0.6) + i / n) % 1; c.visible = lt > (opts.delay || 0.3);
+      c.position.set(lerp(from.x, to.x, ph), lerp(from.y, to.y, ph) + Math.sin(ph * Math.PI) * (opts.arc || 1.5), lerp(from.z, to.z, ph)); c.rotation.set(t * 5 + i, t * 3, 0); });
+  };
+  if (act === 'payslip' || act === 'deduct') {
+    const paper = box(2.6, 0.03, 3.2, 'paper', 0.02); paper.position.set(0, 0.02, 6.7); paper.rotation.y = 0.08; g.add(paper);
+    const rows = ['給与', '所得税', '住民税', '社会保険料'];
+    const rowA = rows.map((r, i) => { const bar = box(2.0, 0.035, 0.05, std2({ color: 0xd0d6e2 })); bar.position.set(0, 0.03, -0.8 + i * 0.6); paper.add(bar); return anchor(paper, new THREE.Vector3(-0.45, 0.05, -1.0 + i * 0.6)); });
+    const head = box(2.6, 0.04, 0.4, 'navy'); head.position.set(0, 0.02, -1.4); paper.add(head);
+    const p = miniPerson('blue'); p.scale.setScalar(0.5); p.position.set(0.8, 0.05, 7.6); p.rotation.y = -0.4; g.add(p);
+    if (act === 'payslip') {
+      focus(paper, 5.2, 50, 0, 0.2);
+      const f = coinsFly(4, new THREE.Vector3(0.6, 0.2, 6.6), new THREE.Vector3(1.6, 0.05, 5.6), { arc: 0.6, speed: 0.5 });
+      upd = (lt, D, t) => { f(lt, t); animPerson(p, t, 'surprise'); };
+      ov = () => [{ kind: 'tag', obj: head, local: [0, 0.05, 0], text: '給与明細', size: 34, dark: true, color: '#ffe28c' },
+        ...rowA.map((a, i) => ({ kind: 'tag', obj: a, local: [0, 0, 0], text: `<span style="color:#1f2937">${rows[i]}</span> <span style="color:${i ? '#dc2626' : '#16a34a'}">${i ? '−' : '＋'}</span>`, size: 36, delay: 0.1 + i * 0.12, dark: true, color: '#1f2937' }))];
+    } else {
+      cam = { dist: 11, elev: 40, azim: 0, ty: 0.6, tx: 0.8, tz: 2.4 };
+      const f1 = coinsFly(5, new THREE.Vector3(0, 0.3, 6.6), worldPos(S.taxOffice, 0.8), { arc: 2.2, speed: 0.45 });
+      const f2 = coinsFly(5, new THREE.Vector3(0.3, 0.3, 6.6), worldPos(S.insOffice, 0.8), { arc: 2.6, speed: 0.4, delay: 0.6 });
+      upd = (lt, D, t) => { f1(lt, t); f2(lt, t); animPerson(p, t, 'worry'); };
+      ov = () => [callout(S.taxOffice, [0, 1.6, 0], '税金 → 税務署', { dx: -60, dy: -170, color: C.down, delay: 0.5, size: 38 }),
+        callout(S.insOffice, [0, 1.6, 0], '社会保険料', { dx: 0, dy: -260, color: C.teal, delay: 0.8, size: 38 })];
+    }
+  } else if (act === 'juminzei') {
+    focus(S.townHall, 6.5, 32, -10, 0.6);
+    const sg = signpost(1.4); sg.position.set(5.9, 0.5, 3.6); sg.scale.setScalar(0.8); g.add(sg);
+    ov = () => [callout(S.townHall, [0, 1.5, 0], '市区町村（住民税）', { dx: 40, dy: -220, color: C.wood, delay: 0.3, size: 38 }),
+      { kind: 'tag', obj: sg.userData.board, local: [0, 0, 0.06], text: '翌年6月〜', size: 40, dark: true, color: '#7a4a12', delay: 0.5 }];
+  } else if (act === 'alone') {
+    const p = miniPerson('pink'); p.scale.setScalar(0.4); p.position.set(-0.6, 0.52, 1.6); g.add(p);
+    focus(p, 5.5, 34, 10, 0.3);
+    upd = (lt, D, t) => { p.userData.baseY = 0.52; animPerson(p, t, 'think'); };
+    ov = () => [{ kind: 'tag', obj: p, local: [0, 2.6, 0], text: '？', size: 80, delay: 0.3, dark: true, color: '#eb4d4b' }, telopTitle('誰も教えてくれない…', TITLE_Y, 54, 0.6)];
+  } else if (act === 'school' || act === 'title' || act === 'end') {
+    focus(S.school, act === 'title' ? 8 : 6.5, 30, act === 'end' ? 12 : -8, 0.7);
+    const kids = [0, 1, 2].map((i) => { const k = miniPerson(['blue', 'pink', 'teal'][i], i); k.scale.setScalar(0.32); k.position.set(0.6 + i * 0.5, 0.52, -2.6); g.add(k); return k; });
+    upd = (lt, D, t) => kids.forEach((k) => { k.userData.baseY = 0.52; animPerson(k, t, act === 'end' ? 'wave' : 'cheer'); });
+    if (act === 'title') ov = () => [{ kind: 'bigtitle', y: 1060, series: spec.series, title: v.title || spec.episode, delay: 0.1 }];
+    else if (act === 'school') ov = () => [callout(S.school, [0, 1.7, 0], 'お金の授業', { dx: 0, dy: -220, color: C.gold, delay: 0.4, size: 44 })];
+    else ov = () => [telopTitle('今日の授業はここまで', TITLE_Y, 56, 0.4)];
+  } else if (act === 'define') {
+    const base = new THREE.Vector3(-2.6, 0.5, 2.0);
+    const stacks = [4, 7, 11].map((n, i) => { const cs = new THREE.Group(); for (let j = 0; j < n; j++) { const c = coin(0.2); c.position.y = 0.04 + j * 0.105; if (j >= n - Math.ceil(n * (0.1 + i * 0.08))) c.children[0].material = mat('red'); cs.add(c); } cs.position.set(base.x + i * 0.9, 0.5, base.z); g.add(cs); return cs; });
+    const fig = stacks.map((cs, i) => { const p = miniPerson(['blue', 'teal', 'purple'][i]); p.scale.setScalar(0.36); p.position.set(cs.position.x, 0.52, base.z + 0.6); g.add(p); return p; });
+    cam = { dist: 6, elev: 26, azim: 0, ty: 0.9, tx: -1.7, tz: 2.0 };
+    upd = (lt, D, t) => { stacks.forEach((cs, i) => cs.children.forEach((c, j) => { c.visible = j < Math.ceil(cs.children.length * eOut((lt - 0.1 - i * 0.2) / 0.8)); })); fig.forEach((p) => { p.userData.baseY = 0.52; animPerson(p, t, 'idle'); }); };
+    ov = () => [callout(stacks[2], [0, 1.25, 0], '赤い部分が所得税', { dx: 40, dy: -200, color: C.down, delay: 1.0, size: 38 }), telopTitle('所得が多いほど 税金も多い', TITLE_Y, 50, 0.6)];
+  } else if (act === 'selfcalc') {
+    const h = S.houses[1]; const p = miniPerson('blue'); p.scale.setScalar(0.4); const hp = worldPos(h); p.position.set(hp.x + 0.6, 0.52, hp.z + 0.9); g.add(p);
+    const desk = box(0.5, 0.04, 0.3, 'desk'); desk.position.set(hp.x + 0.6, 0.78, hp.z + 1.15); g.add(desk);
+    const calc = box(0.14, 0.03, 0.18, 'navy'); calc.position.set(hp.x + 0.5, 0.81, hp.z + 1.15); g.add(calc);
+    focus(p, 5, 30, 14, 0.4);
+    upd = (lt, D, t) => { p.userData.baseY = 0.52; animPerson(p, t, 'think'); };
+    ov = () => [telopTitle('本来は<span style="color:#ffd84a">自分で計算</span>して申告', TITLE_Y, 50, 0.4), { kind: 'tag', obj: p, local: [0, 2.7, 0], text: '？', size: 60, delay: 0.6, dark: true, color: '#eb4d4b' }];
+  } else if (act === 'commuters') {
+    focus(S.company, 7.5, 30, 0, 0.6); cam.tz += 1.2;
+    const ps = [...Array(8)].map((_, i) => { const p = miniPerson(['blue', 'navy', 'teal', 'red'][i % 4], i); p.scale.setScalar(0.3); g.add(p); return p; });
+    upd = (lt, D, t) => ps.forEach((p, i) => { const k = ((lt * 0.25 + i / 8) % 1); const sp = worldPos(S.company); p.position.set(sp.x - 1.2 + (i % 4) * 0.5, 0.52, lerp(1.0, sp.z + 0.8, k)); p.rotation.y = Math.PI; p.userData.baseY = 0.52; animPerson(p, t * 1.4, 'idle'); });
+    ov = () => [callout(S.company, [0, 2.2, 0], '会社員がたくさん', { dx: 30, dy: -200, color: C.blue, delay: 0.4, size: 40 })];
+  } else if (act === 'truck' || act === 'refund' || act === 'extra') {
+    const tk = truck(act === 'refund' ? C.up : (act === 'extra' ? C.down : C.gold)); g.add(tk);
+    const a = act === 'refund' ? worldPos(S.taxOffice) : (act === 'extra' ? worldPos(S.houses[2]) : worldPos(S.company));
+    const b = act === 'refund' ? worldPos(S.houses[2]) : worldPos(S.taxOffice);
+    cam = { dist: 11, elev: 36, azim: 0, ty: 0.7, tx: (a.x + b.x) / 2, tz: 0.6 };
+    upd = (lt, D, t) => { const k = clamp((lt - 0.3) / (D - 0.9)); const x = lerp(a.x, b.x, eInOut(k)); tk.position.set(x, 0.53, 0.15); tk.rotation.y = b.x > a.x ? 0 : Math.PI; tk.userData.load.visible = true; };
+    const lbl = act === 'truck' ? ['会社', '税務署', '給料から先に引いて納める'] : act === 'refund' ? ['税務署（会社経由）', 'あなた', '取りすぎた分が戻る'] : ['あなた', '税務署（会社経由）', '足りない分を追加で納める'];
+    ov = () => [callout(anchor(g, a), [0, 1.8, 0], lbl[0], { dx: 0, dy: -200, color: C.blue, delay: 0.2, size: 36 }),
+      callout(anchor(g, b), [0, 1.8, 0], lbl[1], { dx: 0, dy: -240, color: C.down, delay: 0.4, size: 36 }),
+      telopTitle(act === 'refund' ? `<span style="color:#7dff9a">${lbl[2]}</span>` : act === 'extra' ? `<span style="color:#ff8a8a">${lbl[2]}</span>` : lbl[2], TITLE_Y, 50, 0.6)];
+  } else if (act === 'safe') {
+    const sf = safeProp(); sf.scale.setScalar(0.55); const tp = worldPos(S.taxOffice); sf.position.set(tp.x - 1.4, 0.5, tp.z + 1.0); g.add(sf);
+    focus(sf, 4.8, 28, -12, 0.3);
+    const f = coinsFly(4, new THREE.Vector3(sf.position.x - 1.6, 1.8, sf.position.z + 0.6), new THREE.Vector3(sf.position.x, 0.9, sf.position.z + 0.2), { arc: 0.6, speed: 0.6 });
+    upd = (lt, D, t) => { f(lt, t); sf.userData.door.rotation.y = -1.4 * Math.abs(Math.sin(t * 1.3)); };
+    ov = () => [telopTitle('取りこぼしゼロ', TITLE_Y, 56, 0.4)];
+  } else if (act === 'relax') {
+    const ps = [0, 1, 2, 3].map((i) => { const p = miniPerson(['pink', 'blue', 'teal', 'red'][i], i); p.scale.setScalar(0.34); const fp = worldPos(S.ftn); p.position.set(fp.x - 0.9 + i * 0.6, 0.52, fp.z - 0.9); g.add(p); return p; });
+    focus(S.ftn, 5.5, 28, -6, 0.5);
+    upd = (lt, D, t) => ps.forEach((p) => { p.userData.baseY = 0.52; animPerson(p, t, 'cheer'); });
+    ov = () => [telopTitle('計算は会社にお任せ', TITLE_Y, 54, 0.4)];
+  } else if (act === 'sign') {
+    const sg = signpost(2.2); sg.position.set(-0.6 + 1.6, 0.5, 1.6); g.add(sg);
+    focus(sg, 5.2, 18, 0, 0.9);
+    upd = (lt) => { sg.scale.setScalar(Math.max(0.001, eBack((lt - 0.1) / 0.5))); };
+    ov = () => [{ kind: 'tag', obj: sg.userData.board, local: [0, 0, 0.06], text: v.label, size: 92, dark: true, color: '#3b2a1a', delay: 0.4 }];
+  } else if (act === 'spring') {
+    focus(S.ftn, 4.6, 26, 8, 0.6);
+    const cs = [...Array(6)].map(() => { const c = coin(0.12); g.add(c); return c; });
+    const fp = worldPos(S.ftn); const p = miniPerson('navy'); p.scale.setScalar(0.38); p.position.set(fp.x + 0.9, 0.52, fp.z + 0.3); g.add(p);
+    upd = (lt, D, t) => { cs.forEach((c, i) => { const ph = (t * 0.7 + i / 6) % 1; const ang = i * 1.05; c.position.set(fp.x + Math.cos(ang) * ph * 0.7, fp.y + 0.9 + Math.sin(ph * Math.PI) * 1.0, fp.z + Math.sin(ang) * ph * 0.7); c.rotation.set(t * 4, i, 0); }); p.userData.baseY = 0.52; animPerson(p, t, 'point'); };
+    ov = () => [callout(S.ftn, [0, 1.6, 0], '源泉＝お金が湧く「出どころ」', { dx: -20, dy: -250, color: C.blue, delay: 0.4, size: 38 }), telopTitle('出どころで先に集める', TITLE_Y, 52, 0.8)];
+  } else if (act === 'estimate' || act === 'estimate2') {
+    const cp = worldPos(S.company); const stacks = [...Array(12)].map((_, i) => { const cs = coinStack(3 + (i * 7) % 4, 0.13); cs.position.set(cp.x - 1.4 + (i % 6) * 0.42, 0.5, cp.z + 1.4 + Math.floor(i / 6) * 0.45); g.add(cs); return cs; });
+    cam = { dist: 5.2, elev: 34, azim: 6, ty: 0.8, tx: cp.x - 0.35, tz: cp.z + 1.6 };
+    upd = (lt) => stacks.forEach((cs, i) => { cs.scale.setScalar(Math.max(0.001, eBack((lt - 0.1 - i * 0.05) / 0.4))); });
+    ov = () => act === 'estimate' ? [telopTitle('毎月の額は<span style="color:#ffd84a">見込み</span>', TITLE_Y, 54, 0.4)]
+      : [callout(stacks[0], [0, 0.6, 0], '1月', { dx: -40, dy: -160, color: C.blue, delay: 0.3, size: 32 }), callout(stacks[11], [0, 0.6, 0], '12月', { dx: 40, dy: -160, color: C.blue, delay: 0.5, size: 32 }), telopTitle('1年分を予想して概算', TITLE_Y, 52, 0.6)];
+  } else if (act === 'scale' || act === 'recalc') {
+    const bs = balanceScale(); bs.position.set(-0.6 + 1.9, 0.5, 2.2); bs.scale.setScalar(0.85); g.add(bs);
+    focus(bs, 4.8, 18, 0, 0.8);
+    let calcP = null;
+    if (act === 'recalc') { calcP = miniPerson('blue'); calcP.scale.setScalar(0.42); calcP.position.set(bs.position.x - 1.3, 0.52, bs.position.z + 0.4); g.add(calcP); }
+    upd = (lt, D, t) => { const tilt = act === 'scale' ? 0.22 + 0.04 * Math.sin(t * 2) : lerp(0.22, 0, eInOut((lt - 0.5) / 1.2)); bs.userData.beam.rotation.z = tilt; bs.userData.pans.forEach((p) => { p.rotation.z = -tilt; }); if (calcP) { calcP.userData.baseY = 0.52; animPerson(calcP, t, 'point'); } };
+    ov = () => act === 'scale' ? [callout(bs.userData.pans[0], [0, -0.3, 0], '見込み', { dx: -60, dy: -120, color: C.blue, delay: 0.3, size: 36 }), callout(bs.userData.pans[1], [0, -0.3, 0], '正しい1年分', { dx: 60, dy: -160, color: C.gold, delay: 0.5, size: 36 }), telopTitle('12月にズレを発見', TITLE_Y, 54, 0.6)]
+      : [telopTitle('1年分をピッタリ計算', TITLE_Y, 54, 0.6)];
+  } else if (act === 'insurance') {
+    const h1 = S.houses[0], h2 = S.houses[2]; const u = umbrella(); u.scale.setScalar(0.35); const p1 = worldPos(h1); u.position.set(p1.x, 0.6, p1.z); g.add(u);
+    cam = { dist: 6.5, elev: 30, azim: 0, ty: 0.7, tx: -4.5, tz: 2.8 };
+    upd = (lt, D, t) => { h2.rotation.z = 0.06 * Math.sin(t * 18) * (lt > 0.8 && lt < 2.6 ? 1 : 0); };
+    ov = () => [callout(h1, [0, 2.2, 0], '生命保険料', { dx: -20, dy: -220, color: C.down, delay: 0.3, size: 38 }), callout(h2, [0, 2.2, 0], '地震保険料', { dx: 30, dy: -170, color: C.blue, delay: 0.6, size: 38 }), telopTitle('保険料の控除もここで', TITLE_Y, 52, 0.8)];
+  } else if (act === 'forget') {
+    const hp = worldPos(S.houses[3]); const p = miniPerson('red'); p.scale.setScalar(0.4); p.position.set(hp.x + 0.8, 0.52, hp.z + 0.9); g.add(p);
+    const papers = [...Array(5)].map(() => { const q = box(0.22, 0.01, 0.3, 'paper'); g.add(q); return q; });
+    focus(p, 5.2, 26, 10, 0.5);
+    upd = (lt, D, t) => { papers.forEach((q, i) => { const k = clamp((lt - 0.3 - i * 0.18) / 1.6); q.position.set(p.position.x + k * 2.6 + i * 0.1, 0.9 + Math.sin(k * 6 + i) * 0.3 + k * 1.2, p.position.z - k * 0.8); q.rotation.set(t * 3 + i, t * 2, t + i); }); p.userData.baseY = 0.52; animPerson(p, t, 'worry'); };
+    ov = () => [telopTitle('書類の<span style="color:#ff8a8a">出し忘れ</span>に注意', TITLE_Y, 54, 0.5)];
+  } else if (act === 'savings') {
+    const pg = piggy(); pg.scale.setScalar(0.9); pg.position.set(0, 0, 6.8); pg.rotation.y = -0.5; g.add(pg);
+    const books = [0xd9534f, 0x3b82c4, 0x6aa84f, 0xe0a23b].map((c) => { const b = bookProp(c); g.add(b); return b; });
+    focus(pg, 6, 22, 0, 0.8);
+    upd = (lt, D, t) => books.forEach((b, i) => { const k = clamp((lt - 0.3 - i * 0.4) / 0.7); b.visible = k < 1; b.position.set(-0.1, lerp(3.4, 1.7, k * k), 6.8); b.rotation.set(0, t * 2 + i, k * 1.5); });
+    ov = () => [telopTitle('知識を<span style="color:#ffd84a">貯金</span>しよう', TITLE_Y, 56, 0.4)];
+  } else if (act === 'next') {
+    cam = { dist: 15, elev: 40, azim: -20, ty: 0.6, tx: 0, tz: 0.4 };
+    ov = () => [{ kind: 'bigtitle', y: 1100, series: spec.series, title: '次回もお楽しみに', delay: 0.3, small: true }];
+  }
+  return { group: g, cam, update: (lt, D, t) => { upd(lt, D, t); }, overlay: (lt, D, t) => ov(lt, D, t) };
+};
+
 // ------------------------------------------------------------------ setup
 function gradientTexture(top, bottom) {
   const cv = document.createElement('canvas'); cv.width = 4; cv.height = 512;
@@ -1231,12 +1531,14 @@ const THEMES = {
   studio: { top: '#f4f5f8', bottom: '#cdd3dd', floor: 0xdfe3ea, fog: 0xd9dee7 },
   navy: { top: '#0b1634', bottom: '#1b2f63', floor: 0x14254f, fog: 0x15264f },
   school: { top: '#f3ead9', bottom: '#e8dcc6', floor: 0xc9a47a, fog: 0xefe5d3, set: 'school' },
+  diorama: { top: '#efe8dc', bottom: '#cbbda6', floor: 0xb98a5c, fog: 0xd8ccb8, set: 'diorama' },
 };
 
 async function init() {
   spec = await (await fetch('/__spec.json')).json();
   tl = await (await fetch('/__timeline.json')).json();
-  const th = THEMES[new URLSearchParams(location.search).get('theme') || spec.theme || 'studio'];
+  themeName = new URLSearchParams(location.search).get('theme') || spec.theme || 'studio';
+  const th = THEMES[themeName];
   renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('c'), antialias: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(1); renderer.setSize(W, H, false);
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -1256,6 +1558,17 @@ async function init() {
   floor = new THREE.Mesh(new THREE.CircleGeometry(40, 64), new THREE.MeshStandardMaterial({ color: th.floor, roughness: 0.85 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
   if (th.set === 'school') scene.add(buildSchool());
+  if (th.set === 'diorama') {
+    scene.add(buildDiorama());
+    scene.fog = new THREE.Fog(th.fog, 30, 75);
+    sun.color.setHex(0xfff1dc); sun.intensity = 2.6; sun.position.set(6, 12, 8);
+    composer = new EffectComposer(renderer);
+    composer.addPass(new RenderPass(scene, camera));
+    const hP = new ShaderPass(HorizontalTiltShiftShader); hP.uniforms.h.value = 9 / W; hP.uniforms.r.value = 0.47; composer.addPass(hP);
+    const vP = new ShaderPass(VerticalTiltShiftShader); vP.uniforms.v.value = 9 / H; vP.uniforms.r.value = 0.47; composer.addPass(vP);
+    composer.addPass(new OutputPass());
+    renderer.domElement.style.filter = 'saturate(1.18) contrast(1.04)';
+  }
   // preload fonts for every glyph that will appear
   const all = spec.scenes.map((s) => s.text + JSON.stringify(s.visual) + (s.note || '')).join('') + (spec.asof || '') + (spec.series || '') + (spec.episode || '') + '先生生徒あなた会社国手間払い忘れ所得をつかむ答え合わせ見込み本当の1年分戻る追加で引く全員が自分で計算確保取りこぼしゼロ壁住宅ローン控除確定申告目年末調整OK給与明細？！' + '0123456789%万円か月以内合計残り遺産基礎控除申告まとめご注意情報提供目的です投資判断はご自身で数値は時点期限';
   const pre = document.getElementById('preload');
@@ -1265,6 +1578,7 @@ async function init() {
   await document.fonts.ready;
   const srcs = [...new Set(spec.scenes.filter((s) => s.visual?.type === 'photo').map((s) => s.visual.src))];
   await Promise.all(srcs.map((src) => new Promise((res) => { const im = imgSize(src); if (im.complete && im.naturalWidth) res(); else { im.onload = res; im.onerror = res; } })));
+  for (const f of ['900 40px "Zen Maru Gothic"', '700 40px "Zen Maru Gothic"', '400 40px "Dela Gothic One"']) await document.fonts.load(f, all + (spec.series || '') + '次回もお楽しみに生徒先生');
   await document.fonts.load('600 30px "Klee One"', all + '会社国税務署従業員給料税金を納める引いた残りみなさん');
   window.ready = true;
 }
@@ -1284,9 +1598,9 @@ function camPose(b, lt, D, t) {
   const c = b.cam; const az = (c.azim + 7 * Math.sin(t * 0.22)) * Math.PI / 180;
   const el = (c.elev + 2 * Math.sin(t * 0.17)) * Math.PI / 180;
   const dist = c.dist * DIST_SCALE * (1 - 0.05 * clamp(lt / D));
-  const tx = c.tx || 0;
-  const target = new THREE.Vector3(tx, c.ty, 0);
-  const pos = new THREE.Vector3(tx + Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist);
+  const tx = c.tx || 0, tz = c.tz || 0;
+  const target = new THREE.Vector3(tx, c.ty, tz);
+  const pos = new THREE.Vector3(tx + Math.sin(az) * Math.cos(el) * dist, c.ty + Math.sin(el) * dist, tz + Math.cos(az) * Math.cos(el) * dist);
   return { pos, target };
 }
 
@@ -1340,6 +1654,10 @@ function overlayHTML(items, lt, sceneTl, sc, t) {
       html += `<div class="title" style="top:${it.y + (1 - k) * 30}px;opacity:${k};font-size:${sz}px;color:${it.color};"><span style="display:inline-block;background:${it.bg};padding:${sz * 0.22}px ${sz * 0.5}px;border-radius:${sz * 0.32}px;box-shadow:0 10px 26px rgba(0,0,0,0.25)">${it.html}</span></div>`;
     } else if (it.kind === 'card') {
       html += `<div class="card" style="top:${it.y}px;transform:translate(0,-50%) scale(${0.9 + 0.1 * k});opacity:${k};font-size:${it.size}px;font-weight:900;line-height:1.5"><span class="tag">${it.tag}</span>${it.html}${it.foot ? `<div style="font-size:32px;color:#9aa6bf;margin-top:18px;font-weight:700">${it.foot}</div>` : ''}</div>`;
+    } else if (it.kind === 'bigtitle') {
+      const sc2 = eBack((lt - (it.delay || 0)) / 0.5);
+      html += `<div class="bigtitle" style="top:${it.y}px;opacity:${k};transform:translate(-50%,-50%) scale(${it.small ? 0.7 * sc2 : sc2}) rotate(-4deg)">
+        <div class="bt-series">${it.series || ''}</div><div class="bt-main" style="font-size:${Math.min(210, Math.floor(1500 / String(it.title).length))}px">${it.title}</div></div>`;
     } else if (it.kind === 'ring') {
       const [x, y] = project(it.obj, it.local);
       html += `<div style="position:absolute;left:${x}px;top:${y}px;width:${it.w}px;height:${it.h}px;transform:translate(-50%,-50%) scale(${lerp(1.3, 1, k)});opacity:${k};border:8px solid ${it.color};border-radius:${it.h / 2}px;box-shadow:0 0 18px ${it.color}88"></div>`;
@@ -1361,10 +1679,21 @@ function overlayHTML(items, lt, sceneTl, sc, t) {
       const on = active >= 0 && c === chunks[active] && t <= c.end + 0.35;
       return `<span class="chunk ${on ? 'on' : (c.start <= t ? 'done' : '')}">${esc(c.display)}</span>`;
     }).join('');
+    if (spec.sub_style === 'telop') {
+      const inner2 = sc_.map((c) => {
+        const on = active >= 0 && c === chunks[active] && t <= c.end + 0.35;
+        const pop = on ? 1 + 0.12 * (1 - eOut((t - c.start) / 0.18)) : 1;
+        return `<span class="tchunk ${on ? 'on' : (c.start <= t ? 'done' : '')}" style="transform:scale(${on ? pop : 1})">${esc(c.display)}</span>`;
+      }).join('');
+      const who = sc.speaker === 'student' ? '<span class="tspk" style="background:#f28fb1">生徒</span>' : (sc.speaker === 'teacher' ? '<span class="tspk" style="background:#2bb3a3">先生</span>' : '');
+      const longest = Math.max(...sc_.map((c) => c.display.length)); const total = sc_.reduce((n, c) => n + c.display.length, 0);
+      const fs = Math.min(74, Math.floor(760 / (longest + 0.6)), Math.floor(1500 / (total + 2)));
+      html += `<div class="telop" style="top:${(SUB_TOP + SUB_BOTTOM) / 2}px;--fs:${fs}px">${who}<div>${inner2}</div></div>`;
+    }
     const spk = sc.speaker === 'student' ? '<div class="spk" style="background:#f28fb1;color:#111827">生徒</div>'
       : (sc.speaker === 'teacher' ? '<div class="spk" style="background:#2bb3a3;color:#fff">先生</div>' : '');
     const border = sc.speaker === 'student' ? 'border:5px solid #f28fb1;' : '';
-    html += `<div class="sub" id="subbox" style="top:${(SUB_TOP + SUB_BOTTOM) / 2}px;transform:translateY(-50%);${border}">${spk}${inner}</div>`;
+    if (spec.sub_style !== 'telop') html += `<div class="sub" id="subbox" style="top:${(SUB_TOP + SUB_BOTTOM) / 2}px;transform:translateY(-50%);${border}">${spk}${inner}</div>`;
   }
   // note pill
   const notes = [];
@@ -1381,13 +1710,16 @@ window.renderAt = (t) => {
   const cur = getBuilt(i);
   for (const [j, b] of built) b.group.visible = j === i || (j === i - 1 && lt < 0.35);
   cur.group.visible = true;
-  const pop = eBack(lt / 0.5); cur.group.scale.setScalar(Math.max(0.001, lerp(0.75, 1, pop)));
+  const fixedWorld = themeName === 'diorama' && spec.scenes[i].visual?.type === 'dio';
+  const pop = eBack(lt / 0.5); cur.group.scale.setScalar(fixedWorld ? 1 : Math.max(0.001, lerp(0.75, 1, pop)));
+  if (DIO.town) animTown(t);
   cur.update(lt, D, t);
   let pose = camPose(cur, lt, D, t);
-  if (i > 0 && lt < 0.6) {
+  if (i > 0 && lt < (themeName === 'diorama' ? 0.9 : 0.6)) {
     const ps = tl.scenes[i - 1]; const prev = getBuilt(i - 1); const Dp = ps.end - ps.start;
-    if (lt < 0.35) { prev.group.visible = true; prev.group.scale.setScalar(Math.max(0.001, 1 - eOut(lt / 0.3))); prev.update(Dp + lt, Dp, t); }
-    const pp = camPose(prev, Dp, Dp, t); const k = eInOut(lt / 0.6);
+    if (lt < 0.35 && !fixedWorld) { prev.group.visible = true; prev.group.scale.setScalar(Math.max(0.001, 1 - eOut(lt / 0.3))); prev.update(Dp + lt, Dp, t); }
+    else if (fixedWorld) prev.group.visible = false;
+    const pp = camPose(prev, Dp, Dp, t); const k = eInOut(lt / (fixedWorld ? 0.9 : 0.6));
     pose = { pos: pp.pos.clone().lerp(pose.pos, k), target: pp.target.clone().lerp(pose.target, k) };
   }
   camera.position.copy(pose.pos); camera.lookAt(pose.target);
@@ -1401,7 +1733,7 @@ window.renderAt = (t) => {
     const bd = cur.board ? cur.board(lt) : null;
     drawBoard(bd ? bd.lines : null, bd ? bd.prog : 1, `${i}:${bd ? Math.round(clamp(bd.prog) * 30) : 'x'}`);
   }
-  renderer.render(scene, camera);
+  if (composer) composer.render(); else renderer.render(scene, camera);
   overlayHTML(cur.overlay(lt, D, t), lt, s, spec.scenes[i], t);
   return true;
 };

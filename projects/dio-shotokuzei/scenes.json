@@ -1,0 +1,271 @@
+{
+ "title": "本当は学校で教えてほしいシリーズ「所得税」（ジオラマ版）",
+ "series": "本当は学校で教えてほしいシリーズ",
+ "episode": "所得税",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "diorama",
+ "sub_style": "telop",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "student",
+   "text": "初めての給料、/なんで/少ないの？",
+   "visual": {
+    "type": "dio",
+    "act": "payslip"
+   },
+   "cps": 7.0,
+   "tail": 0.45
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "税金や/社会保険料が/引かれるからです。",
+   "visual": {
+    "type": "dio",
+    "act": "deduct"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "翌年からは/住民税も/引かれます。",
+   "visual": {
+    "type": "dio",
+    "act": "juminzei"
+   },
+   "asof": true,
+   "note": "※前年の所得にかかるため、一般に働き始めた翌年の6月ごろから"
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "でも、/誰も/教えてくれませんでした。",
+   "visual": {
+    "type": "dio",
+    "act": "alone"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "そんなお金の授業を、/面白く/解説します。",
+   "visual": {
+    "type": "dio",
+    "act": "school"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "今回の授業は/「所得税」です。",
+   "visual": {
+    "type": "dio",
+    "act": "title",
+    "title": "所得税"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "所得税は、/所得に応じて/納める税金です。",
+   "visual": {
+    "type": "dio",
+    "act": "define"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "本来は/自分で計算して/納める制度です。",
+   "visual": {
+    "type": "dio",
+    "act": "selfcalc"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "でも日本は、/会社員が/とても多いです。",
+   "visual": {
+    "type": "dio",
+    "act": "commuters"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "そこで/会社が/給料から先に/引いて納めます。",
+   "visual": {
+    "type": "dio",
+    "act": "truck"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "徴収漏れを/防げます。",
+   "visual": {
+    "type": "dio",
+    "act": "safe"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "納める人の/手間も/減ります。",
+   "visual": {
+    "type": "dio",
+    "act": "relax"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "この天引きを/源泉徴収と/いいます。",
+   "visual": {
+    "type": "dio",
+    "act": "sign",
+    "label": "源泉徴収"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "源泉、/つまり/出どころで/集める仕組みです。",
+   "visual": {
+    "type": "dio",
+    "act": "spring"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "ただし、/毎月の額は/見込みです。",
+   "visual": {
+    "type": "dio",
+    "act": "estimate"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "1年の収入を/予想して、/概算で引いています。",
+   "visual": {
+    "type": "dio",
+    "act": "estimate2"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "だから/12月に/ズレが出ます。",
+   "visual": {
+    "type": "dio",
+    "act": "scale"
+   },
+   "asof": true,
+   "note": "※年末調整は通常、その年の最後の給料のとき"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "1年分を/正しく/計算し直します。",
+   "visual": {
+    "type": "dio",
+    "act": "recalc"
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "取りすぎなら/返してもらえます。",
+   "visual": {
+    "type": "dio",
+    "act": "refund"
+   }
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "足りなければ/追加で/引かれます。",
+   "visual": {
+    "type": "dio",
+    "act": "extra"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "これを/年末調整と/いいます。",
+   "visual": {
+    "type": "dio",
+    "act": "sign",
+    "label": "年末調整"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "生命保険料や/地震保険料も、/ここで反映します。",
+   "visual": {
+    "type": "dio",
+    "act": "insurance"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "出し忘れると、/戻るはずの税金が/戻りません。",
+   "visual": {
+    "type": "dio",
+    "act": "forget"
+   },
+   "note": "※あとから確定申告で取り戻せる場合もあります"
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "知識を/しっかり/たくわえておきましょう。",
+   "visual": {
+    "type": "dio",
+    "act": "savings"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "今日の授業は/ここまでです。",
+   "visual": {
+    "type": "dio",
+    "act": "end"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "生きるための/お金の知識、/次回もお届けします。",
+   "visual": {
+    "type": "dio",
+    "act": "next"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "teacher",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

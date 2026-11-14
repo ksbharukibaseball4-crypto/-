@@ -26,6 +26,7 @@
 | 規制 | 売買推奨なし、断定・保証なし、数字に「〇年〇月時点」、最後に「情報提供目的です。投資判断はご自身で」、案件ならPR表示 |
 | 台本 | 1文20字以内、です・ます調、専門用語は直後に言い換え、具体例は必ず検算 |
 | 3D | 参考TikTokのような3D＋吹き出しラベルが好評（「いいやん」）。さらに「具体的・ゆっくり・詳しく・楽しく」を希望 |
+| 方向性 | 「皆と同じすぎるから風潮変えたい」。他と違う見た目を重視 → ジオラマ風。テキストも高品質に |
 
 ## 3. 制作した動画：令和8年の年収の壁（所得税・住民税・社会保険）
 - 保存先（リポジトリにコミット済み）: `projects/nenshu-kabe-2026/`
@@ -71,6 +72,14 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 - 保存先: `projects/gakko-1-shotokuzei/`、`projects/gakko-2-gensen/`、`projects/gakko-3-nenmatsu/`（scenes.json・script.md・sources.md・プレビュー）。3本の scenes.json は `projects/gakko-make_scenes.py` から生成。
 - 演出: 3Dの教室（黒板にチョーク文字・先生・生徒）、先生と生徒の掛け合い（字幕に「先生／生徒」タグ）。`"theme": "school"`、`"speaker"`、`"max_scene": 5.3`、`voice.cps 5.0`、`tail 1.0`（フックだけ `cps 7`）。
 - 状態: **台本 v1（3本）を提示し、ユーザーの承認待ち**。承認後は各話 `build.py ... --engine none --save projects/<話>` で作成（3D描画は1本約30分）。
+
+## 3d. 制作中：本当は学校で教えてほしいシリーズ「所得税」（ジオラマ版）
+- 依頼（2026-11-14）: 「皆と同じすぎるから風潮変えたい」→ ジオラマ風を選択。ユーザーが大まかな台本を提供（所得税→源泉徴収→年末調整を1本で）。
+- 保存先: `projects/dio-shotokuzei/`（`make_scenes.py` で scenes.json を生成、script.md、プレビュー）
+- 演出: `"theme": "diorama"`（机の上のミニチュアの町、チルトシフトのぼかし、町の人とトラックが常に動く）、`"sub_style": "telop"`（丸ゴシック極太の縁取りテロップ）、大タイトルは Dela Gothic One。ビジュアルは `type: "dio"` の `act` で場面を指定（engine.js の B.dio）。
+- 状態: **台本 v1（112.3秒・27シーン）を提示し承認待ち**。90秒を超えるのでユーザーに確認中。
+- 学校シリーズ（3c）の第2回・第3回はコンテナ再起動で中断したまま。ユーザーの方針待ち（ジオラマ版に切り替える可能性が高い）。
+- 写真版（画像生成AIの絵を使う方式、`type: "photo"`）も実装済み。`projects/gakko-photo-test/` に試作。
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。

@@ -7,6 +7,9 @@
 <link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
 <link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
 <link rel="stylesheet" href="node_modules/@fontsource/klee-one/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/zen-maru-gothic/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/dela-gothic-one/400.css">
 <style>
   html, body { margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
   body { font-family: "Noto Sans JP", sans-serif; }
@@ -31,6 +34,19 @@
   .chunk.done { color: #ffffff; }
   .chunk.on { color: #ffe28c; border-color: #f2c248; background: rgba(242, 194, 72, 0.22); }
   .spk { position: absolute; top: -30px; left: 26px; font-weight: 900; font-size: 34px; padding: 2px 22px; border-radius: 14px; box-shadow: 0 6px 14px rgba(0,0,0,.2); }
+  .telop { position: absolute; left: 140px; width: 800px; transform: translateY(-50%); text-align: center; line-height: 1.32; }
+  .telop .tspk { display: inline-block; font-family: "Zen Maru Gothic"; font-weight: 900; font-size: 34px; color: #fff; padding: 2px 22px;
+                 border-radius: 999px; margin-bottom: 8px; border: 5px solid #3b2a1a; }
+  .tchunk { display: inline-block; font-family: "Zen Maru Gothic", "Noto Sans JP"; font-weight: 900; font-size: var(--fs, 74px); white-space: nowrap; color: #ffffff;
+            -webkit-text-stroke: 16px #3b2a1a; paint-order: stroke fill; margin: 0 4px; transform-origin: 50% 60%;
+            filter: drop-shadow(0 6px 0 rgba(59,42,26,0.55)); opacity: 0.55; }
+  .tchunk.done { opacity: 1; }
+  .tchunk.on { opacity: 1; color: #ffd84a; }
+  .bigtitle { position: absolute; left: 540px; text-align: center; white-space: nowrap; }
+  .bt-series { display: inline-block; font-family: "Zen Maru Gothic"; font-weight: 900; font-size: 40px; color: #3b2a1a; background: #ffd84a;
+               padding: 8px 30px; border-radius: 999px; border: 6px solid #3b2a1a; margin-bottom: 18px; }
+  .bt-main { font-family: "Dela Gothic One", "Noto Sans JP"; font-size: 210px; color: #ff4b3e; -webkit-text-stroke: 22px #fff; paint-order: stroke fill;
+             filter: drop-shadow(10px 12px 0 #3b2a1a); line-height: 1.1; }
   .callout { position: absolute; transform: translate(-50%, -50%); background: rgba(17, 24, 39, 0.92);
              color: #fff; font-weight: 900; border-radius: 18px; padding: 14px 28px; white-space: nowrap;
              box-shadow: 0 8px 22px rgba(0,0,0,0.28); display: flex; align-items: center; gap: 14px; }
