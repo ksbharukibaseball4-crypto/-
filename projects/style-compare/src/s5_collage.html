@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="extra/node_modules/@fontsource/shippori-mincho/800.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#f1ece2;font-family:"Noto Sans JP"}
+.noise{position:absolute;inset:0;opacity:.35;mix-blend-mode:multiply}
+.min{font-family:"Shippori Mincho";font-weight:800}
+.kicker{position:absolute;left:90px;top:205px;font-size:26px;letter-spacing:.35em;color:#1a1a1a;font-weight:700}
+.kicker b{background:#d8322a;color:#fff;padding:4px 14px;margin-right:16px;letter-spacing:.1em}
+.h{position:absolute;left:84px;top:255px;width:820px;font-size:92px;line-height:1.18;color:#141414;letter-spacing:-.01em}
+.h .mk{background:linear-gradient(transparent 62%,#ffd84a 62%,#ffd84a 92%,transparent 92%)}
+.h .red{color:#d8322a}
+.photo{position:absolute;left:150px;top:820px;width:560px;height:520px;background:url(classroom.png) no-repeat;background-size:1450px auto;background-position:-460px -150px;filter:grayscale(1) contrast(1.25) brightness(1.05);transform:rotate(-4deg);box-shadow:0 18px 40px rgba(0,0,0,.25);border:14px solid #fff}
+.duo{position:absolute;left:150px;top:820px;width:560px;height:520px;transform:rotate(-4deg);background:#1d3c8f;mix-blend-mode:screen;opacity:.0}
+.tape{position:absolute;width:170px;height:46px;background:rgba(240,220,160,.75);box-shadow:0 2px 4px rgba(0,0,0,.1)}
+.blk{position:absolute;background:#141414;color:#fff;padding:18px 30px;font-size:68px;transform:rotate(3deg)}
+.blk small{display:block;font-family:"Noto Sans JP";font-size:22px;letter-spacing:.3em;color:#ffd84a;font-weight:700}
+.flow{position:absolute;left:90px;top:1360px;display:flex;align-items:center;gap:14px}
+.flow div{font-weight:900;font-size:46px;border:5px solid #141414;padding:8px 22px;background:#fff}
+.flow .t{background:#d8322a;color:#fff;border-color:#d8322a}
+.flow span{font-size:48px;font-weight:900}
+.num{position:absolute;left:770px;top:780px;font-size:180px;color:#d8322a;line-height:1}
+.dots{position:absolute;left:690px;top:1020px;width:260px;height:260px;border-radius:50%;background-image:radial-gradient(#141414 32%,transparent 34%);background-size:18px 18px;opacity:.85}
+.circ{position:absolute;left:640px;top:1040px;width:250px;height:250px;border-radius:50%;background:#ffd84a}
+</style></head><body>
+<svg class="noise" width="1080" height="1920"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3"/><feColorMatrix values="0 0 0 0 .4 0 0 0 0 .37 0 0 0 0 .3 0 0 0 .5 0"/></filter><rect width="1080" height="1920" filter="url(#n)"/></svg>
+<div class="kicker"><b>所得税</b>MONEY CLASS 02</div>
+<div class="h min">そこで<span class="mk">会社</span>が<br>給料から<span class="red">先に引いて</span><br>国に納めます。</div>
+<div class="circ"></div><div class="dots"></div>
+<div class="num min">02</div>
+<div class="photo"></div>
+<div class="tape" style="left:170px;top:800px;transform:rotate(-18deg)"></div>
+<div class="tape" style="left:580px;top:1300px;transform:rotate(-12deg)"></div>
+<div class="blk min" style="left:560px;top:1180px">源泉徴収<small>WITHHOLDING</small></div>
+<div class="flow"><div>会社</div><span>→</span><div class="t">先に引く</div><span>→</span><div>国</div></div>
+<script>const im=new Image();im.src='classroom.png';im.onload=()=>document.fonts.ready.then(()=>{window.ready=true})</script>
+</body></html>

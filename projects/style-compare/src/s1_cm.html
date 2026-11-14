@@ -1,0 +1,84 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>
+html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#e8e3db;font-family:"Noto Sans JP"}
+canvas{position:absolute;left:0;top:0;width:1080px;height:1920px}
+#ov{position:absolute;inset:0}
+.tel{position:absolute;top:300px;left:0;width:1080px;text-align:center;font-weight:900;font-size:76px;line-height:1.28;color:#1b1d22;letter-spacing:.02em}
+.tel .em{color:#b8862b}
+.tel .sm{display:block;font-size:30px;font-weight:700;letter-spacing:.3em;color:#8a8478;margin-bottom:18px}
+.chip{position:absolute;transform:translate(-50%,-100%);background:rgba(255,255,255,.86);backdrop-filter:blur(6px);color:#1b1d22;font-weight:700;font-size:34px;padding:12px 26px;border-radius:999px;box-shadow:0 10px 30px rgba(40,30,10,.18);white-space:nowrap}
+.chip i{display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:12px;vertical-align:middle;position:relative;top:-3px}
+.chip.red{background:#c4372f;color:#fff}
+.stem{position:absolute;width:2px;background:rgba(27,29,34,.35)}
+</style>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+</head><body><canvas id="c"></canvas><div id="ov"></div>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+const W=1080,H=1920; const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true});
+r.setSize(W,H,false); r.toneMapping=THREE.ACESFilmicToneMapping; r.toneMappingExposure=1.0; r.shadowMap.enabled=true; r.shadowMap.type=THREE.PCFSoftShadowMap;
+const sc=new THREE.Scene(); const pm=new THREE.PMREMGenerator(r); sc.environment=pm.fromScene(new RoomEnvironment(),0.04).texture; sc.environmentIntensity=0.9;
+// gradient backdrop
+const bg=document.createElement('canvas'); bg.width=4; bg.height=512; const bx=bg.getContext('2d'); const gr=bx.createLinearGradient(0,0,0,512); gr.addColorStop(0,'#f6f3ee'); gr.addColorStop(0.6,'#e7e1d8'); gr.addColorStop(1,'#d9d2c7'); bx.fillStyle=gr; bx.fillRect(0,0,4,512);
+const bt=new THREE.CanvasTexture(bg); bt.colorSpace=THREE.SRGBColorSpace; sc.background=bt; sc.fog=new THREE.Fog(0xe6e0d6,30,60);
+const cam=new THREE.PerspectiveCamera(26,W/H,0.1,200); cam.position.set(0,7.2,31); cam.lookAt(0,3.6,0);
+// cyclorama floor
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0xe2dbd0,roughness:0.95})); fl.rotation.x=-Math.PI/2; fl.receiveShadow=true; sc.add(fl);
+const key=new THREE.DirectionalLight(0xfff4e6,2.6); key.position.set(-6,12,8); key.castShadow=true; key.shadow.mapSize.set(2048,2048); key.shadow.radius=10; key.shadow.bias=-0.0003;
+Object.assign(key.shadow.camera,{left:-8,right:8,top:8,bottom:-8,near:1,far:40}); sc.add(key);
+const rim=new THREE.DirectionalLight(0xdfe8ff,1.4); rim.position.set(6,5,-8); sc.add(rim);
+sc.add(new THREE.HemisphereLight(0xffffff,0xc8bfb0,0.35));
+const ceramic=new THREE.MeshPhysicalMaterial({color:0xf4f1ec,roughness:0.35,clearcoat:0.6,clearcoatRoughness:0.25});
+const dark=new THREE.MeshPhysicalMaterial({color:0x2b2f38,roughness:0.25,metalness:0.2,clearcoat:1});
+const gold=new THREE.MeshStandardMaterial({color:0xd9a441,metalness:1,roughness:0.22});
+const goldD=new THREE.MeshStandardMaterial({color:0xb98a2e,metalness:1,roughness:0.35});
+const red=new THREE.MeshStandardMaterial({color:0xc4372f,metalness:0.9,roughness:0.28});
+const add=(geo,mat,x,y,z,parent=sc)=>{const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); m.castShadow=true; m.receiveShadow=true; parent.add(m); return m;};
+const RB=(w,h,d,r=0.06)=>{const g=new THREE.BoxGeometry(w,h,d,1,1,1); return g;};
+// pedestals
+const ped=(x,z)=>{add(new THREE.CylinderGeometry(1.2,1.25,0.3,96),ceramic,x,0.15,z); const t=add(new THREE.TorusGeometry(1.2,0.025,12,128),goldD,x,0.3,z); t.rotation.x=Math.PI/2;};
+// company: sleek tower
+ped(-2.7,-1.2); const co=new THREE.Group(); co.position.set(-2.7,0.33,-1.2); sc.add(co);
+add(RB(1.3,2.8,1.1),ceramic,0,1.4,0,co); for(let i=0;i<7;i++) add(new THREE.BoxGeometry(1.32,0.06,1.12),dark,0,0.45+i*0.36,0,co);
+add(RB(0.9,0.6,0.8),ceramic,0,3.1,0,co);
+// nation: classical building
+ped(2.7,-1.2); const na=new THREE.Group(); na.position.set(2.7,0.33,-1.2); sc.add(na);
+add(new THREE.BoxGeometry(2.0,0.16,1.4),ceramic,0,0.08,0,na); add(new THREE.BoxGeometry(1.85,0.14,1.25),ceramic,0,0.23,0,na);
+for(let i=0;i<5;i++) add(new THREE.CylinderGeometry(0.09,0.1,1.3,32),ceramic,-0.72+i*0.36,0.95,0.42,na);
+add(new THREE.BoxGeometry(1.95,0.18,1.35),ceramic,0,1.69,0,na);
+const pd=new THREE.Shape(); pd.moveTo(-1.0,0); pd.lineTo(1.0,0); pd.lineTo(0,0.55); pd.closePath(); const pg=new THREE.ExtrudeGeometry(pd,{depth:1.3,bevelEnabled:false}); pg.translate(0,0,-0.65); add(pg,ceramic,0,1.78,0,na);
+add(new THREE.BoxGeometry(1.4,1.2,0.9),dark,0,0.9,-0.1,na);
+// coin
+const coinGeo=new THREE.CylinderGeometry(0.62,0.62,0.12,96); const rimGeo=new THREE.TorusGeometry(0.56,0.025,12,96);
+const coin=(x,y,z,rx=0,rz=0,mat=gold)=>{const g=new THREE.Group(); g.position.set(x,y,z); g.rotation.set(rx,0,rz); const c=new THREE.Mesh(coinGeo,mat); c.castShadow=true; c.receiveShadow=true; g.add(c); const t=new THREE.Mesh(rimGeo,mat===gold?goldD:mat); t.rotation.x=Math.PI/2; t.position.y=0.061; g.add(t); sc.add(g); return g;};
+// salary stack (center front)
+ped(0,1.4); for(let i=0;i<14;i++) coin((Math.sin(i*2.1))*0.03,0.4+i*0.125,1.4+(Math.cos(i*1.7))*0.03, 0,0);
+// top part peeled off -> red (tax), flying to nation along an arc
+const P0=new THREE.Vector3(0,2.5,1.4), P1=new THREE.Vector3(2.7,3.2,-1.2); const ctrl=new THREE.Vector3(1.3,4.6,0.4);
+const q=(t)=>new THREE.Vector3().copy(P0).multiplyScalar((1-t)*(1-t)).add(ctrl.clone().multiplyScalar(2*(1-t)*t)).add(P1.clone().multiplyScalar(t*t));
+[[0.22,1],[0.36,1],[0.5,1]].forEach(([t])=>{const p=q(t); coin(p.x,p.y,p.z,0.5,-0.5,red);});
+// faint trail
+const trM=new THREE.MeshBasicMaterial({color:0xc4372f,transparent:true,opacity:0.22}); const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9].map(q)),64,0.03,8),trM); sc.add(tube);
+const comp=new EffectComposer(r); comp.addPass(new RenderPass(sc,cam));
+const bk=new BokehPass(sc,cam,{focus:31,aperture:0.0009,maxblur:0.005}); comp.addPass(bk); comp.addPass(new OutputPass());
+comp.render();
+// overlay
+const ov=document.getElementById('ov');
+const proj=(x,y,z)=>{const v=new THREE.Vector3(x,y,z).project(cam); return [(v.x+1)/2*W,(1-v.y)/2*H];};
+const chip=(x,y,z,html,cls='',lift=90,dot='')=>{const [px,py]=proj(x,y,z); ov.insertAdjacentHTML('beforeend',`<div class="stem" style="left:${px-1}px;top:${py-lift}px;height:${lift}px"></div><div class="chip ${cls}" style="left:${px}px;top:${py-lift}px">${dot?`<i style="background:${dot}"></i>`:''}${html}</div>`);};
+chip(-2.7,3.9,-1.2,'会社','',70,'#2b2f38'); chip(2.7,2.7,-1.2,'国（税務署）','',80,'#2b2f38');
+chip(0,0.35,1.4,'あなたの給料','',-0,'#d9a441');
+{const p=q(0.5); const [px,py]=proj(p.x,p.y,p.z); ov.insertAdjacentHTML('beforeend',`<div class="chip red" style="left:${px-40}px;top:${py-110}px">先に引かれる税金</div>`);}
+// fix: salary chip below the stack
+const [sx,sy]=proj(0,0,2.9); const el=ov.querySelectorAll('.chip')[2]; el.style.top=(sy+70)+'px'; ov.querySelectorAll('.stem')[2].remove();
+ov.insertAdjacentHTML('beforeend',`<div class="tel"><span class="sm">WITHHOLDING TAX</span>そこで会社が<br>給料から<span class="em">先に引いて</span><br>国に納めます。</div>`);
+await document.fonts.ready; window.ready=true;
+</script></body></html>
