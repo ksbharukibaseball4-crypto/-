@@ -19,7 +19,20 @@ def warp(img, parts, t, cache):
             k = p['amp'](t); DY -= (Y - p['piv'][1]) * k * wt; DX -= (X - p['piv'][0]) * k * 0.4 * wt
         elif p['kind'] == 'shift':
             ox, oy = p['amp'](t); DX -= ox * wt; DY -= oy * wt
-    return cv2.remap(img, X + DX, Y + DY, cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
+    mx, my = X + DX, Y + DY
+    return cv2.remap(img, mx, my, cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE), cv2.remap(cache['M'], mx, my, cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+def layers(path, img):
+    # character mask (anime segmentation) + background plate with the characters painted out
+    from rembg import remove, new_session
+    import os
+    mp = path.replace('.png', '_mask.png')
+    if not os.path.exists(mp): remove(Image.open(path), session=new_session('isnet-anime'), only_mask=True).save(mp)
+    m = np.asarray(Image.open(mp).convert('L')).astype(np.float32) / 255
+    hole = (cv2.dilate((m > 0.15).astype(np.uint8), np.ones((25, 25), np.uint8)) * 255)
+    sm = cv2.resize(img, None, fx=0.5, fy=0.5); hm = cv2.resize(hole, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_NEAREST)
+    plate = cv2.resize(cv2.inpaint(sm, hm, 12, cv2.INPAINT_TELEA), (img.shape[1], img.shape[0]))
+    plate = np.where(hole[..., None] > 0, cv2.GaussianBlur(plate, (0, 0), 6), img)
+    return m, plate
 def cam(img, z, fx, fy):   # zoom z around focus (fraction of image), output W x H
     h, w = img.shape[:2]; s = W / w * z; M = np.float32([[s, 0, W / 2 - fx * w * s], [0, s, H / 2 - fy * h * s]])
     # clamp so no border shows
@@ -54,11 +67,15 @@ p = subprocess.Popen(['ffmpeg', '-y', '-v', 'error', '-f', 'rawvideo', '-pix_fmt
 prev_tail = None
 for sc in SCENES:
     img = np.asarray(Image.open(sc['img']).convert('RGB')); tel = Image.open(sc['tel']).convert('RGBA'); cache = {}
+    cache['M'], plate = layers(sc['img'], img)
     n = int(sc['dur'] * FPS)
     for i in range(n):
         t = i / FPS; k = i / (n - 1); e = k * k * (3 - 2 * k)
         z = sc['z'][0] + (sc['z'][1] - sc['z'][0]) * e; fx = sc['f'][0][0] + (sc['f'][1][0] - sc['f'][0][0]) * e; fy = sc['f'][0][1] + (sc['f'][1][1] - sc['f'][0][1]) * e
-        fr = cam(warp(img, sc['parts'], t, cache), z, fx, fy)
+        wi, wm = warp(img, sc['parts'], t, cache)
+        fg = cam(wi, z, fx, fy).astype(np.float32); mk = cam(wm, z, fx, fy)[..., None]
+        bgz = 1 + (z - 1) * 0.55; bg = cam(plate, bgz, fx, fy).astype(np.float32)
+        fr = (fg * mk + bg * (1 - mk)).astype(np.uint8)
         a, s = pop(t - 0.15)
         if a > 0:
             tl = tel.resize((int(W * s), int(H * s)), Image.LANCZOS) if s < 1 else tel; base = Image.fromarray(fr)
