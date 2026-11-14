@@ -1,0 +1,408 @@
+{
+ "title": "学校で教えてほしいシリーズ 第1回 所得税とは",
+ "episode": "第1回 所得税とは",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "school",
+ "series": "学校で教えてほしいシリーズ",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "student",
+   "text": "給料から/引かれてる/これ、/なに？",
+   "visual": {
+    "type": "payslip3d",
+    "rows": [
+     {
+      "label": "給与",
+      "value": "＋"
+     },
+     {
+      "label": "所得税",
+      "value": "−",
+      "hl": true
+     },
+     {
+      "label": "住民税",
+      "value": "−"
+     },
+     {
+      "label": "社会保険料",
+      "value": "−"
+     }
+    ]
+   },
+   "tail": 0.45,
+   "cps": 7.0
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "それが/所得税です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "所得税"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "所得税は、/所得に/かかる税金です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "所得税",
+     "＝ 所得 にかかる税金"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "所得とは、/収入から/経費を/引いた額です。",
+   "visual": {
+    "type": "income_blocks",
+    "parts": [
+     {
+      "label": "経費",
+      "kind": "expense"
+     }
+    ],
+    "total": "収入",
+    "rest": "所得"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "会社員の経費は、/決まった額を/引けます。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "会社員の経費",
+     "＝ 決まった額でOK"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "think"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "これを/給与所得控除と/いいます。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "給与所得控除",
+     "＝ 会社員の経費"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "年収300万円なら/98万円です。",
+   "visual": {
+    "type": "income_blocks",
+    "total": "年収300万円",
+    "total_v": 300,
+    "parts": [
+     {
+      "label": "給与所得控除 98万円",
+      "v": 98,
+      "kind": "expense"
+     }
+    ],
+    "upto": 1
+   },
+   "asof": true,
+   "note": "※令和8年分。300万円×30%＋8万円",
+   "calc": {
+    "expr": "300*0.3+8",
+    "expect": 98
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "さらに/基礎控除/104万円も/引けます。",
+   "visual": {
+    "type": "income_blocks",
+    "total": "年収300万円",
+    "total_v": 300,
+    "parts": [
+     {
+      "label": "給与所得控除 98万円",
+      "v": 98,
+      "kind": "expense"
+     },
+     {
+      "label": "基礎控除 104万円",
+      "v": 104,
+      "kind": "deduct"
+     }
+    ],
+    "upto": 2
+   },
+   "asof": true,
+   "note": "※合計所得489万円以下の場合（令和8・9年分）"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "社会保険料も/引けます。",
+   "visual": {
+    "type": "income_blocks",
+    "total": "年収300万円",
+    "total_v": 300,
+    "parts": [
+     {
+      "label": "給与所得控除 98万円",
+      "v": 98,
+      "kind": "expense"
+     },
+     {
+      "label": "基礎控除 104万円",
+      "v": 104,
+      "kind": "deduct"
+     },
+     {
+      "label": "社会保険料 45万円",
+      "v": 45,
+      "kind": "social"
+     }
+    ],
+    "upto": 3
+   },
+   "asof": true,
+   "note": "※社会保険料は45万円と仮定"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "300−98−104−45＝/53万円です。",
+   "visual": {
+    "type": "income_blocks",
+    "total": "年収300万円",
+    "total_v": 300,
+    "parts": [
+     {
+      "label": "給与所得控除 98万円",
+      "v": 98,
+      "kind": "expense"
+     },
+     {
+      "label": "基礎控除 104万円",
+      "v": 104,
+      "kind": "deduct"
+     },
+     {
+      "label": "社会保険料 45万円",
+      "v": 45,
+      "kind": "social"
+     }
+    ],
+    "upto": 3,
+    "rest": "課税所得 53万円"
+   },
+   "asof": true,
+   "calc": {
+    "expr": "300-98-104-45",
+    "expect": 53
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "この53万円が/税金をかける/もとです。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "課税所得 53万円",
+     "← ここに税率をかける"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "税率は/5%から/45%の/7段階です。",
+   "visual": {
+    "type": "rate_stairs",
+    "rates": [
+     5,
+     10,
+     20,
+     23,
+     33,
+     40,
+     45
+    ],
+    "highlight": "sweep"
+   },
+   "asof": true,
+   "note": "※課税所得195万円以下は5%、4000万円超は45%"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "student",
+   "text": "えっ、/45%も/とられるの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "45%！？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "surprise"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "高い税率は/超えた部分/だけです。",
+   "visual": {
+    "type": "progressive",
+    "total": 500,
+    "brackets": [
+     {
+      "upto": 195,
+      "rate": 5
+     },
+     {
+      "upto": 330,
+      "rate": 10
+     },
+     {
+      "upto": 500,
+      "rate": 20
+     }
+    ]
+   },
+   "asof": true,
+   "note": "※課税所得500万円の例。195万円までは5%のまま"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "これを/超過累進税率と/いいます。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "超過累進税率",
+     "＝ 超えた部分だけ高い税率"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "53万円は/5%の段です。",
+   "visual": {
+    "type": "rate_stairs",
+    "rates": [
+     5,
+     10,
+     20,
+     23,
+     33,
+     40,
+     45
+    ],
+    "highlight": 0,
+    "result": "53万円 ≦ 195万円 → 5%"
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "所得税は/約2.7万円です。",
+   "visual": {
+    "type": "result_coins",
+    "value": "約2.7万円",
+    "sub": "53万円 × 5% × 1.021"
+   },
+   "asof": true,
+   "note": "※復興特別所得税2.1%込み。社会保険料45万円と仮定",
+   "calc": {
+    "expr": "530000*0.05*1.021",
+    "expect": 27056,
+    "tol": 1
+   }
+  },
+  {
+   "role": "example",
+   "speaker": "student",
+   "text": "思ったより/少ない！",
+   "visual": {
+    "type": "class",
+    "board": [
+     "約2.7万円"
+    ],
+    "focus": "student",
+    "tpose": "ok",
+    "spose": "cheer"
+   },
+   "asof": true
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "収入−経費−控除に/税率を/かけます。",
+   "visual": {
+    "type": "summary3d",
+    "text": "所得税 ＝\n（収入 − 経費 − 控除）\n× 税率"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "次回は/源泉徴収の/理由です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "次回",
+     "源泉徴収のなぜ？"
+    ],
+    "focus": "teacher",
+    "tpose": "wave",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "teacher",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

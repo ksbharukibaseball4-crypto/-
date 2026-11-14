@@ -176,8 +176,8 @@ def main():
         tl = json.loads((out / "timeline.json").read_text(encoding="utf-8"))
         for s in tl["scenes"]:
             d = s["end"] - s["start"]
-            if d > MAX_SCENE + 0.05 or d < MIN_SCENE - 0.05:
-                E(f"シーン{s['index'] + 1}: {d:.2f}秒（2〜4秒）→ 文を分割/結合")
+            if d > float(spec.get("max_scene", MAX_SCENE)) + 0.05 or d < MIN_SCENE - 0.05:
+                E(f"シーン{s['index'] + 1}: {d:.2f}秒（2〜4秒）→ 文を分割/結合（上限は scenes.json の max_scene）")
         if tl["scenes"] and tl["scenes"][0]["chunks"]:
             hook_end = tl["scenes"][0]["end"]
             if hook_end > 3.05:

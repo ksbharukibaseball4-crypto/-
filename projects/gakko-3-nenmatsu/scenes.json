@@ -1,0 +1,278 @@
+{
+ "title": "学校で教えてほしいシリーズ 第3回 年末調整とは",
+ "episode": "第3回 年末調整とは",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "school",
+ "series": "学校で教えてほしいシリーズ",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "student",
+   "text": "12月の給料、/ちょっと/多くない？",
+   "visual": {
+    "type": "payslip3d",
+    "title": "12月の給与明細",
+    "rows": [
+     {
+      "label": "給与",
+      "value": "＋"
+     },
+     {
+      "label": "年末調整 還付",
+      "value": "＋",
+      "hl": true,
+      "color": "up"
+     },
+     {
+      "label": "社会保険料",
+      "value": "−"
+     }
+    ]
+   },
+   "asof": true,
+   "tail": 0.45,
+   "cps": 7.0
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "それは/年末調整の/還付かもしれません。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "還付？"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "還付とは、/払いすぎた税金が/戻ることです。",
+   "visual": {
+    "type": "adjust",
+    "mode": "refund"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "年末調整とは、/1年分の税金の/答え合わせです。",
+   "visual": {
+    "type": "answer_sheet",
+    "title": "1年分の税金",
+    "mark": "○"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "毎月の源泉徴収は/見込みの額でした。",
+   "visual": {
+    "type": "adjust",
+    "mode": "estimate"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "12月に/会社が/正しい額を/計算します。",
+   "visual": {
+    "type": "calendar_month",
+    "month": 12,
+    "label": "12月に答え合わせ"
+   },
+   "asof": true,
+   "note": "※通常はその年の最後の給料のとき"
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "多く引いていたら/戻ってきます。",
+   "visual": {
+    "type": "adjust",
+    "mode": "refund"
+   }
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "足りなければ/追加で/引かれます。",
+   "visual": {
+    "type": "adjust",
+    "mode": "extra"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "student",
+   "text": "何を/すれば/いいの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "何をすればいい？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "think"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "会社から/届く書類を/出すだけです。",
+   "visual": {
+    "type": "documents3d",
+    "docs": [
+     "扶養控除等申告書",
+     "基礎控除申告書など",
+     "保険料控除申告書"
+    ]
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "生命保険料などの/証明書も/添えます。",
+   "visual": {
+    "type": "documents3d",
+    "docs": [
+     "保険料控除申告書",
+     "生命保険料の控除証明書"
+    ],
+    "hl": 1
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "出さないと/年末調整で/控除されません。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "出し忘れ注意！"
+    ],
+    "focus": "teacher",
+    "tpose": "worry",
+    "spose": "idle"
+   },
+   "note": "※出し忘れても確定申告で受けられる場合があります"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "2026年は/特に大事です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "2026年は特に大事！"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "所得税の壁が/178万円に/上がりました。",
+   "visual": {
+    "type": "wall3d",
+    "from_label": "160万円",
+    "value": "178万円"
+   },
+   "asof": true,
+   "note": "※令和8年分。令和8年12月1日施行"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "その分は/今年の/年末調整で/反映されます。",
+   "visual": {
+    "type": "adjust",
+    "mode": "refund"
+   },
+   "asof": true,
+   "note": "※1年分をまとめて精算"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "student",
+   "text": "全部/会社が/やってくれるの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "全部会社がやるの？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "think"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "住宅ローン控除の1年目は/確定申告です。",
+   "visual": {
+    "type": "house_doc"
+   },
+   "asof": true,
+   "note": "※2年目以降は年末調整で受けられます"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "確定申告とは、/自分で/税金を/申告することです。",
+   "visual": {
+    "type": "document_stamp",
+    "title": "確定申告書",
+    "stamp": "申告",
+    "caption": "自分で計算して<span class=\"val\">税務署へ</span>"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "年末調整は/1年分の/答え合わせです。",
+   "visual": {
+    "type": "summary3d",
+    "text": "年末調整 ＝\n1年分の答え合わせ\n多ければ戻る\n足りなければ引かれる"
+   },
+   "asof": true
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "書類は/早めに/出しましょう。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "シリーズ おわり",
+     "また見てね！"
+    ],
+    "focus": "teacher",
+    "tpose": "wave",
+    "spose": "cheer"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "teacher",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

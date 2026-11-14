@@ -1,0 +1,254 @@
+{
+ "title": "学校で教えてほしいシリーズ 第2回 源泉徴収の理由",
+ "episode": "第2回 源泉徴収の理由",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "school",
+ "series": "学校で教えてほしいシリーズ",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "student",
+   "text": "所得税って/いつ/払ったの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "所得税、いつ払った？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "think"
+   },
+   "tail": 0.45,
+   "cps": 7.0
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "実は/毎月の給料から/もう払っています。",
+   "visual": {
+    "type": "payslip3d",
+    "rows": [
+     {
+      "label": "給与",
+      "value": "＋"
+     },
+     {
+      "label": "所得税",
+      "value": "−",
+      "hl": true
+     },
+     {
+      "label": "住民税",
+      "value": "−"
+     },
+     {
+      "label": "社会保険料",
+      "value": "−"
+     }
+    ]
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "teacher",
+   "text": "これが/源泉徴収です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "源泉徴収"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "会社が/給料から/先に引きます。",
+   "visual": {
+    "type": "flow3d",
+    "stage": 1
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "それを/会社が/国に納めます。",
+   "visual": {
+    "type": "flow3d",
+    "stage": 2
+   },
+   "asof": true,
+   "note": "※原則、給料を払った月の翌月10日まで"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "student",
+   "text": "なんで/会社が/やるの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "なんで会社が？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "think"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "理由は/大きく/3つです。",
+   "visual": {
+    "type": "reasons3",
+    "current": null
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "①納める手間を/減らすためです。",
+   "visual": {
+    "type": "reasons3",
+    "current": 0
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "全員が/自分で/計算するのは/大変です。",
+   "visual": {
+    "type": "crowd"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "②払い忘れを/防ぐためです。",
+   "visual": {
+    "type": "reasons3",
+    "current": 1
+   },
+   "asof": true
+  },
+  {
+   "role": "example",
+   "speaker": "teacher",
+   "text": "先に引けば、/取りこぼしが/ありません。",
+   "visual": {
+    "type": "safe3d"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "③所得を/正しく/つかむためです。",
+   "visual": {
+    "type": "reasons3",
+    "current": 2
+   },
+   "asof": true
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "日本では/1940年に/始まりました。",
+   "visual": {
+    "type": "plaque",
+    "title": "1940年",
+    "sub": "給与の源泉徴収がスタート"
+   },
+   "asof": true,
+   "note": "※昭和15年の税制改正（国税庁 税務大学校の資料）"
+  },
+  {
+   "role": "mechanism",
+   "speaker": "student",
+   "text": "でも、/毎月の額って/正確なの？",
+   "visual": {
+    "type": "class",
+    "board": [
+     "毎月の額は正確？"
+    ],
+    "focus": "student",
+    "tpose": "idle",
+    "spose": "think"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "実は、/毎月の額は/見込みです。",
+   "visual": {
+    "type": "adjust",
+    "mode": "estimate"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "生命保険料などは/年末に/反映します。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "生命保険料控除 など",
+     "→ 年末にまとめて"
+    ],
+    "focus": "teacher",
+    "tpose": "point",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "そのズレを/直すのが/年末調整です。",
+   "visual": {
+    "type": "adjust",
+    "mode": "refund"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "源泉徴収は/先払いの/仕組みです。",
+   "visual": {
+    "type": "summary3d",
+    "text": "源泉徴収 ＝\n会社が給料から先に引いて\n国に納める仕組み"
+   }
+  },
+  {
+   "role": "summary",
+   "speaker": "teacher",
+   "text": "次回は/年末調整です。",
+   "visual": {
+    "type": "class",
+    "board": [
+     "次回",
+     "年末調整ってなに？"
+    ],
+    "focus": "teacher",
+    "tpose": "wave",
+    "spose": "idle"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "teacher",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer3d"
+   }
+  }
+ ]
+}

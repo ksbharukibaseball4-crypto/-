@@ -25,6 +25,7 @@
 | UI回避 | 右端15%・下部25%に重要な要素を置かない |
 | 規制 | 売買推奨なし、断定・保証なし、数字に「〇年〇月時点」、最後に「情報提供目的です。投資判断はご自身で」、案件ならPR表示 |
 | 台本 | 1文20字以内、です・ます調、専門用語は直後に言い換え、具体例は必ず検算 |
+| 3D | 参考TikTokのような3D＋吹き出しラベルが好評（「いいやん」）。さらに「具体的・ゆっくり・詳しく・楽しく」を希望 |
 
 ## 3. 制作した動画：令和8年の年収の壁（所得税・住民税・社会保険）
 - 保存先（リポジトリにコミット済み）: `projects/nenshu-kabe-2026/`
@@ -64,6 +65,12 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
   - 本番: tts.py（`--engine none`）→ `node render3d.js ... --workers 3` → mux.py → final_check.py
   - `scenes.json` の `"renderer": "3d"`、`"theme": "studio"|"navy"`。3Dのビジュアル種類は engine.js の `B.*`
 - 直し済み: 贈与シーンの構図、注意の三角標識の向き、「3000万円」ラベル位置、人物の大きさ
+
+## 3c. 制作中：学校で教えてほしいシリーズ（3本・3D教室）
+- 依頼（2026-11-14）: 「もっと具体的にゆっくり詳しく、楽しく分かりやすく」。テーマ: 所得税とは／源泉徴収の理由／年末調整とは。コンセプト「学校で教えてほしいシリーズ」。ユーザーの選択で**3本のシリーズ**（各90秒以内）。
+- 保存先: `projects/gakko-1-shotokuzei/`、`projects/gakko-2-gensen/`、`projects/gakko-3-nenmatsu/`（scenes.json・script.md・sources.md・プレビュー）。3本の scenes.json は `projects/gakko-make_scenes.py` から生成。
+- 演出: 3Dの教室（黒板にチョーク文字・先生・生徒）、先生と生徒の掛け合い（字幕に「先生／生徒」タグ）。`"theme": "school"`、`"speaker"`、`"max_scene": 5.3`、`voice.cps 5.0`、`tail 1.0`（フックだけ `cps 7`）。
+- 状態: **台本 v1（3本）を提示し、ユーザーの承認待ち**。承認後は各話 `build.py ... --engine none --save projects/<話>` で作成（3D描画は1本約30分）。
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。

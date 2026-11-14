@@ -234,7 +234,7 @@ def main():
         reading = "".join(c["reading"] for c in chunks)
         bounds = None
         if engine == "none":
-            cps = a.cps or float(cfg.get("cps", 7.0))
+            cps = float(sc.get("cps") or a.cps or cfg.get("cps", 7.0))
             lens = [max(1, len(re.sub(r"[、。？！?!\s]", "", c["display"]))) for c in chunks]
             read = sum(lens) / cps
             speech = np.zeros(int(read * SR), np.float32)
@@ -259,8 +259,8 @@ def main():
         sp_dur = len(speech) / SR
         tail = float(sc.get("tail", cfg.get("tail", 0.6))) if engine == "none" else TAIL   # time to finish reading
         dur = max(MIN_SCENE, float(sc.get("min_duration", 0)), LEAD + sp_dur + tail)
-        if dur > MAX_SCENE + 1e-6:
-            print(f"[tts] 警告: シーン{si + 1} が {dur:.2f}s（4秒超）。分割してください。")
+        if dur > float(spec.get("max_scene", MAX_SCENE)) + 1e-6:
+            print(f"[tts] 警告: シーン{si + 1} が {dur:.2f}s（上限超え）。分割してください。")
         buf = np.zeros(int(round(dur * SR)), np.float32)
         buf[int(LEAD * SR): int(LEAD * SR) + len(speech)] = speech
         if not a.no_sfx:
