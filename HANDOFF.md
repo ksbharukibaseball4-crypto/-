@@ -1,6 +1,6 @@
 # 引き継ぎメモ：金融解説の縦型動画づくり
 
-最終更新: 2026-11-13（ブランチ `claude/determined-brahmagupta-cuzt5f`）
+最終更新: 2026-11-14（ブランチ `claude/determined-brahmagupta-cuzt5f`）
 
 次のセッションは、まずこのファイルを読み、次に `.claude/skills/kinyu-kaisetsu-douga/SKILL.md` を読んでください。
 
@@ -52,6 +52,17 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 # 1枚だけ確認: python3 $S/render.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 --still 12.5 30
 ```
 **ファイルの保存ルール**: `out/` は .gitignore 対象でセッション終了とともに消える。完成したら必ず `--save projects/<動画名>` で保存し、コミット・プッシュする。ユーザーには SendUserFile で動画を渡す（ダウンロードして端末に保存できる）。
+
+## 3b. 制作中：相続税の計算の仕組みと注意点（3D）
+- 依頼（2026-11-14）: 参考TikTok（3D映像＋吹き出しラベルの解説）のように「3D映像を駆使して」相続税の計算と注意点を解説。
+- 保存先: `projects/souzoku-2026/`（`scenes.json`・`script.md`・`sources.md`・プレビュー画像）
+- 状態: **台本 v1 をユーザーに提示し、承認待ち**。あわせて見た目を「明るいスタジオ（参考動画風・既定）」か「濃紺」か選んでもらっている。
+- 3Dの仕組み: `.claude/skills/kinyu-kaisetsu-douga/render3d/`（Three.js をヘッドレス Chromium で描画）
+  - 準備: `cd .claude/skills/kinyu-kaisetsu-douga/render3d && npm install`
+  - 静止画: `node render3d.js out/souzoku-2026/scenes.json --out out/souzoku-2026 --still 2 10 [--theme navy]`
+  - 本番: tts.py（`--engine none`）→ `node render3d.js ... --workers 3` → mux.py → final_check.py
+  - `scenes.json` の `"renderer": "3d"`、`"theme": "studio"|"navy"`。3Dのビジュアル種類は engine.js の `B.*`
+- 承認後に直す予定: 贈与（gift_timeline）のカメラ位置、注意の三角標識の向き、formula_blocks で「3000万円」ラベルがタイトルに隠れる点、人物を少し大きく
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。

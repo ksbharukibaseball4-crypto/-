@@ -111,7 +111,7 @@ def main():
             n = len(re.sub(r"[。？！?!、]", "", s))
             if n > MAX_CHARS:
                 E(f"シーン{i}: 1文{n}字（20字以内）「{s}」")
-        if not s_desu(disp) and sc.get("visual", {}).get("type") not in ("hook", "disclaimer"):
+        if not s_desu(disp) and not str(sc.get("visual", {}).get("type", "")).startswith(("hook", "money_hook", "disclaimer")):
             Wn(f"シーン{i}: です・ます調か確認「{disp}」")
         texts = [disp] + list(strings_in(sc.get("visual", {}))) + [sc.get("note", "")]
         blob = "\n".join(texts)
@@ -125,7 +125,7 @@ def main():
                 Wn(f"シーン{i}: {msg}「{m.group(0)}」")
         if has_number(sc.get("visual", {})) or DIGIT.search(disp):
             any_num = True
-            if not sc.get("asof") and sc.get("visual", {}).get("type") != "disclaimer":
+            if not sc.get("asof") and not str(sc.get("visual", {}).get("type", "")).startswith("disclaimer"):
                 E(f'シーン{i}: 数字があるので "asof": true（〇年〇月時点の表示）が必要')
         if "calc" in sc:
             c = sc["calc"]
@@ -150,7 +150,7 @@ def main():
     if not a.test:
         last = scenes[-1] if scenes else {}
         lt = display_text(last.get("text", ""))
-        if last.get("visual", {}).get("type") != "disclaimer" or "情報提供目的" not in lt or "投資判断はご自身で" not in lt:
+        if not str(last.get("visual", {}).get("type", "")).startswith("disclaimer") or "情報提供目的" not in lt or "投資判断はご自身で" not in lt:
             E("最後のシーンは disclaimer で「情報提供目的です。投資判断はご自身で」を読み上げる")
         roles = [s.get("role") for s in scenes]
         for r in ("hook", "premise", "mechanism", "example", "summary", "disclaimer"):

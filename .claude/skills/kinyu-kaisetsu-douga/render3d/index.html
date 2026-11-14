@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>render3d</title>
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>
+  html, body { margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+  body { font-family: "Noto Sans JP", sans-serif; }
+  canvas#c { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
+  svg#lines { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  #ov { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  #preload { position: absolute; left: 0; top: 0; width: 1080px; height: 4px; overflow: hidden; opacity: 0; }
+  .sub { position: absolute; left: 162px; width: 756px; box-sizing: border-box; padding: 22px 26px;
+         background: rgba(17, 24, 39, 0.86); border-radius: 30px; text-align: center;
+         box-shadow: 0 10px 30px rgba(0,0,0,0.25); }
+  .sub .ln { display: block; line-height: 1.55; }
+  .chunk { display: inline-block; font-weight: 900; font-size: 60px; color: #9aa6bf; padding: 0 12px;
+           margin: 0 2px; border-radius: 14px; border: 6px solid transparent; }
+  .chunk.done { color: #ffffff; }
+  .chunk.on { color: #ffe28c; border-color: #f2c248; background: rgba(242, 194, 72, 0.22); }
+  .callout { position: absolute; transform: translate(-50%, -50%); background: rgba(17, 24, 39, 0.92);
+             color: #fff; font-weight: 900; border-radius: 18px; padding: 14px 28px; white-space: nowrap;
+             box-shadow: 0 8px 22px rgba(0,0,0,0.28); display: flex; align-items: center; gap: 14px; }
+  .callout .dot { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+  .callout .val { color: #ffe28c; }
+  .title { position: absolute; left: 540px; transform: translate(-50%, -50%); text-align: center;
+           font-weight: 900; white-space: nowrap; }
+  .card { position: absolute; left: 172px; width: 736px; box-sizing: border-box; border-radius: 34px;
+          background: rgba(17, 24, 39, 0.92); color: #fff; text-align: center; padding: 40px 34px;
+          border: 6px solid #f2c248; box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+  .tag { display: inline-block; background: #f2c248; color: #111827; font-weight: 900; border-radius: 22px;
+         padding: 6px 30px; font-size: 40px; position: absolute; top: -34px; left: 50%; transform: translateX(-50%); }
+  .note { position: absolute; left: 162px; width: 756px; text-align: center; font-weight: 700;
+          font-size: 30px; line-height: 1.45; }
+  .note span { display: inline-block; padding: 8px 22px; border-radius: 16px; }
+  .pr { position: absolute; left: 162px; top: 150px; background: #fff; color: #111827; font-weight: 900;
+        font-size: 34px; padding: 2px 22px; border-radius: 10px; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "./node_modules/three/build/three.module.js",
+               "three/addons/": "./node_modules/three/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<svg id="lines" viewBox="0 0 1080 1920"></svg>
+<div id="ov"></div>
+<div id="preload"></div>
+<script type="module" src="engine.js"></script>
+</body>
+</html>
