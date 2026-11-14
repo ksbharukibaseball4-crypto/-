@@ -1183,6 +1183,43 @@ B.house_doc = () => {
   };
 };
 
+
+// ------------------------------------------------------------------ photo scenes (user-supplied images, Ken Burns)
+// visual: { type: 'photo', src: 'assets/x.png', mode: 'fit'|'crop', from: {cx,cy,w}, to: {cx,cy,w}, zoom: [1, 1.1],
+//           y: 900, patches: [{x,y,w,h,html,style}], tags: [{x,y,text}] }
+const IMG = {};
+function imgSize(src) {
+  if (!IMG[src]) { const im = new Image(); im.src = `/__asset/${src}`; IMG[src] = im; }
+  return IMG[src];
+}
+function photoPose(v, k) {
+  const im = imgSize(v.src); const iw = im.naturalWidth || 1000, ih = im.naturalHeight || 1000;
+  const cy0 = v.y || 900;
+  if ((v.mode || 'crop') === 'fit') {
+    const z = lerp((v.zoom || [1, 1.08])[0], (v.zoom || [1, 1.08])[1], k); const s = 1080 / iw * z;
+    return { s, tx: 540 - iw / 2 * s, ty: cy0 - ih / 2 * s };
+  }
+  const a = v.from, b = v.to || v.from;
+  const cx = lerp(a.cx, b.cx, k), cy = lerp(a.cy, b.cy, k), w = lerp(a.w, b.w, k); const s = 1080 / w;
+  return { s, tx: 540 - cx * s, ty: cy0 - cy * s };
+}
+function photoLayerHTML(v, k, op) {
+  const p = photoPose(v, k);
+  const patches = (v.patches || []).map((q) => `<div class="chalk" style="left:${q.x}px;top:${q.y}px;width:${q.w}px;height:${q.h}px;${q.style || ''}">${q.html}</div>`).join('');
+  return `<div class="layer" style="opacity:${op}"><img class="pbg" src="/__asset/${v.src}"><div class="pwrap" style="transform:translate(${p.tx}px,${p.ty}px) scale(${p.s})"><img src="/__asset/${v.src}">${patches}</div></div>`;
+}
+const photoEl = document.getElementById('photo');
+function renderPhoto(i, lt, D) {
+  const v = spec.scenes[i].visual; let html = '';
+  if (i > 0 && lt < 0.4 && spec.scenes[i - 1].visual?.type === 'photo') {
+    const ps = tl.scenes[i - 1]; html += photoLayerHTML(spec.scenes[i - 1].visual, 1, 1);
+  }
+  html += photoLayerHTML(v, eInOut(lt / D), i > 0 ? eOut(lt / 0.4) : 1);
+  photoEl.innerHTML = html;
+}
+B.photo = (v) => ({ group: new THREE.Group(), cam: { dist: 10, elev: 10, azim: 0, ty: 1 }, update() {},
+  overlay() { return (v.tags || []).map((tg) => ({ kind: 'title', y: tg.y, html: tg.text, size: tg.size || 48, color: tg.color || '#fff', bg: tg.bg || 'rgba(17,24,39,0.88)', delay: tg.delay ?? 0.3 })); } });
+
 // ------------------------------------------------------------------ setup
 function gradientTexture(top, bottom) {
   const cv = document.createElement('canvas'); cv.width = 4; cv.height = 512;
@@ -1226,6 +1263,9 @@ async function init() {
   await document.fonts.ready;
   for (const w of [500, 700, 900]) await document.fonts.load(`${w} 40px "Noto Sans JP"`, all);
   await document.fonts.ready;
+  const srcs = [...new Set(spec.scenes.filter((s) => s.visual?.type === 'photo').map((s) => s.visual.src))];
+  await Promise.all(srcs.map((src) => new Promise((res) => { const im = imgSize(src); if (im.complete && im.naturalWidth) res(); else { im.onload = res; im.onerror = res; } })));
+  await document.fonts.load('600 30px "Klee One"', all + '会社国税務署従業員給料税金を納める引いた残りみなさん');
   window.ready = true;
 }
 
@@ -1353,6 +1393,10 @@ window.renderAt = (t) => {
   camera.position.copy(pose.pos); camera.lookAt(pose.target);
   // keep the composition centred between the subtitles and the bottom safe line
   camera.setViewOffset(W, H, 0, -40, W, H); camera.updateProjectionMatrix();
+  const isPhoto = spec.scenes[i].visual?.type === 'photo';
+  photoEl.style.display = isPhoto ? 'block' : 'none';
+  renderer.domElement.style.visibility = isPhoto ? 'hidden' : 'visible';
+  if (isPhoto) { renderPhoto(i, lt, D); overlayHTML(cur.overlay(lt, D, t), lt, s, spec.scenes[i], t); return true; }
   if (board) {
     const bd = cur.board ? cur.board(lt) : null;
     drawBoard(bd ? bd.lines : null, bd ? bd.prog : 1, `${i}:${bd ? Math.round(clamp(bd.prog) * 30) : 'x'}`);

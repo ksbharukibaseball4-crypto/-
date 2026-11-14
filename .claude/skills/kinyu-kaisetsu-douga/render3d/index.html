@@ -6,11 +6,20 @@
 <link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/500.css">
 <link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
 <link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<link rel="stylesheet" href="node_modules/@fontsource/klee-one/600.css">
 <style>
   html, body { margin: 0; padding: 0; width: 1080px; height: 1920px; overflow: hidden; background: #000; }
   body { font-family: "Noto Sans JP", sans-serif; }
   canvas#c { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; }
   svg#lines { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
+  #photo { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; overflow: hidden; display: none; background: #000; }
+  #photo .layer { position: absolute; inset: 0; overflow: hidden; }
+  #photo .pbg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: blur(36px) brightness(0.62); transform: scale(1.15); }
+  #photo .pwrap { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  #photo .pwrap img { display: block; }
+  .chalk { position: absolute; font-family: "Klee One", "Noto Sans JP", sans-serif; font-weight: 600; color: rgba(255,255,255,0.93);
+           text-shadow: 0 0 2px rgba(255,255,255,0.5); box-sizing: border-box; }
+  .chalk .cb { display: inline-block; border: 3px solid rgba(255,255,255,0.85); border-radius: 4px; padding: 4px 12px; }
   #ov { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; pointer-events: none; }
   #preload { position: absolute; left: 0; top: 0; width: 1080px; height: 4px; overflow: hidden; opacity: 0; }
   .sub { position: absolute; left: 162px; width: 756px; box-sizing: border-box; padding: 22px 26px;
@@ -47,6 +56,7 @@
 </head>
 <body>
 <canvas id="c" width="1080" height="1920"></canvas>
+<div id="photo"></div>
 <svg id="lines" viewBox="0 0 1080 1920"></svg>
 <div id="ov"></div>
 <div id="preload"></div>

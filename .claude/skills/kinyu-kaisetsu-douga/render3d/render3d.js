@@ -12,7 +12,7 @@ const { spawn } = require('child_process');
 const { chromium } = require('playwright');
 
 const ROOT = __dirname;
-const MIME = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2',
+const MIME = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2',
   '.woff': 'font/woff', '.json': 'application/json' };
 
 function args() {
@@ -30,8 +30,10 @@ function serve(specPath, tlPath) {
   return new Promise((res) => {
     const srv = http.createServer((req, rsp) => {
       const u = decodeURIComponent(req.url.split('?')[0]);
-      let f = u === '/__spec.json' ? specPath : u === '/__timeline.json' ? tlPath : path.join(ROOT, u);
-      if (!f.startsWith(ROOT) && f !== specPath && f !== tlPath) { rsp.writeHead(403); return rsp.end(); }
+      const SD = path.dirname(specPath);
+      let f = u === '/__spec.json' ? specPath : u === '/__timeline.json' ? tlPath
+        : u.startsWith('/__asset/') ? path.join(SD, u.slice('/__asset/'.length)) : path.join(ROOT, u);
+      if (!f.startsWith(ROOT) && !f.startsWith(SD + path.sep) && f !== specPath && f !== tlPath) { rsp.writeHead(403); return rsp.end(); }
       fs.readFile(f, (err, buf) => {
         if (err) { rsp.writeHead(404); return rsp.end(); }
         rsp.writeHead(200, { 'Content-Type': MIME[path.extname(f)] || 'application/octet-stream' }); rsp.end(buf);

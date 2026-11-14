@@ -1,0 +1,155 @@
+{
+ "title": "学校で教えてほしいシリーズ 第2回（写真版テスト）",
+ "series": "学校で教えてほしいシリーズ",
+ "episode": "第2回 源泉徴収の理由",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "school",
+ "voice": {
+  "cps": 5.0,
+  "tail": 1.0
+ },
+ "max_scene": 5.3,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "",
+   "text": "第2回/源泉徴収の/理由",
+   "cps": 6,
+   "tail": 0.8,
+   "asof": true,
+   "sfx": [
+    "drum",
+    "chime"
+   ],
+   "visual": {
+    "type": "photo",
+    "src": "assets/title.jpg",
+    "mode": "crop",
+    "y": 880,
+    "tags": [
+     {
+      "y": 1270,
+      "text": "学校で教えてほしいシリーズ",
+      "size": 46,
+      "bg": "rgba(17,24,39,0.85)"
+     }
+    ],
+    "from": {
+     "cx": 980,
+     "cy": 470,
+     "w": 1300
+    },
+    "to": {
+     "cx": 990,
+     "cy": 460,
+     "w": 1120
+    }
+   }
+  },
+  {
+   "role": "premise",
+   "speaker": "student",
+   "text": "所得税って/いつ/払ったの？",
+   "sfx": [
+    "boing"
+   ],
+   "visual": {
+    "type": "photo",
+    "src": "assets/classroom.png",
+    "mode": "crop",
+    "from": {
+     "cx": 840,
+     "cy": 560,
+     "w": 1100
+    },
+    "to": {
+     "cx": 760,
+     "cy": 600,
+     "w": 820
+    }
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "実は/毎月の給料から/もう払っています。",
+   "sfx": [
+    "wood"
+   ],
+   "visual": {
+    "type": "photo",
+    "src": "assets/classroom.png",
+    "mode": "crop",
+    "from": {
+     "cx": 760,
+     "cy": 470,
+     "w": 620
+    },
+    "to": {
+     "cx": 790,
+     "cy": 450,
+     "w": 540
+    }
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "これが/源泉徴収です。",
+   "sfx": [
+    "chime"
+   ],
+   "visual": {
+    "type": "photo",
+    "src": "assets/classroom.png",
+    "mode": "crop",
+    "from": {
+     "cx": 1000,
+     "cy": 300,
+     "w": 760
+    },
+    "to": {
+     "cx": 1040,
+     "cy": 250,
+     "w": 560
+    }
+   }
+  },
+  {
+   "role": "mechanism",
+   "speaker": "teacher",
+   "text": "会社が給料から/先に引いて/国に納めます。",
+   "sfx": [
+    "swish",
+    "coin"
+   ],
+   "visual": {
+    "type": "photo",
+    "src": "assets/classroom.png",
+    "mode": "crop",
+    "patches": [
+     {
+      "x": 1012,
+      "y": 356,
+      "w": 652,
+      "h": 222,
+      "html": "<div style=\"position:absolute;left:14px;top:14px;font-size:30px;white-space:nowrap\"><span class=\"cb\">会社</span></div><div style=\"position:absolute;left:118px;top:22px;font-size:27px;white-space:nowrap\">──税金を納める──▶</div><div style=\"position:absolute;left:420px;top:14px;font-size:30px;white-space:nowrap\"><span class=\"cb\">国（税務署）</span></div><div style=\"position:absolute;left:52px;top:78px;font-size:26px;white-space:nowrap\">│ 給料から先に引く</div><div style=\"position:absolute;left:52px;top:128px;font-size:27px;white-space:nowrap\">└─ 残りの給料 ─▶</div><div style=\"position:absolute;left:298px;top:120px;font-size:30px;white-space:nowrap\"><span class=\"cb\">従業員（みなさん）</span></div>",
+      "style": "background:rgb(50,60,58);box-shadow:0 0 14px 10px rgb(50,60,58);padding:6px 10px"
+     }
+    ],
+    "from": {
+     "cx": 1250,
+     "cy": 420,
+     "w": 900
+    },
+    "to": {
+     "cx": 1335,
+     "cy": 470,
+     "w": 720
+    }
+   }
+  }
+ ]
+}

@@ -3,7 +3,8 @@
   "private": true,
   "description": "3D scene renderer (Three.js in headless Chromium) for kinyu-kaisetsu-douga",
   "dependencies": {
-    "three": "0.170.0",
-    "@fontsource/noto-sans-jp": "5.1.1"
+    "@fontsource/klee-one": "^5.1.0",
+    "@fontsource/noto-sans-jp": "5.1.1",
+    "three": "0.170.0"
   }
 }
