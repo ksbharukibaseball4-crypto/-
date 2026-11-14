@@ -48,7 +48,9 @@ def main():
     fc = f"{pre(1)}loudnorm={TARGET}:{m},aresample=48000[a]"  # pass 2: after the video input
     cmd = ["ffmpeg", "-y", "-v", "error", "-i", str(out / "visual.mp4"), *audio_in,
            "-filter_complex", fc, "-map", "0:v", "-map", "[a]"]
-    cmd += ["-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-t", f"{dur:.3f}",
+    # re-encode with a bitrate cap: keeps files uploadable (TikTok/Shorts) and under GitHub's 100MB per file
+    cmd += ["-c:v", "libx264", "-preset", "medium", "-crf", "21", "-maxrate", "5M", "-bufsize", "10M", "-pix_fmt", "yuv420p",
+            "-c:a", "aac", "-b:a", "192k", "-ac", "2", "-t", f"{dur:.3f}",
             "-movflags", "+faststart", str(out / "video.mp4")]
     subprocess.run(cmd, check=True)
     print(f"[mux] -> {out / 'video.mp4'}")

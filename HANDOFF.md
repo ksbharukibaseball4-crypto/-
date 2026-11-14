@@ -85,7 +85,8 @@ python3 $S/build.py out/nenshu-kabe-2026/scenes.json --out out/nenshu-kabe-2026 
 - 経緯（2026-11-14）: ジオラマ → 「ドラクエ風」（オリジナルのレトロRPG風を `projects/rpg-shotokuzei/` に試作）→ 最終的に「台本に忠実に、ナレーションで進める、高品質なマイクラ風3D」を希望。
 - 方針: マイクラそのものの再現はせず、オリジナルのブロック（ボクセル）風3D（`"theme": "voxel"`、engine.js の B.vx / buildVoxel）。台本の文言はユーザーのものをそのまま使用。
 - 保存先: `projects/vox-shotokuzei/`（make_scenes.py・scenes.json・script.md・プレビュー）
-- 状態: **台本・見た目を提示し承認待ち**。尺140.8秒。音声読み上げ（ナレーション音声）を付けるかは未確認。
+- 状態: **完成**（ユーザー回答: A＝字幕＋効果音のみ、140秒のまま）。`video.mp4`（140.8秒・約89MB）。
+- 3D描画は重い（1本約100分）。render3d.js は240フレームごとの分割保存で再開可能。`render_workers: 1` が最速（SwiftShader は並列で速くならない）。mux は 5Mbps 上限で再エンコード。
 
 ## 4. 環境の制約（このクラウド環境）
 - **ネットワーク**: Edge TTS / gTTS / 政府サイト（nta.go.jp、soumu.go.jp、mhlw.go.jp 等）に `curl` も WebFetch も届かない。
