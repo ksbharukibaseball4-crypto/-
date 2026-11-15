@@ -410,14 +410,6 @@
    "visual": {
     "type": "none"
    }
-  },
-  {
-   "role": "disclaimer",
-   "speaker": "narr",
-   "text": "情報提供目的です。/投資判断は/ご自身で。",
-   "visual": {
-    "type": "disclaimer"
-   }
   }
  ]
 }

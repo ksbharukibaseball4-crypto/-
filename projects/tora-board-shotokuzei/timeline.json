@@ -1,0 +1,1145 @@
+{
+ "engine": "none",
+ "duration": 146.864,
+ "fps": 30,
+ "scenes": [
+  {
+   "index": 0,
+   "start": 0.0,
+   "end": 3.979,
+   "speech": 2.909,
+   "chunks": [
+    {
+     "display": "本当は",
+     "reading": "本当は",
+     "sentence": 0,
+     "start": 0.12,
+     "end": 0.665
+    },
+    {
+     "display": "学校で教えて欲しい",
+     "reading": "学校で教えて欲しい",
+     "sentence": 0,
+     "start": 0.665,
+     "end": 2.302
+    },
+    {
+     "display": "シリーズ",
+     "reading": "シリーズ",
+     "sentence": 0,
+     "start": 2.302,
+     "end": 3.029
+    }
+   ]
+  },
+  {
+   "index": 1,
+   "start": 3.979,
+   "end": 5.979,
+   "speech": 1.455,
+   "chunks": [
+    {
+     "display": "新",
+     "reading": "新",
+     "sentence": 1,
+     "start": 4.099,
+     "end": 4.281
+    },
+    {
+     "display": "社会人に",
+     "reading": "社会人に",
+     "sentence": 1,
+     "start": 4.281,
+     "end": 5.008
+    },
+    {
+     "display": "なって、",
+     "reading": "なって、",
+     "sentence": 1,
+     "start": 5.008,
+     "end": 5.554
+    }
+   ]
+  },
+  {
+   "index": 2,
+   "start": 5.979,
+   "end": 7.979,
+   "speech": 1.455,
+   "chunks": [
+    {
+     "display": "いきなり",
+     "reading": "いきなり",
+     "sentence": 2,
+     "start": 6.099,
+     "end": 6.826
+    },
+    {
+     "display": "給与から、",
+     "reading": "給与から、",
+     "sentence": 2,
+     "start": 6.826,
+     "end": 7.554
+    }
+   ]
+  },
+  {
+   "index": 3,
+   "start": 7.979,
+   "end": 11.413,
+   "speech": 2.364,
+   "chunks": [
+    {
+     "display": "税金や社会保険料が",
+     "reading": "税金や社会保険料が",
+     "sentence": 3,
+     "start": 8.099,
+     "end": 9.735
+    },
+    {
+     "display": "引かれる。",
+     "reading": "引かれる。",
+     "sentence": 3,
+     "start": 9.735,
+     "end": 10.463
+    }
+   ]
+  },
+  {
+   "index": 4,
+   "start": 11.413,
+   "end": 14.846,
+   "speech": 2.364,
+   "chunks": [
+    {
+     "display": "1年後には",
+     "reading": "1年後には",
+     "sentence": 4,
+     "start": 11.533,
+     "end": 12.442
+    },
+    {
+     "display": "住民税が",
+     "reading": "住民税が",
+     "sentence": 4,
+     "start": 12.442,
+     "end": 13.169
+    },
+    {
+     "display": "引かれる。",
+     "reading": "引かれる。",
+     "sentence": 4,
+     "start": 13.169,
+     "end": 13.896
+    }
+   ]
+  },
+  {
+   "index": 5,
+   "start": 14.846,
+   "end": 19.007,
+   "speech": 3.091,
+   "chunks": [
+    {
+     "display": "何も知らない、",
+     "reading": "何も知らない、",
+     "sentence": 5,
+     "start": 14.966,
+     "end": 16.057
+    },
+    {
+     "display": "誰も教えてくれない",
+     "reading": "誰も教えてくれない",
+     "sentence": 5,
+     "start": 16.057,
+     "end": 17.694
+    },
+    {
+     "display": "まま。",
+     "reading": "まま。",
+     "sentence": 5,
+     "start": 17.694,
+     "end": 18.057
+    }
+   ]
+  },
+  {
+   "index": 6,
+   "start": 19.007,
+   "end": 21.114,
+   "speech": 1.636,
+   "chunks": [
+    {
+     "display": "そんな",
+     "reading": "そんな",
+     "sentence": 6,
+     "start": 19.127,
+     "end": 19.673
+    },
+    {
+     "display": "お金の",
+     "reading": "お金の",
+     "sentence": 6,
+     "start": 19.673,
+     "end": 20.218
+    },
+    {
+     "display": "授業を、",
+     "reading": "授業を、",
+     "sentence": 6,
+     "start": 20.218,
+     "end": 20.764
+    }
+   ]
+  },
+  {
+   "index": 7,
+   "start": 21.114,
+   "end": 24.729,
+   "speech": 2.545,
+   "chunks": [
+    {
+     "display": "わかりやすく、",
+     "reading": "わかりやすく、",
+     "sentence": 7,
+     "start": 21.234,
+     "end": 22.324
+    },
+    {
+     "display": "面白く",
+     "reading": "面白く",
+     "sentence": 7,
+     "start": 22.324,
+     "end": 22.87
+    },
+    {
+     "display": "解説するぞ。",
+     "reading": "解説するぞ。",
+     "sentence": 7,
+     "start": 22.87,
+     "end": 23.779
+    }
+   ]
+  },
+  {
+   "index": 8,
+   "start": 24.729,
+   "end": 27.981,
+   "speech": 2.182,
+   "chunks": [
+    {
+     "display": "今回の授業は",
+     "reading": "今回の授業は",
+     "sentence": 8,
+     "start": 24.849,
+     "end": 25.94
+    },
+    {
+     "display": "「所得税」だ。",
+     "reading": "「所得税」だ。",
+     "sentence": 8,
+     "start": 25.94,
+     "end": 27.031
+    }
+   ]
+  },
+  {
+   "index": 9,
+   "start": 27.981,
+   "end": 30.996,
+   "speech": 2.545,
+   "chunks": [
+    {
+     "display": "所得税は、",
+     "reading": "所得税は、",
+     "sentence": 9,
+     "start": 28.101,
+     "end": 28.828
+    },
+    {
+     "display": "みんなの",
+     "reading": "みんなの",
+     "sentence": 9,
+     "start": 28.828,
+     "end": 29.555
+    },
+    {
+     "display": "所得に応じて、",
+     "reading": "所得に応じて、",
+     "sentence": 9,
+     "start": 29.555,
+     "end": 30.646
+    }
+   ]
+  },
+  {
+   "index": 10,
+   "start": 30.996,
+   "end": 35.157,
+   "speech": 3.091,
+   "chunks": [
+    {
+     "display": "その一部を",
+     "reading": "その一部を",
+     "sentence": 10,
+     "start": 31.116,
+     "end": 32.025
+    },
+    {
+     "display": "税金として",
+     "reading": "税金として",
+     "sentence": 10,
+     "start": 32.025,
+     "end": 32.934
+    },
+    {
+     "display": "納めるシステム。",
+     "reading": "納めるシステム。",
+     "sentence": 10,
+     "start": 32.934,
+     "end": 34.207
+    }
+   ]
+  },
+  {
+   "index": 11,
+   "start": 35.157,
+   "end": 38.536,
+   "speech": 2.909,
+   "chunks": [
+    {
+     "display": "本来は",
+     "reading": "本来は",
+     "sentence": 11,
+     "start": 35.277,
+     "end": 35.823
+    },
+    {
+     "display": "自分で申告して",
+     "reading": "自分で申告して",
+     "sentence": 11,
+     "start": 35.823,
+     "end": 37.095
+    },
+    {
+     "display": "税額を計算し、",
+     "reading": "税額を計算し、",
+     "sentence": 11,
+     "start": 37.095,
+     "end": 38.186
+    }
+   ]
+  },
+  {
+   "index": 12,
+   "start": 38.536,
+   "end": 40.643,
+   "speech": 1.636,
+   "chunks": [
+    {
+     "display": "納める",
+     "reading": "納める",
+     "sentence": 12,
+     "start": 38.656,
+     "end": 39.202
+    },
+    {
+     "display": "制度だったが、",
+     "reading": "制度だったが、",
+     "sentence": 12,
+     "start": 39.202,
+     "end": 40.293
+    }
+   ]
+  },
+  {
+   "index": 13,
+   "start": 40.643,
+   "end": 42.749,
+   "speech": 1.636,
+   "chunks": [
+    {
+     "display": "日本では、",
+     "reading": "日本では、",
+     "sentence": 13,
+     "start": 40.763,
+     "end": 41.49
+    },
+    {
+     "display": "給与所得者、",
+     "reading": "給与所得者、",
+     "sentence": 13,
+     "start": 41.49,
+     "end": 42.399
+    }
+   ]
+  },
+  {
+   "index": 14,
+   "start": 42.749,
+   "end": 46.855,
+   "speech": 3.636,
+   "chunks": [
+    {
+     "display": "いわゆる",
+     "reading": "いわゆる",
+     "sentence": 14,
+     "start": 42.869,
+     "end": 43.596
+    },
+    {
+     "display": "会社勤めの",
+     "reading": "会社勤めの",
+     "sentence": 14,
+     "start": 43.596,
+     "end": 44.505
+    },
+    {
+     "display": "サラリーマンが多いから、",
+     "reading": "サラリーマンが多いから、",
+     "sentence": 14,
+     "start": 44.505,
+     "end": 46.505
+    }
+   ]
+  },
+  {
+   "index": 15,
+   "start": 46.855,
+   "end": 49.143,
+   "speech": 1.818,
+   "chunks": [
+    {
+     "display": "給与を支払う",
+     "reading": "給与を支払う",
+     "sentence": 15,
+     "start": 46.975,
+     "end": 48.066
+    },
+    {
+     "display": "会社側が、",
+     "reading": "会社側が、",
+     "sentence": 15,
+     "start": 48.066,
+     "end": 48.793
+    }
+   ]
+  },
+  {
+   "index": 16,
+   "start": 49.143,
+   "end": 52.704,
+   "speech": 3.091,
+   "chunks": [
+    {
+     "display": "あらかじめ",
+     "reading": "あらかじめ",
+     "sentence": 16,
+     "start": 49.263,
+     "end": 50.173
+    },
+    {
+     "display": "給与から",
+     "reading": "給与から",
+     "sentence": 16,
+     "start": 50.173,
+     "end": 50.9
+    },
+    {
+     "display": "税金を差し引いて、",
+     "reading": "税金を差し引いて、",
+     "sentence": 16,
+     "start": 50.9,
+     "end": 52.354
+    }
+   ]
+  },
+  {
+   "index": 17,
+   "start": 52.704,
+   "end": 54.704,
+   "speech": 1.091,
+   "chunks": [
+    {
+     "display": "支払うことで、",
+     "reading": "支払うことで、",
+     "sentence": 17,
+     "start": 52.824,
+     "end": 53.915
+    }
+   ]
+  },
+  {
+   "index": 18,
+   "start": 54.704,
+   "end": 57.356,
+   "speech": 2.182,
+   "chunks": [
+    {
+     "display": "税金の",
+     "reading": "税金の",
+     "sentence": 18,
+     "start": 54.824,
+     "end": 55.37
+    },
+    {
+     "display": "徴収漏れを",
+     "reading": "徴収漏れを",
+     "sentence": 18,
+     "start": 55.37,
+     "end": 56.279
+    },
+    {
+     "display": "防いだり、",
+     "reading": "防いだり、",
+     "sentence": 18,
+     "start": 56.279,
+     "end": 57.006
+    }
+   ]
+  },
+  {
+   "index": 19,
+   "start": 57.356,
+   "end": 61.699,
+   "speech": 3.273,
+   "chunks": [
+    {
+     "display": "納税者の",
+     "reading": "納税者の",
+     "sentence": 19,
+     "start": 57.476,
+     "end": 58.203
+    },
+    {
+     "display": "負担を",
+     "reading": "負担を",
+     "sentence": 19,
+     "start": 58.203,
+     "end": 58.749
+    },
+    {
+     "display": "減らすことが",
+     "reading": "減らすことが",
+     "sentence": 19,
+     "start": 58.749,
+     "end": 59.84
+    },
+    {
+     "display": "できるんだ。",
+     "reading": "できるんだ。",
+     "sentence": 19,
+     "start": 59.84,
+     "end": 60.749
+    }
+   ]
+  },
+  {
+   "index": 20,
+   "start": 61.699,
+   "end": 66.223,
+   "speech": 3.455,
+   "chunks": [
+    {
+     "display": "この",
+     "reading": "この",
+     "sentence": 20,
+     "start": 61.819,
+     "end": 62.183
+    },
+    {
+     "display": "会社が給与から",
+     "reading": "会社が給与から",
+     "sentence": 20,
+     "start": 62.183,
+     "end": 63.455
+    },
+    {
+     "display": "天引きするシステムを",
+     "reading": "天引きするシステムを",
+     "sentence": 20,
+     "start": 63.455,
+     "end": 65.273
+    }
+   ]
+  },
+  {
+   "index": 21,
+   "start": 66.223,
+   "end": 68.748,
+   "speech": 1.455,
+   "chunks": [
+    {
+     "display": "源泉徴収",
+     "reading": "源泉徴収",
+     "sentence": 21,
+     "start": 66.343,
+     "end": 67.071
+    },
+    {
+     "display": "というぞ。",
+     "reading": "というぞ。",
+     "sentence": 21,
+     "start": 67.071,
+     "end": 67.798
+    }
+   ]
+  },
+  {
+   "index": 22,
+   "start": 68.748,
+   "end": 71.218,
+   "speech": 2.0,
+   "chunks": [
+    {
+     "display": "「源泉」、",
+     "reading": "「源泉」、",
+     "sentence": 22,
+     "start": 68.868,
+     "end": 69.595
+    },
+    {
+     "display": "いわゆる源から、",
+     "reading": "いわゆる源から、",
+     "sentence": 22,
+     "start": 69.595,
+     "end": 70.868
+    }
+   ]
+  },
+  {
+   "index": 23,
+   "start": 71.218,
+   "end": 75.197,
+   "speech": 2.909,
+   "chunks": [
+    {
+     "display": "税金を徴収する",
+     "reading": "税金を徴収する",
+     "sentence": 23,
+     "start": 71.338,
+     "end": 72.611
+    },
+    {
+     "display": "システムってことだ。",
+     "reading": "システムってことだ。",
+     "sentence": 23,
+     "start": 72.611,
+     "end": 74.247
+    }
+   ]
+  },
+  {
+   "index": 24,
+   "start": 75.197,
+   "end": 78.994,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "テストに出るから、",
+     "reading": "テストに出るから、",
+     "sentence": 24,
+     "start": 75.317,
+     "end": 76.772
+    },
+    {
+     "display": "よく覚えておけ。",
+     "reading": "よく覚えておけ。",
+     "sentence": 24,
+     "start": 76.772,
+     "end": 78.044
+    }
+   ]
+  },
+  {
+   "index": 25,
+   "start": 78.994,
+   "end": 81.828,
+   "speech": 2.364,
+   "chunks": [
+    {
+     "display": "ただし、",
+     "reading": "ただし、",
+     "sentence": 25,
+     "start": 79.114,
+     "end": 79.66
+    },
+    {
+     "display": "あくまでこの天引きは、",
+     "reading": "あくまでこの天引きは、",
+     "sentence": 25,
+     "start": 79.66,
+     "end": 81.478
+    }
+   ]
+  },
+  {
+   "index": 26,
+   "start": 81.828,
+   "end": 85.571,
+   "speech": 3.273,
+   "chunks": [
+    {
+     "display": "月額の給与から、",
+     "reading": "月額の給与から、",
+     "sentence": 26,
+     "start": 81.948,
+     "end": 83.221
+    },
+    {
+     "display": "1年間の収入を予測して、",
+     "reading": "1年間の収入を予測して、",
+     "sentence": 26,
+     "start": 83.221,
+     "end": 85.221
+    }
+   ]
+  },
+  {
+   "index": 27,
+   "start": 85.571,
+   "end": 88.041,
+   "speech": 2.0,
+   "chunks": [
+    {
+     "display": "概算で",
+     "reading": "概算で",
+     "sentence": 27,
+     "start": 85.691,
+     "end": 86.236
+    },
+    {
+     "display": "徴収しているから、",
+     "reading": "徴収しているから、",
+     "sentence": 27,
+     "start": 86.236,
+     "end": 87.691
+    }
+   ]
+  },
+  {
+   "index": 28,
+   "start": 88.041,
+   "end": 91.783,
+   "speech": 3.273,
+   "chunks": [
+    {
+     "display": "12月の時点で、",
+     "reading": "12月の時点で、",
+     "sentence": 28,
+     "start": 88.161,
+     "end": 89.433
+    },
+    {
+     "display": "税金を",
+     "reading": "税金を",
+     "sentence": 28,
+     "start": 89.433,
+     "end": 89.979
+    },
+    {
+     "display": "取りすぎていたり、",
+     "reading": "取りすぎていたり、",
+     "sentence": 28,
+     "start": 89.979,
+     "end": 91.433
+    }
+   ]
+  },
+  {
+   "index": 29,
+   "start": 91.783,
+   "end": 94.308,
+   "speech": 1.455,
+   "chunks": [
+    {
+     "display": "少ない場合が",
+     "reading": "少ない場合が",
+     "sentence": 29,
+     "start": 91.903,
+     "end": 92.994
+    },
+    {
+     "display": "ある。",
+     "reading": "ある。",
+     "sentence": 29,
+     "start": 92.994,
+     "end": 93.358
+    }
+   ]
+  },
+  {
+   "index": 30,
+   "start": 94.308,
+   "end": 98.105,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "それを精算するのが",
+     "reading": "それを精算するのが",
+     "sentence": 30,
+     "start": 94.428,
+     "end": 96.064
+    },
+    {
+     "display": "「年末調整」。",
+     "reading": "「年末調整」。",
+     "sentence": 30,
+     "start": 96.064,
+     "end": 97.155
+    }
+   ]
+  },
+  {
+   "index": 31,
+   "start": 98.105,
+   "end": 101.302,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "1年間の給与の額を",
+     "reading": "1年間の給与の額を",
+     "sentence": 31,
+     "start": 98.225,
+     "end": 99.862
+    },
+    {
+     "display": "正確に計算し、",
+     "reading": "正確に計算し、",
+     "sentence": 31,
+     "start": 99.862,
+     "end": 100.952
+    }
+   ]
+  },
+  {
+   "index": 32,
+   "start": 101.302,
+   "end": 103.954,
+   "speech": 2.182,
+   "chunks": [
+    {
+     "display": "取りすぎていた税金は",
+     "reading": "取りすぎていた税金は",
+     "sentence": 32,
+     "start": 101.422,
+     "end": 103.241
+    },
+    {
+     "display": "返し、",
+     "reading": "返し、",
+     "sentence": 32,
+     "start": 103.241,
+     "end": 103.604
+    }
+   ]
+  },
+  {
+   "index": 33,
+   "start": 103.954,
+   "end": 107.752,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "少なかった場合は",
+     "reading": "少なかった場合は",
+     "sentence": 33,
+     "start": 104.074,
+     "end": 105.529
+    },
+    {
+     "display": "改めて徴収する。",
+     "reading": "改めて徴収する。",
+     "sentence": 33,
+     "start": 105.529,
+     "end": 106.802
+    }
+   ]
+  },
+  {
+   "index": 34,
+   "start": 107.752,
+   "end": 111.731,
+   "speech": 2.909,
+   "chunks": [
+    {
+     "display": "年末調整は",
+     "reading": "年末調整は",
+     "sentence": 34,
+     "start": 107.872,
+     "end": 108.781
+    },
+    {
+     "display": "会社が",
+     "reading": "会社が",
+     "sentence": 34,
+     "start": 108.781,
+     "end": 109.326
+    },
+    {
+     "display": "やってくれるんだ。",
+     "reading": "やってくれるんだ。",
+     "sentence": 34,
+     "start": 109.326,
+     "end": 110.781
+    }
+   ]
+  },
+  {
+   "index": 35,
+   "start": 111.731,
+   "end": 115.655,
+   "speech": 3.455,
+   "chunks": [
+    {
+     "display": "日々支払っている",
+     "reading": "日々支払っている",
+     "sentence": 35,
+     "start": 111.851,
+     "end": 113.305
+    },
+    {
+     "display": "生命保険や地震保険など、",
+     "reading": "生命保険や地震保険など、",
+     "sentence": 35,
+     "start": 113.305,
+     "end": 115.305
+    }
+   ]
+  },
+  {
+   "index": 36,
+   "start": 115.655,
+   "end": 119.034,
+   "speech": 2.909,
+   "chunks": [
+    {
+     "display": "各種控除を",
+     "reading": "各種控除を",
+     "sentence": 36,
+     "start": 115.775,
+     "end": 116.684
+    },
+    {
+     "display": "このタイミングで整理し、",
+     "reading": "このタイミングで整理し、",
+     "sentence": 36,
+     "start": 116.684,
+     "end": 118.684
+    }
+   ]
+  },
+  {
+   "index": 37,
+   "start": 119.034,
+   "end": 121.377,
+   "speech": 1.273,
+   "chunks": [
+    {
+     "display": "改めて",
+     "reading": "改めて",
+     "sentence": 37,
+     "start": 119.154,
+     "end": 119.7
+    },
+    {
+     "display": "計算する。",
+     "reading": "計算する。",
+     "sentence": 37,
+     "start": 119.7,
+     "end": 120.427
+    }
+   ]
+  },
+  {
+   "index": 38,
+   "start": 121.377,
+   "end": 124.574,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "年末調整で",
+     "reading": "年末調整で",
+     "sentence": 38,
+     "start": 121.497,
+     "end": 122.406
+    },
+    {
+     "display": "しっかり整理しないと、",
+     "reading": "しっかり整理しないと、",
+     "sentence": 38,
+     "start": 122.406,
+     "end": 124.224
+    }
+   ]
+  },
+  {
+   "index": 39,
+   "start": 124.574,
+   "end": 127.044,
+   "speech": 2.0,
+   "chunks": [
+    {
+     "display": "返ってくるはずの",
+     "reading": "返ってくるはずの",
+     "sentence": 39,
+     "start": 124.694,
+     "end": 126.149
+    },
+    {
+     "display": "税金が、",
+     "reading": "税金が、",
+     "sentence": 39,
+     "start": 126.149,
+     "end": 126.694
+    }
+   ]
+  },
+  {
+   "index": 40,
+   "start": 127.044,
+   "end": 130.06,
+   "speech": 2.545,
+   "chunks": [
+    {
+     "display": "返ってこなく",
+     "reading": "返ってこなく",
+     "sentence": 40,
+     "start": 127.164,
+     "end": 128.255
+    },
+    {
+     "display": "なってしまうので、",
+     "reading": "なってしまうので、",
+     "sentence": 40,
+     "start": 128.255,
+     "end": 129.71
+    }
+   ]
+  },
+  {
+   "index": 41,
+   "start": 130.06,
+   "end": 133.675,
+   "speech": 2.545,
+   "chunks": [
+    {
+     "display": "ちゃんと",
+     "reading": "ちゃんと",
+     "sentence": 41,
+     "start": 130.18,
+     "end": 130.907
+    },
+    {
+     "display": "知識を",
+     "reading": "知識を",
+     "sentence": 41,
+     "start": 130.907,
+     "end": 131.452
+    },
+    {
+     "display": "蓄えておくんだ。",
+     "reading": "蓄えておくんだ。",
+     "sentence": 41,
+     "start": 131.452,
+     "end": 132.725
+    }
+   ]
+  },
+  {
+   "index": 42,
+   "start": 133.675,
+   "end": 136.563,
+   "speech": 1.818,
+   "chunks": [
+    {
+     "display": "今日の授業は、",
+     "reading": "今日の授業は、",
+     "sentence": 42,
+     "start": 133.795,
+     "end": 134.886
+    },
+    {
+     "display": "ここまで。",
+     "reading": "ここまで。",
+     "sentence": 42,
+     "start": 134.886,
+     "end": 135.613
+    }
+   ]
+  },
+  {
+   "index": 43,
+   "start": 136.563,
+   "end": 140.361,
+   "speech": 2.727,
+   "chunks": [
+    {
+     "display": "生きていく上で、",
+     "reading": "生きていく上で、",
+     "sentence": 43,
+     "start": 136.683,
+     "end": 137.956
+    },
+    {
+     "display": "大切なお金の知識。",
+     "reading": "大切なお金の知識。",
+     "sentence": 43,
+     "start": 137.956,
+     "end": 139.411
+    }
+   ]
+  },
+  {
+   "index": 44,
+   "start": 140.361,
+   "end": 143.976,
+   "speech": 2.545,
+   "chunks": [
+    {
+     "display": "よく学んで、",
+     "reading": "よく学んで、",
+     "sentence": 44,
+     "start": 140.481,
+     "end": 141.39
+    },
+    {
+     "display": "よく食べて、",
+     "reading": "よく食べて、",
+     "sentence": 44,
+     "start": 141.39,
+     "end": 142.299
+    },
+    {
+     "display": "よく寝る。",
+     "reading": "よく寝る。",
+     "sentence": 44,
+     "start": 142.299,
+     "end": 143.026
+    }
+   ]
+  },
+  {
+   "index": 45,
+   "start": 143.976,
+   "end": 146.864,
+   "speech": 1.818,
+   "chunks": [
+    {
+     "display": "それが",
+     "reading": "それが",
+     "sentence": 45,
+     "start": 144.096,
+     "end": 144.641
+    },
+    {
+     "display": "君たちの仕事だ！",
+     "reading": "君たちの仕事だ！",
+     "sentence": 45,
+     "start": 144.641,
+     "end": 145.914
+    }
+   ]
+  }
+ ]
+}
