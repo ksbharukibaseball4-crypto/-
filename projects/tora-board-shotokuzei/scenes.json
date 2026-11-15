@@ -1,0 +1,423 @@
+{
+ "title": "所得税（トラ先生・黒板）",
+ "series": "本当は学校で教えて欲しいシリーズ",
+ "episode": "所得税",
+ "asof": "2026年11月時点",
+ "pr": false,
+ "renderer": "3d",
+ "theme": "voxel",
+ "sub_style": "telop",
+ "voice": {
+  "cps": 5.5,
+  "tail": 0.95
+ },
+ "max_scene": 5.3,
+ "max_duration": 150,
+ "render_workers": 1,
+ "scenes": [
+  {
+   "role": "hook",
+   "speaker": "narr",
+   "text": "本当は/学校で教えて欲しい/シリーズ",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "新社会人になって、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "いきなり給与から、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "税金や社会保険料が/引かれる。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "1年後には/住民税が/引かれる。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "何も知らない、/誰も教えてくれない/まま。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "そんなお金の授業を、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "わかりやすく、/面白く/解説するぞ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "今回の授業は/「所得税」だ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "所得税は、/みんなの/所得に応じて、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "その一部を/税金として/納めるシステム。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "本来は/自分で申告して/税額を計算し、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "納める制度だったが、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "日本では、/給与所得者、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "いわゆる/会社勤めの/サラリーマンが多いから、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "給与を支払う/会社側が、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "あらかじめ/給与から/税金を差し引いて、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "支払うことで、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "税金の/徴収漏れを/防いだり、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "納税者の/負担を/減らすことが/できるんだ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "この/会社が給与から/天引きするシステムを",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "源泉徴収/というぞ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "「源泉」、/いわゆる源から、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "税金を徴収する/システムってことだ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "テストに出るから、/よく覚えておけ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "ただし、/あくまでこの天引きは、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "月額の給与から、/1年間の収入を予測して、",
+   "visual": {
+    "type": "none"
+   },
+   "asof": "2026年11月時点",
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "概算で/徴収しているから、",
+   "visual": {
+    "type": "none"
+   },
+   "asof": "2026年11月時点",
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "12月の時点で、/税金を/取りすぎていたり、",
+   "visual": {
+    "type": "none"
+   },
+   "asof": "2026年11月時点",
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "少ない場合が/ある。",
+   "visual": {
+    "type": "none"
+   },
+   "asof": "2026年11月時点"
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "それを精算するのが/「年末調整」。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "1年間の給与の額を/正確に計算し、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "取りすぎていた税金は/返し、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "少なかった場合は/改めて徴収する。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "年末調整は/会社が/やってくれるんだ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "日々支払っている/生命保険や地震保険など、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "各種控除を/このタイミングで整理し、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "改めて/計算する。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "年末調整で/しっかり整理しないと、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "返ってくるはずの税金が、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "返ってこなくなってしまうので、",
+   "visual": {
+    "type": "none"
+   },
+   "tail": 0.35
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "ちゃんと/知識を/蓄えておくんだ。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "今日の授業は、/ここまで。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "生きていく上で、/大切なお金の知識。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "よく学んで、/よく食べて、/よく寝る。",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "body",
+   "speaker": "narr",
+   "text": "それが/君たちの仕事だ！",
+   "visual": {
+    "type": "none"
+   }
+  },
+  {
+   "role": "disclaimer",
+   "speaker": "narr",
+   "text": "情報提供目的です。/投資判断は/ご自身で。",
+   "visual": {
+    "type": "disclaimer"
+   }
+  }
+ ]
+}
