@@ -1,0 +1,446 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/klee-one/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<link rel="stylesheet" href="extra/node_modules/@fontsource/inter/600.css">
+<link rel="stylesheet" href="extra/node_modules/@fontsource/inter/800.css">
+<link rel="stylesheet" href="extra/node_modules/@fontsource/shippori-mincho/800.css">
+<style>
+:root{--ink:#14171d;--navy:#1d2940;--gold:#c79a3e;--red:#cf4a3c;--green:#2f8f5b;--mute:#8a8f99;--paper:#f5f2ec}
+*{box-sizing:border-box}
+html,body{margin:0;overflow:hidden;font-family:"Noto Sans JP";background:#0f141d}
+body.h{width:1920px;height:1080px} body.v{width:1080px;height:1920px}
+#stage{position:absolute;left:0;top:0;width:1920px;height:1080px;background:radial-gradient(ellipse at 50% 40%,#fbf9f5 0%,#f1ede5 70%,#e7e1d6 100%);overflow:hidden;transform-origin:0 0}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(20,23,29,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(20,23,29,.035) 1px,transparent 1px);background-size:60px 60px}
+.chap{position:absolute;left:96px;top:72px;font-family:"Inter";font-weight:600;font-size:22px;letter-spacing:.32em;color:var(--mute)}
+.chap b{color:var(--ink);font-weight:800;margin-right:22px}
+.asof{position:absolute;right:96px;top:72px;font-size:20px;font-weight:700;color:var(--mute);letter-spacing:.08em}
+.g{position:absolute;inset:0;display:none}
+.a{position:absolute}
+.h2{left:0;width:1920px;top:150px;text-align:center;font-family:"Shippori Mincho";font-weight:800;font-size:64px;color:var(--ink);letter-spacing:.04em}
+.h2 em,.mc em{font-style:normal;color:var(--red)}
+.mc{font-family:"Shippori Mincho";font-weight:800;color:var(--ink);text-align:center;white-space:nowrap}
+.card{background:#fff;border-radius:22px;box-shadow:0 30px 60px rgba(30,25,15,.12),0 2px 6px rgba(30,25,15,.06)}
+.row{display:flex;align-items:center;justify-content:space-between;height:62px;border-bottom:1px solid #eee9df;font-size:28px;font-weight:700;color:var(--ink);position:relative;padding:0 6px}
+.row .bar{height:12px;border-radius:6px;background:#d8dde6}
+.mk{position:absolute;left:-14px;right:-14px;top:8px;bottom:8px;border-radius:10px;transform-origin:0 50%;transform:scaleX(0)}
+.ic{border-radius:50%;background:#fff;box-shadow:0 20px 40px rgba(30,25,15,.10);display:flex;align-items:center;justify-content:center}
+.lab{font-size:32px;font-weight:900;color:var(--ink);text-align:center;white-space:nowrap}
+.sm{font-size:22px;font-weight:700;color:var(--mute);text-align:center;white-space:nowrap}
+.pill{padding:10px 30px;border-radius:999px;background:var(--navy);color:#fff;font-size:30px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.pill.red{background:var(--red)} .pill.green{background:var(--green)} .pill.gold{background:var(--gold)}
+.coin{width:60px;height:60px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f1d58d,#c79a3e 60%,#9d7428);box-shadow:0 8px 16px rgba(80,55,10,.25),inset 0 0 0 5px rgba(255,255,255,.25)}
+.coin.r{background:radial-gradient(circle at 35% 30%,#f2a397,#cf4a3c 60%,#9e2f25)}
+.coin.gr{background:radial-gradient(circle at 35% 30%,#9ad7b3,#2f8f5b 60%,#1d6640)}
+.bar2{border-radius:12px 12px 4px 4px;background:linear-gradient(180deg,#f3f0e6,#cfd8d2)}
+.step{width:330px;height:330px;padding:36px 20px;text-align:center}
+.num{font-family:"Inter";font-weight:800;color:var(--gold);font-size:30px;letter-spacing:.1em}
+.board{background:linear-gradient(160deg,#22304b,#1a2539);border-radius:28px;box-shadow:0 30px 60px rgba(10,15,30,.3)}
+.q{width:90px;height:90px;border-radius:50%;background:#fff;box-shadow:0 12px 24px rgba(30,25,15,.12);font-family:"Inter";font-weight:800;font-size:54px;color:var(--red);display:flex;align-items:center;justify-content:center}
+.stamp{border:8px solid var(--red);color:var(--red);border-radius:18px;font-family:"Shippori Mincho";font-weight:800;padding:6px 34px}
+.sub{position:absolute;left:0;width:1920px;top:960px;text-align:center}
+.sub span{display:inline-block;background:rgba(20,23,29,.86);color:#fff;font-size:42px;font-weight:700;padding:10px 34px;border-radius:14px}
+.sub i,#vsub i{font-style:normal}
+#vsub{word-break:keep-all;line-break:strict}
+#vbg,#vhead,#vsub{display:none}
+body.v #vbg{display:block;position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,#1f2b44 0%,#0f141d 70%)}
+body.v #vhead{display:block;position:absolute;left:0;width:1080px;top:215px;text-align:center;color:#fff}
+#vhead .tag{display:inline-block;font-size:26px;font-weight:700;letter-spacing:.3em;color:var(--gold);border:2px solid rgba(199,154,62,.6);padding:6px 26px;border-radius:999px;margin-bottom:24px}
+#vhead .t{font-family:"Shippori Mincho";font-weight:800;font-size:72px;line-height:1.3}
+#vhead .t em{font-style:normal;color:#f0b8ae}
+body.v #stage{border-radius:0;box-shadow:0 30px 70px rgba(0,0,0,.55)}
+body.v #vsub{display:block;position:absolute;left:60px;width:960px;top:1240px;text-align:center;color:#fff;font-size:56px;font-weight:900;line-height:1.38}
+body.v .sub{display:none}
+
+#tora{position:absolute;display:none;transform-origin:30% 100%}
+#tora .pz{position:absolute;inset:0;opacity:0;transform-origin:50% 100%}
+#tora .pz img{position:absolute;left:0;top:0;width:100%}
+#tora .pz img{left:auto;right:0;top:auto;bottom:0;width:auto;height:100%;max-width:100%;object-fit:contain}
+body.brand #tora{display:block}
+#tora .pz img{filter:drop-shadow(0 0 10px rgba(255,250,235,.22)) drop-shadow(0 6px 14px rgba(0,0,0,.35))}
+body.h #tora{left:30px;top:722px;width:440px;height:359px;z-index:5}
+body.h #tora .pz img{left:0;right:auto;object-position:left bottom}
+body.v #tora .pz img{object-position:right bottom}
+body.v #tora{left:600px;top:222px;width:420px;height:380px}
+body.v.brand #vhead{left:60px;width:560px;text-align:left;top:230px}
+body.v.brand #vhead .t{font-size:60px}
+.seal{position:absolute;left:96px;top:56px;display:flex;align-items:center;gap:14px;font-weight:900;font-size:24px;color:var(--ink);letter-spacing:.08em}
+.seal .o{width:54px;height:54px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#e9c46a,#c79a3e 70%);display:flex;align-items:center;justify-content:center;color:#fff;font-family:'Shippori Mincho';font-size:28px;box-shadow:0 4px 10px rgba(120,80,10,.3)}
+body.brand .chap{display:none}
+
+#ill{position:absolute;inset:0;z-index:20;pointer-events:none}
+.ig{position:absolute;inset:0;display:none;overflow:hidden}
+.ig .blur{position:absolute;inset:-80px;background-size:cover;background-position:center;filter:blur(40px) brightness(.45);display:none}
+body.h .ig .blur{display:block}
+.ig .panel{position:absolute;left:0;top:0;width:1080px;height:1920px;overflow:hidden}
+body.h .ig .panel{left:656px;width:608px;height:1080px;box-shadow:0 0 80px rgba(0,0,0,.6)}
+.ig .inner{position:absolute;left:0;top:0;width:1080px;height:1919px;transform-origin:0 0}
+body.h .ig .inner{transform:scale(.5630)}
+.ig .bgl,.ig .fgl{position:absolute;left:0;top:0;width:1080px;height:1919px;background-size:100% 100%}
+.ig .grad{position:absolute;left:0;right:0;top:1000px;height:920px;background:linear-gradient(180deg,rgba(8,10,16,0) 0%,rgba(8,10,16,.55) 30%,rgba(8,10,16,.8) 100%)}
+body.h .ig .grad{display:none}
+body.h .ov{zoom:.85}
+.ov{position:absolute}
+.plate{background:rgba(255,255,255,.94);border-radius:24px;box-shadow:0 24px 50px rgba(0,0,0,.35);padding:26px 40px;text-align:center}
+.gpill{display:inline-flex;align-items:center;gap:14px;background:rgba(15,20,32,.82);color:#fff;font-weight:900;font-size:44px;padding:14px 34px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.stg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,#24324f 0%,#111827 60%,#0b0f17 100%)}
+.stg .rays{position:absolute;left:50%;top:42%;width:1600px;height:1600px;margin:-800px 0 0 -800px;background:repeating-conic-gradient(rgba(199,154,62,.07) 0 6deg,transparent 6deg 18deg);border-radius:50%}
+body.v .stg .rays,body.v .stg .wrap{top:38%}
+.stg .wrap{position:absolute;left:50%;top:42%}
+.stg .face{position:absolute;left:-180px;top:-180px;width:360px;height:360px;border-radius:50%;overflow:hidden;background:radial-gradient(circle at 50% 40%,#f6efe2,#e3d6bf)}
+.stg .face img{position:absolute;width:400px;left:-20px;top:-6px}
+.stg .nm{position:absolute;left:-600px;width:1200px;top:240px;text-align:center;color:#fff}
+.stg .nm .s{font-size:30px;font-weight:700;letter-spacing:.35em;color:#c79a3e}
+.stg .nm .t{font-family:"Shippori Mincho";font-weight:800;font-size:84px;margin-top:10px}
+body.v .stg .nm .t{font-size:72px}
+.stg .nm .t em{font-style:normal;color:#e9c46a}
+#subwrap{position:absolute;left:0;top:0;width:1920px;z-index:30}
+#vsub{z-index:30}
+
+/* ---- chalkboard theme ---- */
+#stage{--ink:#f3f0e6;--mute:#aebdb4;--red:#ff8f80;--green:#8be0a8;--gold:#ecc66a;
+  background:radial-gradient(ellipse at 30% 25%,rgba(255,255,255,.06),transparent 45%),radial-gradient(ellipse at 75% 70%,rgba(255,255,255,.05),transparent 50%),linear-gradient(160deg,#28473d 0%,#1f3a32 55%,#1a3029 100%)}
+#stage .grid{background-image:none;box-shadow:inset 0 0 0 16px #6b4a2e,inset 0 0 0 19px #3e2a19,inset 0 0 120px rgba(0,0,0,.35)}
+#stage .grid::after{content:"";position:absolute;inset:0;opacity:.18;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .35 0'/></filter><rect width='300' height='300' filter='url(%23n)'/></svg>")}
+.card,.plate,.ic,.step{--ink:#14171d;--mute:#8a8f99;--red:#cf4a3c;--green:#2f8f5b;--gold:#c79a3e}
+#stage .h2,#stage .mc{text-shadow:0 0 1px rgba(243,240,230,.4)}
+.seal{color:var(--ink)}
+
+#chapbar{position:absolute;left:0;width:1920px;top:58px;display:flex;justify-content:center;gap:10px;z-index:6}
+#chapbar .c{font-size:22px;font-weight:700;letter-spacing:.06em;color:rgba(243,240,230,.38);padding:6px 18px;border-radius:999px;border:1px solid rgba(243,240,230,.14)}
+#chapbar .c.on{color:#1a3029;background:#ecc66a;border-color:#ecc66a}
+#chapbar .c.done{color:rgba(243,240,230,.7)}
+#chapbar .a{color:rgba(243,240,230,.3);font-size:20px;align-self:center}
+body.v #vhead{top:200px}
+body.v #vhead .t{font-size:62px}
+</style></head><body>
+<div id="vbg"></div><div id="vhead"><div class="tag" id="vtag"></div><div class="t" id="vt"></div></div>
+<div id="tora"><div class="pz" data-k="p1"><img src="real/p1.png"></div><div class="pz" data-k="p2"><img src="real/p2.png"></div><div class="pz" data-k="p3"><img src="real/p3.png"></div><div class="pz" data-k="p4"><img src="real/p4.png"></div><div class="pz" data-k="p5"><img src="real/p5.png"></div><div class="pz" data-k="p6"><img src="real/p6.png"></div><div class="pz" data-k="p7"><img src="real/p7.png"></div><div class="pz" data-k="p8"><img src="real/p8.png"></div><div class="pz" data-k="p9"><img src="real/p9.png"></div></div>
+<div id="stage"><div class="grid"></div>
+ <div class="seal" id="seal" style="display:none"><div class="o">金</div>金欠先生のお金の授業</div><div class="chap"><b id="chn">00</b><span id="chs">MONEY CLASS</span></div><div class="asof">2026年11月時点</div>
+ <div id="groups"></div>
+ <div id="chapbar"></div>
+</div>
+<div id="ill"></div>
+<div id="subwrap"><div class="sub"><span id="subt"></span></div></div>
+<div id="vsub"></div>
+<script>
+const Q = new URLSearchParams(location.search); const MODE = Q.get('m') || 'h'; document.body.classList.add(MODE); const BRAND = Q.get('brand') === '1'; if (BRAND) { document.body.classList.add('brand'); document.getElementById('seal').style.display = 'flex'; }
+const stage = document.getElementById('stage');
+if (MODE === 'v') stage.style.transform = `translate(0px, 600px) scale(${1080 / 1920})`;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const eo = (x) => 1 - Math.pow(1 - clamp(x), 3);
+const eio = (x) => { x = clamp(x); return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; };
+const back = (x) => { x = clamp(x); const c = 1.6; return 1 + (c + 1) * Math.pow(x - 1, 3) + c * Math.pow(x - 1, 2); };
+const lerp = (a, b, k) => a + (b - a) * k;
+// element helpers --------------------------------------------------------------
+function E(parent, html, x, y, cls = 'a', w) { const d = document.createElement('div'); d.className = cls; d.innerHTML = html; d.style.left = x + 'px'; d.style.top = y + 'px'; if (w) d.style.width = w + 'px'; parent.appendChild(d); return d; }
+function show(el, k, dy = 30, sc0 = 1) { k = clamp(k); el.style.opacity = k; el.style.transform = `translateY(${(1 - eo(k)) * dy}px) scale(${lerp(sc0, 1, back(k))})`; }
+function pos(el, x, y, o = 1, s = 1) { el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.opacity = o; el.style.transform = `scale(${s})`; }
+const appear = (lt, at, d = 0.5) => (lt - at) / d;
+// icons -------------------------------------------------------------------------
+const IC = {
+ person: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"><circle cx="55" cy="36" r="18"/><path d="M22 98c4-22 18-32 33-32s29 10 33 32"/></svg>`,
+ building: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><rect x="22" y="14" width="66" height="86"/><path d="M36 30h12M62 30h12M36 48h12M62 48h12M36 66h12M62 66h12M48 100V84h14v16"/></svg>`,
+ gov: (c = '#cf4a3c', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 120 110" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><path d="M12 38 L60 12 L108 38 Z"/><path d="M22 46v40M44 46v40M76 46v40M98 46v40M10 96h100"/></svg>`,
+ doc: (c = '#1d2940', s = 100) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><path d="M24 10h38l16 16v64H24z"/><path d="M62 10v16h16M36 46h28M36 60h28M36 74h18"/></svg>`,
+ calc: (c = '#1d2940', s = 100) => `<svg width="${s}" height="${s}" viewBox="0 0 100 100" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><rect x="22" y="10" width="56" height="80" rx="8"/><rect x="32" y="20" width="36" height="16"/><path d="M34 50h4M48 50h4M62 50h4M34 64h4M48 64h4M62 64h4M34 78h4M48 78h4M62 78h4"/></svg>`,
+ shield: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><path d="M55 12 L90 24 V52 C90 76 74 92 55 100 C36 92 20 76 20 52 V24 Z"/><path d="M40 56 L51 67 L72 44"/></svg>`,
+ relax: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"><circle cx="55" cy="55" r="40"/><path d="M38 46q5-6 10 0M62 46q5-6 10 0M38 64q17 16 34 0"/></svg>`,
+ spring: (c = '#2f6fb3', s = 120) => `<svg width="${s}" height="${s}" viewBox="0 0 120 120" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M60 14 C44 38 36 52 36 64 a24 24 0 0 0 48 0 C84 52 76 38 60 14Z"/><path d="M14 104 q12-10 24 0 t24 0 t24 0 t24 0"/><path d="M50 66 a10 10 0 0 0 10 10"/></svg>`,
+ book: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><path d="M14 22 C30 16 44 18 55 26 C66 18 80 16 96 22 V88 C80 82 66 84 55 92 C44 84 30 82 14 88Z"/><path d="M55 26V92"/></svg>`,
+ bulb: (c = '#c79a3e', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linecap="round"><path d="M40 70 C30 62 26 52 26 44 a29 29 0 0 1 58 0 c0 8-4 18-14 26 v10 H40z"/><path d="M42 90h26M46 100h18M55 4v6M20 16l5 5M90 16l-5 5"/></svg>`,
+ cal: (c = '#1d2940', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="5" stroke-linejoin="round"><rect x="16" y="22" width="78" height="72" rx="8"/><path d="M16 42h78M36 12v20M74 12v20"/></svg>`,
+ play: (c = '#fff', s = 70) => `<svg width="${s}" height="${s}" viewBox="0 0 70 70"><path d="M24 16 L56 35 L24 54Z" fill="${c}"/></svg>`,
+ check: (c = '#2f8f5b', s = 44) => `<svg width="${s}" height="${s}" viewBox="0 0 44 44" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M8 23 L18 33 L36 12"/></svg>`,
+ cross: (c = '#cf4a3c', s = 120) => `<svg width="${s}" height="${s}" viewBox="0 0 120 120" fill="none" stroke="${c}" stroke-width="12" stroke-linecap="round"><path d="M24 24 L96 96 M96 24 L24 96"/></svg>`,
+ warn: (c = '#cf4a3c', s = 110) => `<svg width="${s}" height="${s}" viewBox="0 0 110 110" fill="none" stroke="${c}" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"><path d="M55 12 L100 94 H10Z"/><path d="M55 42v24M55 78v2"/></svg>`,
+};
+const circ = (html, s = 200) => `<div class="ic" style="width:${s}px;height:${s}px">${html}</div>`;
+const svgPath = (d, stroke = '#ff8f80', w = 4, dash = '10 12') => `<svg width="1920" height="1080" style="position:absolute;left:0;top:0;overflow:visible"><path d="${d}" stroke="${stroke}" stroke-width="${w}" fill="none" stroke-dasharray="${dash}"/></svg>`;
+// ------------------------------------------------------------------------------
+let TL; const GROUPS = []; const X = () => {};
+const G = (scenes, chap, head, build) => GROUPS.push({ scenes, chap, head, build });
+const H2 = (g, html) => E(g, html, 0, 150, 'a h2');
+// 1 title
+X([0], ['00', 'MONEY CLASS'], ['シリーズ', '本当は<br>学校で教えて欲しい'], (g) => {
+  const tag = E(g, 'MONEY CLASS', 0, 300, 'a sm', 1920); tag.style.fontFamily = 'Inter'; tag.style.letterSpacing = '.5em'; tag.style.fontSize = '26px';
+  const a = E(g, '本当は', 0, 360, 'a mc', 1920); a.style.fontSize = '76px';
+  const b = E(g, '学校で<em>教えて欲しい</em>', 0, 460, 'a mc', 1920); b.style.fontSize = '132px';
+  const rule = E(g, '', 760, 680, 'a'); Object.assign(rule.style, { width: '400px', height: '4px', background: 'var(--gold)', transformOrigin: '50% 50%' });
+  const c = E(g, 'シ リ ー ズ', 0, 710, 'a mc', 1920); c.style.fontSize = '56px'; c.style.color = 'var(--gold)';
+  return (lt, S) => { show(tag, appear(lt, 0.05)); show(a, appear(lt, 0.15)); show(b, appear(lt, 0.55, 0.6), 30, 0.92); rule.style.transform = `scaleX(${eio(appear(lt, 1.3, 0.6))})`; show(c, appear(lt, 1.8)); };
+});
+// 2 payday
+G([1, 2, 3], ['01', 'FIRST SALARY'], ['はじめての給料', '給料から<br><em>引かれるもの</em>'], (g) => {
+  const h = H2(g, 'はじめての<em>給料</em>');
+  const p = E(g, circ(IC.person(), 220), 330, 360); const tg = E(g, '新社会人', 330, 600, 'a pill gold'); p.style.display = tg.style.display = 'none';
+  const card = E(g, '<div style="font-size:24px;font-weight:700;letter-spacing:.3em;color:#8a8f99;margin-bottom:18px">給与明細</div>', 760, 290, 'a card', 600); card.style.padding = '36px 44px';
+  const rows = [['支給額', 300, ''], ['健康保険料', 110, 's'], ['厚生年金', 170, 's'], ['雇用保険', 40, 's'], ['所得税', 60, 't']].map(([n, w, k]) => { const r = document.createElement('div'); r.className = 'row'; r.innerHTML = `<div class="mk" style="background:${k === 't' ? 'rgba(207,74,60,.13)' : 'rgba(29,41,64,.08)'}"></div><span>${n}</span><div class="bar" style="background:${k === 't' ? '#cf4a3c' : (k ? '#5a6f96' : '#d8dde6')}"></div>`; r.dataset.w = w; r.dataset.k = k; card.appendChild(r); return r; });
+  const br = E(g, '<div style="width:16px;height:186px;border:4px solid #5a6f96;border-left:none;border-radius:0 12px 12px 0"></div>', 1380, 445); const bl = E(g, '社会保険料', 1410, 515, 'a lab'); bl.style.color = '#5a6f96';
+  const tl = E(g, '税金', 1410, 637, 'a lab'); tl.style.color = 'var(--red)';
+  return (lt, S) => { show(h, appear(lt, 0.1)); show(p, appear(lt, 0.3), 20, 0.8); show(tg, appear(lt, 0.7), 10, 0.8); show(card, appear(lt, S[1] - 0.3, 0.6), 50);
+    rows.forEach((r, i) => { const k = eo(appear(lt, S[1] + i * 0.18)); r.style.opacity = k; r.querySelector('.bar').style.width = r.dataset.w * k + 'px'; if (r.dataset.k) r.querySelector('.mk').style.transform = `scaleX(${eio(appear(lt, S[2] + (r.dataset.k === 't' ? 0.9 : 0.2), 0.45))})`; });
+    show(br, appear(lt, S[2] + 0.5), 0); show(bl, appear(lt, S[2] + 0.6), 10); show(tl, appear(lt, S[2] + 1.2), 10); };
+});
+// 3 juminzei
+G([4], ['01', 'FIRST SALARY'], ['はじめての給料', '1年後には<br><em>住民税</em>も'], (g) => {
+  const h = H2(g, '1年後には<em>住民税</em>も');
+  const line = E(g, '', 360, 520, 'a'); Object.assign(line.style, { width: '1200px', height: '4px', background: '#cfc8ba', transformOrigin: '0 50%' });
+  const n1 = E(g, '<div style="width:34px;height:34px;border-radius:50%;background:#f3f0e6"></div>', 460, 505); const l1 = E(g, '1年目', 400, 560, 'a lab', 150);
+  const n2 = E(g, '<div style="width:34px;height:34px;border-radius:50%;background:var(--red)"></div>', 1300, 505); const l2 = E(g, '2年目', 1240, 560, 'a lab', 150);
+  const card = E(g, '<div class="row"><span>所得税</span><div class="bar" style="width:60px;background:#cf4a3c"></div></div>', 1110, 640, 'a card', 420); card.style.padding = '14px 30px';
+  const nr = document.createElement('div'); nr.className = 'row'; nr.style.borderBottom = 'none'; nr.innerHTML = '<span style="color:var(--red)">住民税 <span style="font-size:18px;background:var(--red);color:#fff;border-radius:6px;padding:2px 10px;margin-left:6px">NEW</span></span><div class="bar" style="width:90px;background:#cf4a3c"></div>'; card.appendChild(nr);
+  const note = E(g, '※住民税は前年の所得にかかるため、一般に翌年6月ごろから', 0, 880, 'a sm', 1920);
+  return (lt) => { show(h, appear(lt, 0.1)); line.style.transform = `scaleX(${eio(appear(lt, 0.3, 0.9))})`; show(n1, appear(lt, 0.4), 0, 0.3); show(l1, appear(lt, 0.5)); show(n2, appear(lt, 1.1), 0, 0.3); show(l2, appear(lt, 1.2)); show(card, appear(lt, 1.4), 30); show(nr, appear(lt, 1.9), -20); show(note, appear(lt, 2.2), 10); };
+});
+// 4 alone
+G([5], ['01', 'FIRST SALARY'], ['はじめての給料', '誰も<br><em>教えてくれない</em>'], (g) => {
+  const ring = E(g, '', 760, 300, 'a'); Object.assign(ring.style, { width: '400px', height: '400px', borderRadius: '50%', border: '3px dashed #cfc8ba' });
+  const p = E(g, circ(IC.person('#8a8f99'), 240), 840, 380); p.style.display = 'none';
+  const qs = [[700, 300], [1150, 340], [1080, 640]].map(([x, y]) => E(g, '?', x, y, 'a q'));
+  const cap = E(g, '何も知らないまま…', 0, 780, 'a lab', 1920); cap.style.color = 'var(--mute)';
+  return (lt) => { show(ring, appear(lt, 0.1), 0, 0.9); ring.style.transform += ` rotate(${lt * 8}deg)`; show(p, appear(lt, 0.2), 20, 0.85); qs.forEach((q, i) => { show(q, appear(lt, 0.8 + i * 0.6, 0.4), 0, 0.3); q.style.transform += ` translateY(${Math.sin(lt * 2 + i) * 6}px)`; }); show(cap, appear(lt, 2.4)); };
+});
+// 5 school
+G([6, 7], ['02', 'THE CLASS'], ['シリーズ', 'お金の<em>授業</em>'], (g) => {
+  const bd = E(g, '', 460, 230, 'a board'); Object.assign(bd.style, { width: '1000px', height: '600px' });
+  const t = E(g, 'お金の授業', 460, 300, 'a mc', 1000); t.style.color = '#fff'; t.style.fontSize = '96px';
+  const ln = E(g, '', 760, 440, 'a'); Object.assign(ln.style, { width: '400px', height: '3px', background: 'var(--gold)', transformOrigin: '0 50%' });
+  const c1 = E(g, `${IC.check('#c79a3e')}<span>わかりやすく</span>`, 690, 500, 'a'); const c2 = E(g, `${IC.check('#c79a3e')}<span>面白く</span>`, 690, 610, 'a');
+  [c1, c2].forEach((c) => Object.assign(c.style, { color: '#fff', fontSize: '50px', fontWeight: 900, display: 'flex', gap: '24px', alignItems: 'center' }));
+  return (lt, S) => { show(bd, appear(lt, 0.1, 0.6), 40, 0.96); show(t, appear(lt, 0.4)); ln.style.transform = `scaleX(${eio(appear(lt, 0.9, 0.6))})`; show(c1, appear(lt, S[1] + 0.1), 20); show(c2, appear(lt, S[1] + 1.4), 20); };
+});
+// 6 episode title
+G([8], ['03', 'INCOME TAX'], ['今回の授業', '<em>所得税</em>'], (g) => {
+  const a = E(g, '今回の授業は', 0, 280, 'a mc', 1920); a.style.fontSize = '60px'; a.style.color = 'var(--mute)';
+  const b = E(g, '所得税', 0, 380, 'a mc', 1920); b.style.fontSize = '230px'; b.style.color = 'var(--red)';
+  const ul = E(g, '', 610, 690, 'a'); Object.assign(ul.style, { width: '700px', height: '6px', background: 'var(--ink)', transformOrigin: '0 50%' });
+  const pl = E(g, `<div style="width:120px;height:120px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;box-shadow:0 16px 30px rgba(20,30,60,.3)">${IC.play()}</div>`, 900, 740);
+  return (lt, S) => { show(a, appear(lt, 0.1)); show(b, appear(lt, 0.6, 0.7), 20, 1.25); ul.style.transform = `scaleX(${eio(appear(lt, 1.3, 0.7))})`; show(pl, appear(lt, 1.8), 0, 0.4); };
+});
+// 7 define
+G([9, 10], ['03', 'WHAT IS IT'], ['所得税って？', '所得に応じて<br><em>一部を納める</em>'], (g) => {
+  const h = H2(g, '所得に応じて、<em>一部を納める</em>');
+  const L = [[0.42, 0.04], [0.68, 0.09], [1.0, 0.19]]; const W = 900;
+  const ppl = L.map((_, i) => E(g, circ(IC.person('#1d2940', 64), 100), 300, 330 + i * 170));
+  const bars = L.map(([w, r], i) => { const b = E(g, `<div style="height:56px;border-radius:12px;background:#d4c7a8;position:relative;overflow:hidden"><div class="tax" style="position:absolute;right:0;top:0;bottom:0;width:${r / w * 100}%;background:var(--red)"></div></div>`, 440, 352 + i * 170); b.dataset.w = w * W; return b; });
+  const lg = E(g, '<span style="display:inline-block;width:22px;height:22px;background:#d4c7a8;border-radius:5px;vertical-align:middle;margin-right:10px"></span>所得　<span style="display:inline-block;width:22px;height:22px;background:var(--red);border-radius:5px;vertical-align:middle;margin:0 10px 0 30px"></span>税金', 440, 270, 'a sm'); lg.style.fontSize = '26px';
+  const gov = E(g, circ(IC.gov(), 190), 1530, 480); const gl = E(g, '国', 1530, 690, 'a lab', 190);
+  const coins = L.map((_, i) => E(g, '', 0, 0, 'a coin r'));
+  return (lt, S) => { show(h, appear(lt, 0.1)); show(lg, appear(lt, 0.3));
+    ppl.forEach((p, i) => show(p, appear(lt, 0.3 + i * 0.2), 0, 0.6)); bars.forEach((b, i) => { b.style.width = b.dataset.w * eio(appear(lt, 0.5 + i * 0.25, 0.9)) + 'px'; b.style.opacity = lt > 0.5 + i * 0.25 ? 1 : 0; });
+    show(gov, appear(lt, S[1]), 0, 0.6); show(gl, appear(lt, S[1] + 0.1));
+    coins.forEach((c, i) => { const k = eio(appear(lt, S[1] + 0.5 + i * 0.25, 1.0)); const x0 = 440 + L[i][0] * W - 40, y0 = 350 + i * 170; const x1 = 1595, y1 = 545; const x = lerp(x0, x1, k), y = lerp(y0, y1, k) - Math.sin(k * Math.PI) * 120; pos(c, x, y, k > 0 && k < 1 ? 1 : 0, 1); }); };
+});
+// 8 self calc
+G([11, 12], ['04', 'ORIGINALLY'], ['所得税って？', '本来は<br><em>自分で計算</em>'], (g) => {
+  const h = H2(g, '本来は<em>自分で</em>申告・計算・納付');
+  const st = [['01', '申告', IC.doc()], ['02', '計算', IC.calc()], ['03', '納付', IC.gov('#1d2940', 100)]].map(([n, l, ic], i) => E(g, `<div class="num">${n}</div><div style="margin:20px 0 14px">${ic}</div><div class="lab" style="font-size:40px">${l}</div>`, 360 + i * 420, 330, 'a card step'));
+  const ar = [0, 1].map((i) => E(g, '<svg width="60" height="40"><path d="M4 20h44M36 8l14 12-14 12" stroke="#c79a3e" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>', 705 + i * 420, 475));
+  const who = E(g, '…これを全員が自分で？', 0, 760, 'a lab', 1920); who.style.color = 'var(--mute)';
+  return (lt, S) => { show(h, appear(lt, 0.1)); st.forEach((s, i) => show(s, appear(lt, 0.3 + i * 0.7), 40, 0.9)); ar.forEach((a, i) => show(a, appear(lt, 0.8 + i * 0.7), 0)); show(who, appear(lt, S[1] + 0.4)); };
+});
+// 9 commuters
+G([13, 14], ['05', 'SALARIED'], ['所得税って？', '日本は<br><em>会社員</em>が多い'], (g) => {
+  const h = H2(g, '日本は<em>会社勤め</em>が多い');
+  const ps = []; for (let r = 0; r < 3; r++) for (let c = 0; c < 9; c++) ps.push(E(g, IC.person('#5f7d72', 84), 470 + c * 110, 290 + r * 140));
+  const hl = new Set([0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 18, 19, 20, 21, 22, 24, 25]);
+  const lab = E(g, '<span style="color:#f3f0e6">●</span> 給与所得者（会社員など）', 0, 750, 'a lab', 1920);
+  return (lt, S) => { show(h, appear(lt, 0.1)); ps.forEach((p, i) => { show(p, appear(lt, 0.2 + i * 0.03, 0.35), 0, 0.5); const on = hl.has(i) && lt > S[1] + 0.2 + (i % 9) * 0.05; p.innerHTML = IC.person(on ? '#f3f0e6' : '#5f7d72', 84); }); show(lab, appear(lt, S[1] + 0.4)); };
+});
+// 10 company withholding
+G([15, 16, 17], ['06', 'WITHHOLDING'], ['源泉徴収とは？', '会社が<br><em>先に引いて納める</em>'], (g) => {
+  const h = H2(g, '会社が先に引いて、<em>国に納める</em>');
+  const co = E(g, circ(IC.building(), 200), 300, 420); const cl = E(g, '会社', 300, 640, 'a lab', 200);
+  const yo = E(g, circ(IC.person(), 200), 860, 420); const yl = E(g, 'あなた', 860, 640, 'a lab', 200);
+  const kn = E(g, circ(IC.gov(), 200), 1420, 420); const kl = E(g, '国（税務署）', 1395, 640, 'a lab', 250);
+  const p1 = E(g, svgPath('M520 520 L 840 520', '#c79a3e'), 0, 0); const p2 = E(g, svgPath('M440 420 C 700 200, 1240 200, 1500 410'), 0, 0);
+  const c1 = E(g, '', 0, 0, 'a coin'), c2 = E(g, '', 0, 0, 'a coin'), c3 = E(g, '', 0, 0, 'a coin r');
+  const pill = E(g, '先に差し引く', 860, 250, 'a pill red'); const lb = E(g, '残りが給料', 840, 740, 'a pill gold');
+  return (lt, S) => { show(h, appear(lt, 0.1)); show(co, appear(lt, 0.3), 0, 0.7); show(cl, appear(lt, 0.4)); show(yo, appear(lt, 0.6), 0, 0.7); show(yl, appear(lt, 0.7)); show(kn, appear(lt, 0.9), 0, 0.7); show(kl, appear(lt, 1.0));
+    p1.style.opacity = eo(appear(lt, S[1], 0.4)); p2.style.opacity = eo(appear(lt, S[1] + 0.6, 0.4)); [p1, p2].forEach((p) => p.querySelector('path').style.strokeDashoffset = -lt * 40);
+    [[c1, S[1] + 0.3], [c2, S[1] + 0.55]].forEach(([c, d]) => { const k = eio(appear(lt, d, 1.3)); pos(c, lerp(500, 870, k), 490, lt > d ? 1 : 0); });
+    { const k = eio(appear(lt, S[1] + 0.9, 2.0)); const path = p2.querySelector('path'); const L = path.getTotalLength(); const pt = path.getPointAtLength(L * k); pos(c3, pt.x - 30, pt.y - 30, lt > S[1] + 0.9 ? 1 : 0, 1 + 0.2 * Math.sin(k * Math.PI)); }
+    show(pill, appear(lt, S[1] + 1.0), 10, 0.8); show(lb, appear(lt, S[2] + 0.1), 10, 0.8); };
+});
+// 11 benefits
+G([18, 19], ['06', 'WHY'], ['源泉徴収とは？', 'この仕組みの<br><em>メリット</em>'], (g) => {
+  const h = H2(g, 'この仕組みの<em>2つのメリット</em>');
+  const a = E(g, `<div class="num">01</div><div style="margin:26px 0">${IC.shield('#1d2940', 130)}</div><div class="lab" style="font-size:40px">徴収漏れを防ぐ</div>`, 420, 300, 'a card', 500); a.style.padding = '44px'; a.style.textAlign = 'center';
+  const b = E(g, `<div class="num">02</div><div style="margin:26px 0">${IC.relax('#2f8f5b', 130)}</div><div class="lab" style="font-size:40px">納税の負担が減る</div>`, 1000, 300, 'a card', 500); b.style.padding = '44px'; b.style.textAlign = 'center';
+  return (lt, S) => { show(h, appear(lt, 0.1)); show(a, appear(lt, 0.3, 0.6), 50, 0.9); show(b, appear(lt, S[1] + 0.1, 0.6), 50, 0.9); };
+});
+// 12 gensen term
+G([20, 21, 22, 23], ['07', 'GENSEN'], ['源泉徴収とは？', 'これを<br><em>源泉徴収</em>という'], (g) => {
+  const mini = E(g, `<div style="display:flex;align-items:center;gap:30px">${circ(IC.building('#1d2940', 70), 120)}<svg width="160" height="30"><path d="M4 15h140M128 4l14 11-14 11" stroke="#cf4a3c" stroke-width="5" fill="none" stroke-linecap="round"/></svg><div class="pill red">天引き</div><svg width="160" height="30"><path d="M4 15h140M128 4l14 11-14 11" stroke="#cf4a3c" stroke-width="5" fill="none" stroke-linecap="round"/></svg>${circ(IC.gov('#cf4a3c', 70), 120)}</div>`, 0, 0); Object.assign(mini.style, { left: '50%', top: '330px', marginLeft: '-480px' });
+  const term = E(g, '<span class="g1">源泉</span>徴収', 0, 330, 'a mc', 1920); term.style.fontSize = '190px';
+  const st = E(g, 'といいます', 0, 600, 'a lab', 1920); st.style.color = 'var(--mute)';
+  const spr = E(g, circ(IC.spring(), 200), 520, 640); const sl = E(g, '<span style="color:#8cc4ff">源（みなもと）</span>＝お金が生まれるところ', 760, 700, 'a lab');
+  const ar = E(g, '<div style="display:flex;align-items:center;gap:20px"><svg width="180" height="30"><path d="M4 15h160M148 4l14 11-14 11" stroke="#ff8f80" stroke-width="5" fill="none" stroke-linecap="round"/></svg><span class="lab" style="color:var(--red)">その場で徴収</span></div>', 760, 780);
+  return (lt, S) => { const k1 = appear(lt, 0.2, 0.6); const out = 1 - eio(appear(lt, S[1] - 0.4, 0.4)); show(mini, Math.min(k1, out), 30); mini.style.marginLeft = '-480px';
+    const kt = appear(lt, S[1], 0.5); show(term, kt, 0, 1.3); const up = eio(appear(lt, S[2], 0.6)); term.style.top = lerp(330, 220, up) + 'px'; term.style.fontSize = lerp(190, 150, up) + 'px';
+    term.querySelector('.g1').style.color = lt > S[2] ? '#8cc4ff' : 'inherit'; show(st, Math.min(appear(lt, S[1] + 0.5), 1 - eio(appear(lt, S[2] - 0.3, 0.3))));
+    show(spr, appear(lt, S[2] + 0.3), 20, 0.7); show(sl, appear(lt, S[2] + 0.7), 10); show(ar, appear(lt, S[3] + 0.3), 10); };
+});
+// 13 months / december
+G([25, 26, 27, 28, 29], ['08', 'ESTIMATE'], ['年末調整とは？', '毎月の天引きは<br><em>見込み</em>'], (g) => {
+  const h = H2(g, '毎月の天引きは<em>見込み（概算）</em>');
+  const bars = []; for (let i = 0; i < 12; i++) { bars.push(E(g, '', 380 + i * 78, 0, 'a bar2')); bars[i].style.width = '56px'; }
+  const ml = [E(g, '1月', 370, 760, 'a sm', 80), E(g, '12月', 1230, 760, 'a sm', 80)];
+  const br = E(g, '<div style="width:930px;height:40px;border:4px dashed #c79a3e;border-bottom:none;border-radius:16px 16px 0 0"></div>', 375, 440); const brl = E(g, '1年分を予測して割り振り', 375, 390, 'a lab', 930); brl.style.color = 'var(--gold)';
+  const apx = E(g, '≈ 概算', 1170, 330, 'a pill gold');
+  const cmp = E(g, '', 1420, 300, 'a card', 420); cmp.style.height = '470px';
+  const lA = E(g, '天引きの合計', 1440, 720, 'a sm', 180), lB = E(g, '本当の税額', 1640, 720, 'a sm', 180);
+  const bA = E(g, '', 1480, 0, 'a bar2'); bA.style.background = 'linear-gradient(180deg,#2a3a5c,#1d2940)', bB = E(g, '', 1680, 0, 'a'); bA.style.width = bB.style.width = '100px'; bB.style.borderRadius = '12px 12px 4px 4px'; bB.style.background = 'linear-gradient(180deg,#d9b46a,#c79a3e)';
+  const gap = E(g, '', 1450, 0, 'a'); Object.assign(gap.style, { width: '360px', borderTop: '3px dashed var(--red)' }); const gl = E(g, '', 1430, 0, 'a pill red');
+  return (lt, S) => { show(h, appear(lt, 0.1));
+    bars.forEach((b, i) => { const k = back(appear(lt, 0.3 + i * 0.08, 0.5)); const hh = 200 * Math.max(0, k); b.style.height = hh + 'px'; b.style.top = (740 - hh) + 'px'; b.style.opacity = k > 0 ? 1 : 0; });
+    ml.forEach((m) => show(m, appear(lt, 1.0)));
+    show(br, appear(lt, S[1] + 0.2), -10); show(brl, appear(lt, S[1] + 0.4), 10); show(apx, appear(lt, S[2] + 0.1), 0, 0.6);
+    show(cmp, appear(lt, S[3]), 30); show(lA, appear(lt, S[3] + 0.2)); show(lB, appear(lt, S[3] + 0.2));
+    const over = lt < S[4] + 0.2; const tA = 300, tB = over ? 220 : 300, tA2 = over ? 300 : 210;
+    const kA = eo(appear(lt, S[3] + 0.3, 0.6)), kB = eo(appear(lt, S[3] + 0.5, 0.6)); const m = eio(appear(lt, S[4] + 0.2, 0.6));
+    const ha = kA * lerp(300, 210, m), hb = kB * lerp(220, 300, m); bA.style.height = ha + 'px'; bA.style.top = (700 - ha) + 'px'; bB.style.height = hb + 'px'; bB.style.top = (700 - hb) + 'px'; bA.style.opacity = bB.style.opacity = lt > S[3] + 0.3 ? 1 : 0;
+    const gy = 700 - Math.max(ha, hb); gap.style.top = gy + 'px'; gap.style.opacity = eo(appear(lt, S[3] + 1.1)); gl.style.top = (gy - 70) + 'px'; gl.style.left = '1550px'; gl.textContent = m < 0.5 ? '取りすぎ' : '足りない'; gl.className = 'a pill ' + (m < 0.5 ? 'red' : 'red'); show(gl, appear(lt, S[3] + 1.2), 0, 0.7); gl.style.top = (gy - 70) + 'px'; };
+});
+// 14 recalc / refund / extra
+G([31, 32, 33], ['09', 'ADJUST'], ['年末調整とは？', '1年分を<br><em>計算し直す</em>'], (g) => {
+  const h = H2(g, '1年分を<em>正確に計算</em>し直す');
+  const calc = E(g, `<div style="display:flex;align-items:center;gap:26px">${IC.calc('#1d2940', 110)}<div><div class="sm" style="text-align:left">1年間の給与</div><div class="dig" style="font-family:Inter;font-weight:800;font-size:64px;color:var(--ink);letter-spacing:.06em">000,000</div></div></div>`, 700, 300, 'a card'); calc.style.padding = '30px 50px';
+  const L = E(g, `<div style="display:flex;align-items:center;gap:22px"><div class="coin gr"></div><div><div class="lab" style="color:var(--green);text-align:left">取りすぎ → 返ってくる</div><div class="sm" style="text-align:left">還付</div></div></div>`, 360, 640);
+  const R = E(g, `<div style="display:flex;align-items:center;gap:22px"><div class="coin r"></div><div><div class="lab" style="color:var(--red);text-align:left">足りない → 追加で徴収</div><div class="sm" style="text-align:left">追加徴収</div></div></div>`, 1060, 640);
+  const aL = E(g, svgPath('M860 480 C 760 560, 640 580, 560 630', '#8be0a8', 5, '0'), 0, 0), aR = E(g, svgPath('M1060 480 C 1160 560, 1240 580, 1300 630', '#ff8f80', 5, '0'), 0, 0);
+  return (lt, S) => { show(h, appear(lt, 0.1)); show(calc, appear(lt, 0.3), 40, 0.9);
+    const dg = calc.querySelector('.dig'); const fin = lt > 2.2; dg.textContent = fin ? '確定' : String(Math.floor((Math.sin(lt * 37) * 0.5 + 0.5) * 900000 + 100000)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); dg.style.color = fin ? 'var(--green)' : 'var(--ink)';
+    [[aL, L, S[1]], [aR, R, S[2]]].forEach(([a, b, s]) => { const p = a.querySelector('path'); const len = p.getTotalLength(); p.style.strokeDasharray = len; p.style.strokeDashoffset = len * (1 - eio(appear(lt, s, 0.5))); show(b, appear(lt, s + 0.3), 20, 0.9); }); };
+});
+// 15 nenmatsu term
+G([30], ['10', 'NENMATSU'], ['年末調整とは？', 'それを精算する<br><em>年末調整</em>'], (g) => {
+  const a = E(g, 'それを精算するのが', 0, 270, 'a mc', 1920); a.style.fontSize = '56px'; a.style.color = 'var(--mute)';
+  const t = E(g, '年末調整', 0, 350, 'a mc', 1920); t.style.fontSize = '200px';
+  const cal = E(g, `<div style="position:relative">${IC.cal('#cf4a3c', 150)}<div style="position:absolute;left:0;top:54px;width:150px;text-align:center;font-family:Inter;font-weight:800;font-size:40px;color:var(--red)">12</div></div>`, 885, 650);
+  return (lt) => { show(a, appear(lt, 0.1)); show(t, appear(lt, 0.4, 0.5), 0, 1.3); show(cal, appear(lt, 1.2), 20, 0.6); };
+});
+// 16 insurance
+G([35, 36, 37], ['10', 'DEDUCTIONS'], ['年末調整とは？', '各種控除を<br><em>まとめて整理</em>'], (g) => {
+  const h = H2(g, '保険料などの<em>控除</em>を、ここで整理');
+  const docs = [['生命保険料', '控除証明書', '#cf4a3c'], ['地震保険料', '控除証明書', '#2f6fb3'], ['など', '', '#8a8f99']].map(([a, b, c], i) => E(g, `<div style="height:16px;background:${c};border-radius:12px 12px 0 0;margin:-34px -34px 24px"></div><div class="lab" style="font-size:34px">${a}</div><div class="sm" style="font-size:24px;margin-top:6px">${b}</div>`, 380 + i * 400, 330, 'a card', 340));
+  docs.forEach((d) => { d.style.padding = '34px'; d.style.height = '220px'; });
+  const tray = E(g, `<div style="display:flex;align-items:center;gap:20px">${IC.doc('#1d2940', 70)}<span class="lab">各種控除</span><span class="rc" style="margin-left:30px">${IC.calc('#2f8f5b', 70)}</span><span class="lab rc" style="color:var(--green)">改めて計算</span></div>`, 0, 0, 'a card'); Object.assign(tray.style, { left: '560px', top: '640px', padding: '24px 50px' });
+  return (lt, S) => { show(h, appear(lt, 0.1)); const m = eio(appear(lt, S[1] + 0.2, 0.8));
+    docs.forEach((d, i) => { const k = appear(lt, 0.3 + i * 0.35); show(d, k, 40, 0.9); if (k >= 1) { d.style.transform = `translate(${lerp(0, (1 - i) * 60, m)}px, ${lerp(0, -40, m)}px) scale(${lerp(1, 0.8, m)}) rotate(${lerp(0, (i - 1) * 3, m)}deg)`; d.style.opacity = 1; } });
+    show(tray, appear(lt, S[1] + 0.6), 20, 0.9); tray.querySelectorAll('.rc').forEach((e) => e.style.opacity = eo(appear(lt, S[2] + 0.1))); };
+});
+// 17 forget + books
+G([38, 39, 40, 41], ['11', 'CAUTION'], ['年末調整の注意点', '整理しないと<br><em>返ってこない</em>'], (g) => {
+  const h = H2(g, '整理しないと…');
+  const w = E(g, IC.warn('#cf4a3c', 130), 895, 270);
+  const kn = E(g, circ(IC.gov(), 170), 420, 470); const yo = E(g, circ(IC.person(), 170), 1330, 470);
+  const coin = E(g, '', 0, 0, 'a coin gr'); const cl = E(g, '返ってくるはずの税金', 700, 420, 'a pill green');
+  const x = E(g, IC.cross('#cf4a3c', 150), 885, 470);
+  const books = [0, 1, 2].map((i) => E(g, IC.book(['#f3f0e6', '#ecc66a', '#8cc4ff'][i], 140), 640 + i * 230, 420)); const bl = E(g, IC.bulb('#c79a3e', 120), 900, 250); const bt = E(g, '知識をたくわえておこう', 0, 640, 'a lab', 1920); bt.style.fontSize = '46px';
+  return (lt, S) => { const out = 1 - eio(appear(lt, (S[3] ?? 99) - 0.3, 0.4)); const ins = appear(lt, (S[3] ?? 99), 0.5);
+    show(h, Math.min(appear(lt, 0.1), out)); show(w, Math.min(appear(lt, 0.3), out), 0, 0.5); w.style.transform += ` rotate(${Math.sin(lt * 8) * 4 * (lt < 1.5 ? 1 : 0)}deg)`;
+    show(kn, Math.min(appear(lt, S[1]), out), 0, 0.7); show(yo, Math.min(appear(lt, S[1] + 0.2), out), 0, 0.7); show(cl, Math.min(appear(lt, S[1] + 0.5), out), 10);
+    const k = eio(appear(lt, S[1] + 0.6, 1.6)); const stop = 0.42; const kk = lt > S[2] ? stop : Math.min(k, stop + (lt < S[2] ? 0.5 : 0)); pos(coin, lerp(560, 1390, kk), 525 - Math.sin(kk * Math.PI) * 140 + (lt > S[2] ? eio(appear(lt, S[2] + 0.4, 0.6)) * 260 : 0), lt > S[1] + 0.6 ? out * (lt > S[2] + 0.6 ? 1 - eio(appear(lt, S[2] + 0.6, 0.6)) * 0.7 : 1) : 0);
+    show(x, Math.min(appear(lt, S[2] + 0.2, 0.3), out), 0, 2.0);
+    books.forEach((b, i) => { show(b, appear(lt, (S[3] ?? 99) + 0.2 + i * 0.3), 60, 0.6); }); show(bl, appear(lt, (S[3] ?? 99) + 1.2), 20, 0.5); show(bt, appear(lt, (S[3] ?? 99) + 1.0)); };
+});
+// 18 end
+G([42, 43, 44, 45], ['12', 'SEE YOU'], ['まとめ', 'それが<br><em>君たちの仕事だ！</em>'], (g) => {
+  const a = E(g, '今日の授業は、ここまで。', 0, 250, 'a mc', 1920); a.style.fontSize = '84px';
+  const b = E(g, '生きていく上で大切な<em>お金の知識</em>', 0, 390, 'a mc', 1920); b.style.fontSize = '58px';
+  const w = ['よく学び', 'よく食べ', 'よく寝る'].map((x, i) => { const e = E(g, x, 390 + i * 390, 330, 'a', 360); Object.assign(e.style, { fontFamily: '"Klee One"', fontWeight: 600, fontSize: '80px', color: 'var(--ink)', textAlign: 'center', whiteSpace: 'nowrap' }); return e; });
+  const ul = E(g, '', 480, 450, 'a'); Object.assign(ul.style, { width: '960px', height: '5px', background: 'var(--gold)', transformOrigin: '0 50%', borderRadius: '3px' });
+  const f = E(g, 'それが<em style="font-style:normal;color:var(--gold)">君たちの仕事</em>だ！', 0, 560, 'a mc', 1920); f.style.fontSize = '112px';
+  return (lt, S) => { const out1 = 1 - eio(appear(lt, S[2] - 0.35, 0.35));
+    show(a, Math.min(appear(lt, 0.1), out1)); show(b, Math.min(appear(lt, S[1] + 0.1), out1));
+    w.forEach((e, i) => { const k = eo(appear(lt, S[2] + 0.1 + i * 0.55, 0.45)); e.style.opacity = k; e.style.clipPath = `inset(0 ${100 - k * 100}% 0 0)`; });
+    ul.style.transform = `scaleX(${eio(appear(lt, S[3] - 0.2, 0.5))})`; show(f, appear(lt, S[3] + 0.1, 0.45), 0, 1.35); };
+});
+
+G([24], ['07', 'TEST'], ['源泉徴収とは？', 'テストに<br><em>出るぞ</em>'], (g) => {
+  const t = E(g, '源泉徴収', 0, 300, 'a mc', 1920); t.style.fontSize = '190px';
+  const u1 = E(g, '', 560, 560, 'a'), u2 = E(g, '', 580, 580, 'a'); [u1, u2].forEach((u, i) => Object.assign(u.style, { width: (800 - i * 40) + 'px', height: '6px', background: 'var(--gold)', transformOrigin: '0 50%', borderRadius: '3px' }));
+  const st = E(g, '<div class="stamp" style="font-size:64px;background:rgba(255,143,128,.08);border-color:var(--red);color:var(--red)">テストに出る！</div>', 1180, 170);
+  const n = E(g, '源から徴収する仕組み', 0, 650, 'a lab', 1920); n.style.color = 'var(--mute)';
+  return (lt) => { show(t, appear(lt, 0.1), 20); u1.style.transform = `scaleX(${eio(appear(lt, 0.5, 0.4))})`; u2.style.transform = `scaleX(${eio(appear(lt, 0.75, 0.4))})`;
+    const k = appear(lt, 1.0, 0.25); st.style.opacity = clamp(k * 3); st.style.transform = `rotate(-8deg) scale(${lerp(2.2, 1, eo(k))})`; show(n, appear(lt, 1.4)); };
+});
+G([34], ['10', 'BY COMPANY'], ['年末調整とは？', '会社が<br><em>やってくれる</em>'], (g) => {
+  const h = H2(g, '年末調整は<em>会社</em>がやってくれる');
+  const co = E(g, circ(IC.building(), 200), 520, 380); const cl = E(g, '会社', 520, 600, 'a lab', 200);
+  const ar = E(g, '<svg width="260" height="40"><path d="M6 20h230M218 6l20 14-20 14" stroke="#ecc66a" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>', 760, 460);
+  const card = E(g, `<div style="display:flex;align-items:center;gap:22px">${IC.cal('#cf4a3c', 90)}<div class="lab" style="font-size:52px">年末調整</div><div class="ck" style="width:70px;height:70px;border-radius:50%;background:#2f8f5b;display:flex;align-items:center;justify-content:center">${IC.check('#fff', 46)}</div></div>`, 1060, 410, 'a card'); card.style.padding = '30px 44px';
+  return (lt) => { show(h, appear(lt, 0.1)); show(co, appear(lt, 0.3), 0, 0.7); show(cl, appear(lt, 0.4)); const p = ar.querySelector('path'); ar.style.opacity = lt > 0.7 ? 1 : 0; ar.style.clipPath = `inset(0 ${100 - eio(appear(lt, 0.7, 0.5)) * 100}% 0 0)`;
+    show(card, appear(lt, 1.1), 20, 0.9); const ck = card.querySelector('.ck'); ck.style.transform = `scale(${back(appear(lt, 1.7, 0.4))})`; };
+});
+// 19 disclaimer
+X([99], ['--', 'NOTICE'], ['ご注意', '情報提供<br>目的です'], (g) => {
+  const c = E(g, '<div class="pill" style="display:inline-block;font-size:26px;margin-bottom:30px">ご注意</div><div class="lab" style="font-size:52px;line-height:1.5">情報提供目的です。<br>投資判断はご自身で。</div><div class="sm" style="margin-top:26px;font-size:24px">数値は2026年11月時点</div>', 560, 300, 'a card', 800); c.style.padding = '60px'; c.style.textAlign = 'center';
+  return (lt) => show(c, appear(lt, 0.1), 30, 0.95);
+});
+// ------------------------------------------------------------------------------
+
+// ---- illustration groups (full-screen Tora-sensei art + overlays)
+const IL = document.getElementById('ill');
+function GI(scenes, chap, head, key, focus, ovb) {
+  GROUPS.push({ scenes, chap, head, ill: true, build: () => {
+    const d = document.createElement('div'); d.className = 'ig'; IL.appendChild(d);
+    d.innerHTML = `<div class="blur" style="background-image:url(ill/${key}_bg.jpg)"></div><div class="panel"><div class="inner"><div class="bgl" style="background-image:url(ill/${key}_bg.jpg)"></div><div class="fgl" style="background-image:url(ill/${key}_fg.png)"></div><div class="grad"></div></div></div>`;
+    const bg = d.querySelector('.bgl'), fg = d.querySelector('.fgl'); [bg, fg].forEach((e) => e.style.transformOrigin = `${focus[0] * 100}% ${focus[1] * 100}%`);
+    const ov = ovb ? ovb(d) : () => {};
+    return { el: d, upd: (lt, S, D) => { const k = eio(clamp(lt / D)); bg.style.transform = `scale(${1.02 + 0.03 * k})`;
+      fg.style.transform = `scale(${1.02 + 0.075 * k}) translateY(${-6 * k}px) scaleY(${1 + 0.006 * Math.sin(lt * 2.2)})`; ov(lt, S); } };
+  } });
+}
+const OV = (d, html, v, h, cls = 'ov') => { const e = document.createElement('div'); e.className = cls; e.innerHTML = html; const p = MODE === 'v' ? v : h; const zf = MODE === 'v' ? 1 : 0.85; e.style.left = p[0] / zf + 'px'; e.style.top = p[1] / zf + 'px'; if (p[2] && MODE === 'v') e.style.width = p[2] + 'px'; d.appendChild(e); return e; };
+const MC = (html, size, color = 'var(--ink)') => `<div class="mc" style="font-size:${size}px;color:${color};white-space:nowrap">${html}</div>`;
+// title sting
+GROUPS.push({ scenes: [0], chap: ['00', 'MONEY CLASS'], head: ['シリーズ', '本当は<br>学校で教えて欲しい'], ill: true, sting: true, build: () => {
+  const d = document.createElement('div'); d.className = 'ig'; IL.appendChild(d);
+  d.innerHTML = `<div class="stg"><div class="rays"></div><div class="wrap"><svg style="position:absolute;left:-210px;top:-210px" width="420" height="420" viewBox="0 0 420 420"><circle cx="210" cy="210" r="196" fill="none" stroke="#c79a3e" stroke-width="6" stroke-dasharray="1232" stroke-dashoffset="1232" stroke-linecap="round" transform="rotate(-90 210 210)"/></svg><div class="face"><img src="real/face.png"></div><div class="nm"><div class="s">本当は学校で教えて欲しい</div><div class="t">金欠先生の<em>お金の授業</em></div></div></div></div>`;
+  const rays = d.querySelector('.rays'), ring = d.querySelector('circle'), face = d.querySelector('.face'), fimg = face.querySelector('img'), nm = d.querySelector('.nm');
+  return { el: d, upd: (t) => { rays.style.transform = `rotate(${t * 12}deg) scale(${0.8 + 0.2 * eo(t / 0.8)})`; rays.style.opacity = eo(t / 0.6); ring.style.strokeDashoffset = 1232 * (1 - eo((t - 0.1) / 0.7));
+    face.style.transform = `scale(${back((t - 0.35) / 0.5)})`; face.style.opacity = clamp((t - 0.35) / 0.15); fimg.style.transform = `rotate(${Math.sin(t * 6) * 3 * Math.exp(-Math.max(0, t - 0.8) * 1.5)}deg)`;
+    const n = eo((t - 0.9) / 0.5); nm.style.opacity = n; nm.style.transform = `translateY(${(1 - n) * 30}px)`; } };
+} });
+GROUPS.sort((p, q) => p.scenes[0] - q.scenes[0]);
+const SPOSE = ['', 'p3', 'p3', 'p4', 'p4', 'p1', 'p5', 'p5', 'p2', 'p6', 'p6', 'p9', 'p9', 'p1', 'p1', 'p3', 'p3', 'p3', 'p6', 'p6', 'p2', 'p2', 'p2', 'p2', 'p8',
+  'p9', 'p9', 'p9', 'p4', 'p4', 'p2', 'p8', 'p8', 'p8', 'p3', 'p6', 'p6', 'p6', 'p4', 'p4', 'p4', 'p9', 'p5', 'p5', 'p7', 'p7'];
+
+
+const groupsEl = document.getElementById('groups');
+function initGroups() {
+  GROUPS.forEach((gr) => { if (gr.ill) { const r = gr.build(); gr.el = r.el; gr.upd = r.upd; } else { const d = document.createElement('div'); d.className = 'g'; groupsEl.appendChild(d); gr.el = d; gr.upd = gr.build(d); }
+    gr.t0 = TL.scenes[gr.scenes[0]].start; gr.t1 = TL.scenes[gr.scenes[gr.scenes.length - 1]].end; gr.S = gr.scenes.map((i) => TL.scenes[i].start - gr.t0); });
+}
+let lastHead = '';
+window.renderAt = (t) => {
+  let illA = 0, stingA = 0; const PW = {};
+  GROUPS.forEach((gr, gi) => { const inA = eo((t - gr.t0) / 0.45), outA = gi === GROUPS.length - 1 ? 1 : 1 - eio((t - (gr.t1 - 0.3)) / 0.3); const a = Math.min(inA, outA);
+    const vis = t >= gr.t0 - 0.01 && t < gr.t1 + 0.01 && a > 0.001; gr.el.style.display = vis ? 'block' : 'none';
+    if (vis) { gr.el.style.opacity = a; const lt = t - gr.t0; if (!gr.ill) gr.el.style.transform = `scale(${1 + 0.015 * clamp(lt / (gr.t1 - gr.t0))}) translateY(${(1 - inA) * 30}px)`; gr.upd(lt, gr.S, gr.t1 - gr.t0);
+      if (gr.ill) illA = Math.max(illA, a); if (gr.sting) stingA = Math.max(stingA, a); 
+      document.getElementById('chn').textContent = gr.chap[0]; document.getElementById('chs').textContent = gr.chap[1];
+      const hk = gr.head.join('|'); if (hk !== lastHead) { document.getElementById('vtag').textContent = gr.head[0]; document.getElementById('vt').innerHTML = gr.head[1]; lastHead = hk; } } });
+  // subtitles
+  const sc = TL.scenes.find((s) => t >= s.start && t < s.end) || TL.scenes[TL.scenes.length - 1]; const subt = document.getElementById('subt'), vs = document.getElementById('vsub');
+  const ch = sc.chunks; let cur = ch.findIndex((c) => t < c.end); if (cur < 0) cur = ch.length - 1;
+  const parts = ch.map((c, i) => `<i style="color:${i === cur ? '#f0c766' : (i < cur ? '#fff' : 'rgba(255,255,255,.4)')}">${c.display}</i>`);
+  { const CH = [['はじめに', 1], ['所得税とは', 9], ['源泉徴収', 15], ['年末調整', 25], ['まとめ', 42]]; const i = Math.max(0, TL.scenes.findIndex((s2) => t >= s2.start && t < s2.end));
+    let ci = 0; CH.forEach((c, k) => { if (i >= c[1]) ci = k; }); const bar = document.getElementById('chapbar');
+    if (!bar.dataset.ok) { bar.innerHTML = CH.map((c, k) => `<span class="c" data-k="${k}">${c[0]}</span>` + (k < CH.length - 1 ? '<span class="a">›</span>' : '')).join(''); bar.dataset.ok = 1; }
+    bar.querySelectorAll('.c').forEach((e) => { const k = +e.dataset.k; e.className = 'c' + (k === ci ? ' on' : (k < ci ? ' done' : '')); }); bar.style.opacity = i === 0 ? 0 : 1; }
+  subt.innerHTML = parts.join(''); vs.innerHTML = parts.join(ch.length > 2 ? '<wbr>' : '<br>'); const a = eo((t - ch[0].start + 0.1) / 0.2); subt.parentElement.style.opacity = a * (1 - stingA); vs.style.opacity = a * (1 - stingA);
+  document.getElementById('tora').style.opacity = 1 - illA;
+  { const i = Math.max(0, TL.scenes.findIndex((s2) => t >= s2.start && t < s2.end)); const lt = t - TL.scenes[i].start; const cur = SPOSE[i], prv = SPOSE[i - 1] || '';
+    const k = cur === prv ? 1 : eo(lt / 0.35);
+    let nod = 0; TL.scenes.forEach((s2) => s2.chunks.forEach((c) => { const d = t - c.start; if (d > 0 && d < 1.2) nod += 1.2 * Math.exp(-d * 4) * Math.sin(d * 11); }));
+    document.querySelectorAll('#tora .pz').forEach((p) => { const key = p.dataset.k; const w = key === cur ? k : (key === prv ? 1 - k : 0); p.style.opacity = w;
+      p.style.transform = `translateY(${(1 - w) * 24}px) rotate(${nod * 0.5}deg) scale(${(0.97 + 0.03 * w) * (1 + 0.006 * Math.sin(t * 2.2))})`; }); }
+};
+fetch('timeline.json').then((r) => r.json()).then(async (tl) => { TL = tl; initGroups(); await document.fonts.ready; window.renderAt(0); window.ready = true; });
+</script></body></html>
