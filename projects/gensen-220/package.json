@@ -1,0 +1,19 @@
+{
+  "name": "gensen-220",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio",
+    "render:opening": "remotion render Opening out/opening.mp4"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.546",
+    "@remotion/media-utils": "4.0.546",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "remotion": "4.0.546"
+  },
+  "devDependencies": {
+    "@types/react": "19.2.2",
+    "typescript": "5.9.3"
+  }
+}
