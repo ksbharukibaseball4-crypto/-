@@ -3,6 +3,7 @@ import { AbsoluteFill, Audio, Img, Sequence, interpolate, Easing, staticFile, us
 import { FPS, openingShots, Shot } from './timeline';
 import { loadFonts } from './fonts';
 import imgs from '../public/img/available.json';
+import eng from '../public/img/eng/scenes.json';
 
 loadFonts();
 const C = { ink: '#14171d', paper: '#f4efe4', red: '#c8402f', gold: '#c9a24a', navy: '#1d2940', mute: '#8a8f99' };
@@ -16,7 +17,7 @@ const Subtitle: React.FC<{ text: string; dur: number }> = ({ text, dur }) => {
   const f = useCurrentFrame(); const o = Math.min(ramp(f, 0, 6), 1 - ramp(f, dur - 6, dur));
   return (
     <AbsoluteFill style={{ justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 72 }}>
-      <div style={{ opacity: o, fontFamily: SANS, fontWeight: 700, fontSize: 42, color: '#fff', letterSpacing: '0.04em', textShadow: '0 2px 10px rgba(0,0,0,.85), 0 0 2px rgba(0,0,0,.9)', maxWidth: 1500, textAlign: 'center', lineHeight: 1.45 }}>{text}</div>
+      <div style={{ opacity: o, fontFamily: SANS, fontWeight: 700, fontSize: 42, color: '#fff', letterSpacing: '0.04em', textShadow: '0 2px 10px rgba(0,0,0,.85), 0 0 2px rgba(0,0,0,.9)', maxWidth: 1780, textAlign: 'center', lineHeight: 1.45 }}>{text}</div>
     </AbsoluteFill>
   );
 };
@@ -162,6 +163,36 @@ const Print: React.FC<{ src: string; dur: number; bands?: [number, number, numbe
     </AbsoluteFill>
   );
 };
+
+// ---------- self-made engraving (fallback for archival prints): layered parallax ----------
+type EngLayer = { src: string; speed: number; drift?: number; flashes?: number[][] };
+const Engraving: React.FC<{ scene: 'london' | 'battle'; dur: number; zoom: [number, number]; origin: string; pan: [number, number]; flashAt?: number[] }> = ({ scene, dur, zoom, origin, pan, flashAt = [] }) => {
+  const f = useCurrentFrame(); const k = interpolate(f, [0, dur], [0, 1], { extrapolateRight: 'clamp', easing: Easing.bezier(0.4, 0, 0.6, 1) });
+  const z = zoom[0] + (zoom[1] - zoom[0]) * k; const px = pan[0] + (pan[1] - pan[0]) * k;
+  const tf = (l: EngLayer) => `translateX(${px * l.speed + (l.drift ?? 0) * k}px) scale(${1 + 0.02 * l.speed})`;
+  const layers = (eng as unknown as Record<string, { layers: EngLayer[] }>)[scene].layers; const sc = 1920 / (eng as unknown as { size: number[] }).size[0];
+  return (
+    <AbsoluteFill style={{ transform: `scale(${z})`, transformOrigin: origin, background: '#ece1c8' }}>
+      {layers.map((l, i) => (
+        <AbsoluteFill key={i} style={{ transform: tf(l) }}><Img src={staticFile(`img/eng/${l.src}`)} style={{ width: 1920, height: 1080 }} /></AbsoluteFill>
+      ))}
+      {layers.filter((l) => l.flashes).map((l, i) => (
+        <AbsoluteFill key={'f' + i} style={{ transform: tf(l) }}>
+          {flashAt.map((t0, j) => l.flashes!.map(([x, y], n) => {
+            const t = f - t0 - n * 1.5; if (t < 0 || t > 14) return null;
+            const a = t < 2 ? t / 2 : Math.exp(-(t - 2) / 3.5);
+            return <div key={`${j}-${n}`} style={{ position: 'absolute', left: x * sc - 70, top: y * sc - 70, width: 140, height: 140, borderRadius: '50%', opacity: a, mixBlendMode: 'plus-lighter', background: 'radial-gradient(circle, rgba(255,240,200,1) 0%, rgba(255,170,70,.75) 22%, rgba(255,120,40,0) 70%)' }} />;
+          }))}
+          {flashAt.map((t0, j) => l.flashes!.filter((_, n) => n % 2 === 0).map(([x, y], n) => {
+            const t = f - t0 - n * 3; if (t < 0) return null;
+            const r = 40 + 70 * (1 - Math.exp(-t / 18)); const a = Math.min(1, t / 4) * Math.exp(-t / 70) * 0.8;
+            return <div key={`p${j}-${n}`} style={{ position: 'absolute', left: x * sc - r + t * 0.25, top: y * sc - r * 1.1 - t * 0.5, width: r * 2, height: r * 1.6, borderRadius: '50%', opacity: a, filter: 'blur(14px)', background: 'radial-gradient(circle at 50% 60%, rgba(236,226,206,.95) 0%, rgba(214,204,184,.7) 45%, rgba(200,190,170,0) 72%)' }} />;
+          }))}
+        </AbsoluteFill>
+      ))}
+    </AbsoluteFill>
+  );
+};
 const Fallback: React.FC<{ title: string }> = ({ title }) => (
   <AbsoluteFill style={{ background: '#2b2318', justifyContent: 'center', alignItems: 'center', fontFamily: MIN, fontSize: 48, color: '#e7d9b8' }}>{title}（画像取得待ち）</AbsoluteFill>
 );
@@ -195,18 +226,20 @@ export const Opening: React.FC = () => {
       <Sequence from={modernFrom} durationInFrames={modernDur}><Modern shots={shots} /></Sequence>
       <Sequence from={S.O6.from} durationInFrames={S.O6.dur + 12}>
         <AbsoluteFill style={{ opacity: 1 }}>
-          {L.london ? <Print src="img/london.jpg" dur={S.O6.dur} zoom={[1.08, 1.16]} origin="55% 55%" pan={[40, -60]} bands={[[0, 42, 0.3], [36, 70, 0.7], [64, 100, 1.2]]} /> : <Fallback title="ロンドン 1809年" />}
+          {L.london ? <Print src="img/london.jpg" dur={S.O6.dur} zoom={[1.08, 1.16]} origin="55% 55%" pan={[40, -60]} bands={[[0, 42, 0.3], [36, 70, 0.7], [64, 100, 1.2]]} /> : <Engraving scene="london" dur={S.O6.dur} zoom={[1.06, 1.15]} origin="58% 55%" pan={[50, -70]} />}
           <Paper amount={0.35} /><Grain amount={0.1} />
         </AbsoluteFill>
-        <Tag kind="shiryo" credit="トマス・ローランドソン《A View of London from the Thames》1809年／メトロポリタン美術館（CC0）" dur={S.O6.dur} />
+        {L.london ? <Tag kind="shiryo" credit="トマス・ローランドソン《A View of London from the Thames》1809年／メトロポリタン美術館（CC0）" dur={S.O6.dur} />
+          : <Tag kind="saigen" credit="1800年ごろのロンドン（テムズ川からの眺め）を銅版画風に制作" src={S.O6.line?.src || undefined} dur={S.O6.dur} />}
       </Sequence>
       <Sequence from={S.O7.from} durationInFrames={S.O7.dur + 12}>
         <AbsoluteFill>
-          {L.plumpudding ? <Print src="img/plumpudding.jpg" dur={S.O7.dur} zoom={[1.02, 1.5]} origin="28% 42%" /> : <Fallback title="ギルレイ 1805年" />}
+          {L.plumpudding ? <Print src="img/plumpudding.jpg" dur={S.O7.dur} zoom={[1.02, 1.5]} origin="28% 42%" /> : <Engraving scene="battle" dur={S.O7.dur} zoom={[1.03, 1.2]} origin="62% 62%" pan={[30, -40]} flashAt={[sec(0.6), sec(3.0)]} />}
           <AbsoluteFill style={{ background: 'linear-gradient(100deg, transparent 30%, rgba(255,236,190,.18) 45%, transparent 60%)', transform: `translateX(${0}px)` }} />
           <Paper amount={0.3} /><Grain amount={0.1} />
         </AbsoluteFill>
-        <Tag kind="shiryo" credit="ジェイムズ・ギルレイ《The Plumb-pudding in danger》1805年／メトロポリタン美術館（CC0）　左：ピット　右：ナポレオン" dur={S.O7.dur} />
+        {L.plumpudding ? <Tag kind="shiryo" credit="ジェイムズ・ギルレイ《The Plumb-pudding in danger》1805年／メトロポリタン美術館（CC0）　左：ピット　右：ナポレオン" dur={S.O7.dur} />
+          : <Tag kind="saigen" credit="フランスとの戦争（1793〜1815年）の海戦を銅版画風に制作" dur={S.O7.dur} />}
       </Sequence>
       <Sequence from={S.O8.from} durationInFrames={S.O8.dur}><Title dur={S.O8.dur} lineFrom={S.O8.lineFrom ?? 0} /></Sequence>
       {/* crossfades between historical shots */}
@@ -231,6 +264,7 @@ export const Opening: React.FC = () => {
       <Sequence from={S.O5.from + sec(1.0)}><Audio src={staticFile('sfx/rewind.wav')} volume={0.5} /></Sequence>
       <Sequence from={S.O6.from} durationInFrames={S.O6.dur + S.O7.dur}><Audio src={staticFile('sfx/wind.wav')} volume={0.35} loop /></Sequence>
       <Sequence from={S.O7.from + sec(0.6)}><Audio src={staticFile('sfx/cannon.wav')} volume={0.55} /></Sequence>
+      <Sequence from={S.O7.from + sec(3.0)}><Audio src={staticFile('sfx/cannon.wav')} volume={0.4} /></Sequence>
       <Sequence from={S.O8.from + (S.O8.lineFrom ?? 0) + sec(2.6)}><Audio src={staticFile('sfx/stamp.wav')} volume={0.45} /></Sequence>
       <Sequence from={S.O8.from + (S.O8.lineFrom ?? 0) + sec(2.6)}><Audio src={staticFile('sfx/boom.wav')} volume={0.35} /></Sequence>
     </AbsoluteFill>
